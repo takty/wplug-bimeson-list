@@ -2,7 +2,7 @@
  *
  * Filter Modification (JS)
  *
- * @author Takuto Yanagida @ Space-Time Inc.
+ * @author Takuto Yanagida
  * @version 2020-05-28
  *
  */

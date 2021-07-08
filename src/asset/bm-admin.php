@@ -5,8 +5,8 @@ namespace st;
  *
  * Bimeson (Admin)
  *
- * @author Takuto Yanagida @ Space-Time Inc.
- * @version 2020-06-04
+ * @author Takuto Yanagida
+ * @version 2021-07-08
  *
  */
 
@@ -43,11 +43,11 @@ class Bimeson_Admin {
 	}
 
 	public function enqueue_script( $url_to = false ) {
-		if ( $url_to === false ) $url_to = \st\get_file_uri( __DIR__ );
+		if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
 		$url_to = untrailingslashit( $url_to );
 
-		$post_id = \st\get_post_id();
-		$post_type = \st\get_post_type_in_admin( $post_id );
+		$post_id   = get_post_id();
+		$post_type = get_post_type_in_admin( $post_id );
 		if ( $post_type === Bimeson_List::PT ) {
 		} else {
 			wp_enqueue_style(  self::NS . '_filter_admin', $url_to . '/asset/bm-admin.min.css' );
@@ -62,7 +62,7 @@ class Bimeson_Admin {
 		\add_meta_box( "bimeson_admin_mb", $label, [ $this, '_cb_output_html' ], $screen );
 	}
 
-	public function save_mata_box( $post_id ) {
+	public function save_meta_box( $post_id ) {
 		if ( ! isset( $_POST["bimeson_admin_nonce"] ) ) return;
 		if ( ! wp_verify_nonce( $_POST["bimeson_admin_nonce"], 'bimeson_admin' ) ) return;
 
@@ -76,11 +76,11 @@ class Bimeson_Admin {
 		$omit_single_cat = empty( $_POST[ self::FLD_OMIT_HEAD_OF_SINGLE_CAT ] ) ? 'false' : 'true';
 		update_post_meta( $post_id, self::FLD_OMIT_HEAD_OF_SINGLE_CAT, $omit_single_cat );
 
-		\st\field\save_post_meta( $post_id, self::FLD_COUNT );
-		\st\field\save_post_meta( $post_id, self::FLD_YEAR_START );
-		\st\field\save_post_meta( $post_id, self::FLD_YEAR_END );
+		save_post_meta( $post_id, self::FLD_COUNT );
+		save_post_meta( $post_id, self::FLD_YEAR_START );
+		save_post_meta( $post_id, self::FLD_YEAR_END );
 
-		\st\field\save_post_meta( $post_id, self::FLD_LIST_ID );
+		save_post_meta( $post_id, self::FLD_LIST_ID );
 	}
 
 	public function _cb_output_html( $post ) {

@@ -1,12 +1,12 @@
 <?php
 /**
  *
- * The Template for Publications Static Pages
+ * The Template for Literature Static Pages
  *
- * Template Name: Publications
+ * Template Name: Literatures
  *
- * @author Takuto Yanagida @ Space-Time Inc.
- * @version 2018-03-09
+ * @author Takuto Yanagida
+ * @version 2021-07-08
  *
  */
 
@@ -18,7 +18,7 @@ get_header();
 <?php
 while ( have_posts() ) : the_post();
 	get_template_part( 'template-parts/content', 'page' );
-	\st\Bimeson::get_instance()->the_list_section();
+	\wplug\bimeson_list\Bimeson::get_instance()->the_list_section();
 endwhile;
 ?>
 		</main>

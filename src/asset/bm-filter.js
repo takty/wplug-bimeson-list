@@ -2,7 +2,7 @@
  *
  * Bimeson List Filter
  *
- * @author Takuto Yanagida @ Space-Time Inc.
+ * @author Takuto Yanagida
  * @version 2018-03-14
  *
  */

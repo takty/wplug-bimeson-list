@@ -1,12 +1,11 @@
 <?php
-namespace st;
-
+namespace wplug\bimeson_list;
 /**
  *
  * Bimeson (Admin)
  *
- * @author Takuto Yanagida @ Space-Time Inc.
- * @version 2020-06-04
+ * @author Takuto Yanagida
+ * @version 2021-07-08
  *
  */
 
@@ -57,7 +56,7 @@ class Bimeson_List {
 
 	public function _cb_admin_menu() {
 		add_action( 'admin_print_scripts', [ $this, '_cb_enqueue_script_media' ] );
-		if ( \st\is_post_type( self::PT ) ) {
+		if ( is_post_type( self::PT ) ) {
 			$this->_cb_enqueue_script();
 			add_meta_box( 'bimeson_mb', self::LBL_POST_TYPE, [ $this, '_cb_output_html_list' ], self::PT, 'normal', 'high' );
 		}
@@ -66,9 +65,9 @@ class Bimeson_List {
 	public function _cb_enqueue_script( $url_to = false ) {
 		global $pagenow;
 		if ( $pagenow !== 'post.php' && $pagenow !== 'post-new.php' ) return;
-		if ( ! \st\is_post_type( self::PT ) ) return;
+		if ( ! is_post_type( self::PT ) ) return;
 
-		if ( $url_to === false ) $url_to = \st\get_file_uri( __DIR__ );
+		if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
 		$url_to = untrailingslashit( $url_to );
 
 		\st\MediaPicker::enqueue_script( $url_to . '/../../stinc/metabox/' );
@@ -80,9 +79,9 @@ class Bimeson_List {
 	public function _cb_enqueue_script_media() {
 		global $pagenow;
 		if ( $pagenow !== 'post.php' && $pagenow !== 'post-new.php' ) return;
-		if ( ! \st\is_post_type( self::PT ) ) return;
+		if ( ! is_post_type( self::PT ) ) return;
 
-		$post_id = \st\get_post_id();
+		$post_id = get_post_id();
 		wp_enqueue_media( [ 'post' => $post_id ] );
 	}
 
@@ -185,7 +184,7 @@ class Bimeson_List {
 
 	private function _process_items( &$items ) {
 		foreach ( $items as &$item ) {
-			$date = ( ! empty( $item[ Bimeson::FLD_DATE ] ) ) ? \st\field\normalize_date( $item[ Bimeson::FLD_DATE ] ) : '';
+			$date = ( ! empty( $item[ Bimeson::FLD_DATE ] ) ) ? normalize_date( $item[ Bimeson::FLD_DATE ] ) : '';
 			if ( $date ) {
 				$date_num = str_pad( str_replace( '-', '', $date ), 8, '9', STR_PAD_RIGHT );
 				$item[ Bimeson::FLD_DATE_NUM ] = $date_num;

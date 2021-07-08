@@ -2,7 +2,7 @@
  *
  * Bimeson List Post Type Admin
  *
- * @author Takuto Yanagida @ Space-Time Inc.
+ * @author Takuto Yanagida
  * @version 2020-06-09
  *
  */

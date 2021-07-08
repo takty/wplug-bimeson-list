@@ -1,21 +1,21 @@
 <?php
-namespace st;
-
+namespace wplug\bimeson_list;
 /**
  *
  * Functions and Definitions for Bimeson
  *
- * @author Takuto Yanagida @ Space-Time Inc.
- * @version 2020-06-04
+ * @author Takuto Yanagida
+ * @version 2021-07-08
  *
  */
 
 
-require_once __DIR__ . '/../../stinc/admin/misc.php';
-require_once __DIR__ . '/../../stinc/system/field.php';
-require_once __DIR__ . '/bm-admin.php';
-require_once __DIR__ . '/bm-taxonomy.php';
-require_once __DIR__ . '/bm-list.php';
+require_once __DIR__ . '/asset/misc.php';
+require_once __DIR__ . '/asset/field.php';
+require_once __DIR__ . '/asset/url.php';
+require_once __DIR__ . '/asset/bm-admin.php';
+require_once __DIR__ . '/asset/bm-taxonomy.php';
+require_once __DIR__ . '/asset/bm-list.php';
 
 
 class Bimeson {
@@ -87,7 +87,7 @@ class Bimeson {
 	// -------------------------------------------------------------------------
 
 	public function enqueue_script( $url_to = false ) {
-		if ( $url_to === false ) $url_to = \st\get_file_uri( __DIR__ );
+		if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
 		$url_to = untrailingslashit( $url_to );
 
 		if ( is_admin() ) {
@@ -110,8 +110,8 @@ class Bimeson {
 		$this->_admin->add_meta_box( $label, $screen );
 	}
 
-	public function save_mata_box( $post_id ) {
-		$this->_admin->save_mata_box( $post_id );
+	public function save_meta_box( $post_id ) {
+		$this->_admin->save_meta_box( $post_id );
 	}
 
 	public function the_list_section() {

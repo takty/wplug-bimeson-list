@@ -1,33 +1,29 @@
 /**
  *
- * Bimeson List Filter
+ * Bimeson List Page Admin
  *
- * @author Takuto Yanagida @ Space-Time Inc.
- * @version 2018-03-20
+ * @author Takuto Yanagida
+ * @version 2018-10-23
  *
  */
 
 
-@media (min-width: 900px) {
-	.bimeson-filter {
-		column-count: 2;
-	}
-}
-
 .bimeson-filter-key {
-	padding: 4px 0;
-}
-
-.bimeson-filter-key-inner {
-	display: inline-flex;
-	width: 100%;
+	display: flex;
 	align-items: flex-start;
 	padding: 4px 0;
 }
 
+.bimeson_admin_edit_row { text-align: right; }
+
+.bimeson-filter-cbs {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 0.25em 0 0;
+}
+
 .bimeson-filter-cbs label {
 	padding: 8px;
-	display: inline-block;
 
 	user-select: none;
 	-ms-user-select: none;
@@ -36,9 +32,10 @@
 }
 
 .bimeson-filter-cat {
-	margin-top: 0.25rem;
-	margin-bottom: 0.25rem;
-	margin-left: 6px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	padding-right: 8px;
+	font-weight: bold;
 }
 
 input[type=checkbox].tgl {
@@ -48,7 +45,7 @@ input[type=checkbox].tgl {
 .tgl + .tgl-btn {
 	box-sizing: content-box;
 
-	margin-right: 8px;
+	margin-right: 12px;
 	display: block;
 	outline: 0;
 
@@ -59,7 +56,6 @@ input[type=checkbox].tgl {
 	position: relative;
 	cursor: pointer;
 	user-select: none;
-	top: 2px;
 
 	padding: 2px;
 	background: #fff;
@@ -96,10 +92,16 @@ input[type=checkbox].tgl {
 	background: #b3cefb;
 }
 
-.bimeson-content.stile h3+:not(.alignright):not(.alignleft)[data-count='0'],
-.bimeson-content.stile h4+:not(.alignright):not(.alignleft)[data-count='0'],
-.bimeson-content.stile h5+:not(.alignright):not(.alignleft)[data-count='0'],
-.bimeson-content.stile h6+:not(.alignright):not(.alignleft)[data-count='0'],
-.bimeson-content.stile *[data-count='0'] {
-	margin-top: 0;
+.bimeson_admin > div:not(:first-child) {
+	margin-top: 16px;
+}
+
+.bimeson_admin_setting_row > *:not(:first-child) {
+	margin-left: 8px;
+}
+
+.bimeson_admin_filter_row {
+	padding: 6px;
+	border: 1px solid #eee;
+	border-radius: 4px;
 }
