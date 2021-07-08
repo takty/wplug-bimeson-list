@@ -3,7 +3,7 @@
  * Filter Modification (JS)
  *
  * @author Takuto Yanagida
- * @version 2020-05-28
+ * @version 2021-07-08
  *
  */
 

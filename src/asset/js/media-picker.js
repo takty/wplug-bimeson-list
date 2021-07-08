@@ -3,7 +3,7 @@
  * Media Picker (JS)
  *
  * @author Takuto Yanagida
- * @version 2018-12-04
+ * @version 2021-07-08
  *
  */
 

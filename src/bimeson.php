@@ -13,9 +13,9 @@ namespace wplug\bimeson_list;
 require_once __DIR__ . '/asset/misc.php';
 require_once __DIR__ . '/asset/field.php';
 require_once __DIR__ . '/asset/url.php';
-require_once __DIR__ . '/asset/bm-admin.php';
-require_once __DIR__ . '/asset/bm-taxonomy.php';
-require_once __DIR__ . '/asset/bm-list.php';
+require_once __DIR__ . '/asset/admin.php';
+require_once __DIR__ . '/asset/taxonomy.php';
+require_once __DIR__ . '/asset/list.php';
 
 
 class Bimeson {
@@ -93,8 +93,8 @@ class Bimeson {
 		if ( is_admin() ) {
 			$this->_admin->enqueue_script( $url_to );
 		} else {
-			wp_enqueue_style(  'bimeson', $url_to . '/asset/bm-filter.min.css' );
-			wp_enqueue_script( 'bimeson', $url_to . '/asset/bm-filter.min.js' );
+			wp_enqueue_style(  'bimeson', $url_to . '/asset/css/filter.min.css' );
+			wp_enqueue_script( 'bimeson', $url_to . '/asset/js/filter.min.js' );
 		}
 	}
 

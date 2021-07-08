@@ -50,8 +50,8 @@ class Bimeson_Admin {
 		$post_type = get_post_type_in_admin( $post_id );
 		if ( $post_type === Bimeson_List::PT ) {
 		} else {
-			wp_enqueue_style(  self::NS . '_filter_admin', $url_to . '/asset/bm-admin.min.css' );
-			wp_enqueue_script( self::NS . '_filter_admin', $url_to . '/asset/bm-admin.min.js' );
+			wp_enqueue_style(  self::NS . '_filter_admin', $url_to . '/asset/css/admin.min.css' );
+			wp_enqueue_script( self::NS . '_filter_admin', $url_to . '/asset/js/admin.min.js' );
 		}
 	}
 

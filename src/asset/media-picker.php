@@ -50,9 +50,9 @@ class MediaPicker {
 		if ( is_admin() ) {
 			if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
 			$url_to = untrailingslashit( $url_to );
-			wp_enqueue_script( 'picker-media', $url_to . '/picker-media.min.js', [], 1.0, true );
-			wp_enqueue_script( self::NS, $url_to . '/media-picker.min.js', [ 'picker-media', 'jquery-ui-sortable' ] );
-			wp_enqueue_style(  self::NS, $url_to . '/media-picker.min.css' );
+			wp_enqueue_script( 'picker-media', $url_to . '/js/picker-media.min.js', [], 1.0, true );
+			wp_enqueue_script( self::NS, $url_to . '/js/media-picker.min.js', [ 'picker-media', 'jquery-ui-sortable' ] );
+			wp_enqueue_style(  self::NS, $url_to . '/css/media-picker.min.css' );
 		}
 	}
 

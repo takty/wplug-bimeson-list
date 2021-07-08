@@ -70,10 +70,10 @@ class Bimeson_List {
 		if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
 		$url_to = untrailingslashit( $url_to );
 
-		\st\MediaPicker::enqueue_script( $url_to . '/../../stinc/metabox/' );
-		wp_enqueue_style(  self::NS, $url_to . '/asset/bm-list.min.css' );
-		wp_enqueue_script( self::NS, $url_to . '/asset/bm-list.min.js' );
-		wp_enqueue_script( 'xlsx', $url_to . '/asset/xlsx.full.min.js' );
+		\st\MediaPicker::enqueue_script( $url_to . '/asset/' );
+		wp_enqueue_style(  self::NS, $url_to . '/asset/css/list.min.css' );
+		wp_enqueue_script( self::NS, $url_to . '/asset/js/list.min.js' );
+		wp_enqueue_script( 'xlsx', $url_to . '/asset/js/xlsx.full.min.js' );
 	}
 
 	public function _cb_enqueue_script_media() {
