@@ -1,18 +1,15 @@
 <?php
-namespace wplug\bimeson_list;
 /**
- *
  * Media Picker (PHP)
  *
  * @author Takuto Yanagida
  * @version 2021-07-08
- *
  */
 
+namespace wplug\bimeson_list;
 
 require_once __DIR__ . '/field.php';
 require_once __DIR__ . '/url.php';
-
 
 class MediaPicker {
 

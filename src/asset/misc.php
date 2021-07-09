@@ -1,14 +1,12 @@
 <?php
-namespace wplug\bimeson_list;
 /**
- *
  * Miscellaneous for Admin
  *
  * @author Takuto Yanagida
  * @version 2021-07-08
- *
  */
 
+namespace wplug\bimeson_list;
 
 function get_post_id() {
 	$post_id = '';

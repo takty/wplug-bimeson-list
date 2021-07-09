@@ -1,14 +1,12 @@
 <?php
-namespace wplug\bimeson_list;
 /**
- *
  * Custom Field Utilities
  *
  * @author Takuto Yanagida
  * @version 2021-07-08
- *
  */
 
+namespace wplug\bimeson_list;
 
 function save_post_meta( $post_id, $key, $filter = null, $default = null ) {
 	$val = isset( $_POST[ $key ] ) ? $_POST[ $key ] : null;

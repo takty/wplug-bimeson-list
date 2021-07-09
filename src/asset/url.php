@@ -1,14 +1,12 @@
 <?php
-namespace wplug\bimeson_list;
 /**
- *
  * URL Utilities
  *
  * @author Takuto Yanagida
  * @version 2021-07-08
- *
  */
 
+namespace wplug\bimeson_list;
 
 function get_file_uri( $path ) {
 	$path = wp_normalize_path( $path );

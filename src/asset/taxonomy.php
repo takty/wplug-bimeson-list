@@ -1,14 +1,12 @@
 <?php
-namespace wplug\bimeson_list;
 /**
- *
  * Bimeson (Taxonomy)
  *
  * @author Takuto Yanagida
  * @version 2021-07-08
- *
  */
 
+namespace wplug\bimeson_list;
 
 class Bimeson_Taxonomy {
 
