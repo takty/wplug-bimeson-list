@@ -3,7 +3,7 @@
  * Bimeson (Taxonomy)
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-09
  */
 
 namespace wplug\bimeson_list;

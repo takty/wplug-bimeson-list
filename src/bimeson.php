@@ -3,7 +3,7 @@
  * Functions and Definitions for Bimeson
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-09
  */
 
 namespace wplug\bimeson_list;
@@ -11,9 +11,9 @@ namespace wplug\bimeson_list;
 require_once __DIR__ . '/asset/misc.php';
 require_once __DIR__ . '/asset/field.php';
 require_once __DIR__ . '/asset/url.php';
-require_once __DIR__ . '/asset/admin.php';
-require_once __DIR__ . '/asset/taxonomy.php';
-require_once __DIR__ . '/asset/list.php';
+require_once __DIR__ . '/admin.php';
+require_once __DIR__ . '/taxonomy.php';
+require_once __DIR__ . '/list.php';
 
 class Bimeson {
 

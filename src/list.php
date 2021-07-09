@@ -3,12 +3,12 @@
  * Bimeson (Admin)
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-09
  */
 
 namespace wplug\bimeson_list;
 
-require_once __DIR__ . '/../../stinc/metabox/media-picker.php';
+require_once __DIR__ . '/asset/media-picker.php';
 
 class Bimeson_List {
 
