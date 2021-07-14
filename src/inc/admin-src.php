@@ -30,7 +30,8 @@ function _enqueue_script_admin_src( $url_to ) {
 	wp_enqueue_script( 'bimeson_list_admin_src', $url_to . '/assets/js/admin-src.min.js' );
 	wp_enqueue_script( 'xlsx',                   $url_to . '/assets/js/xlsx.full.min.js' );
 
-	wp_enqueue_media( [ 'post' => get_post_id() ] );
+	$pid = get_post_id();
+	wp_enqueue_media( [ 'post' => ( $pid === 0 ? null : $pid ) ] );
 }
 
 

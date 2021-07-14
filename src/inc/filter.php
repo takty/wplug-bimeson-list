@@ -31,9 +31,8 @@ function echo_filter( $filter_state, $years_exist ) {
 	} else {
 		$state = get_filter_state_from_qvar();
 	}
-	if ( ! empty( $years_exist ) ) _echo_year_select( $years_exist, $state );
-
 	echo '<div class="bimeson-filter">';
+	if ( ! empty( $years_exist ) ) _echo_year_select( $years_exist, $state );
 	if ( $filter_state === false ) {
 		foreach ( $slug_to_terms as $slug => $terms ) {
 			_echo_tax_checkboxes( $slug, $terms, $state, false );
@@ -55,8 +54,9 @@ function _echo_year_select( $years, $state ) {
 ?>
 	<div class="bimeson-filter-key" data-key="<?php echo $inst::KEY_YEAR ?>">
 		<div class="bimeson-filter-key-inner">
-			<select name="<?php echo $inst::KEY_YEAR ?>" class="bimeson-filter-select">
-				<option value="<?php echo $inst::VAL_YEAR_ALL ?>"><?php echo esc_html_x( 'Select year', 'filter', 'bimeson_list' ) ?></option>
+			<label class="select">
+				<select name="<?php echo $inst::KEY_YEAR ?>" class="bimeson-filter-select">
+					<option value="<?php echo $inst::VAL_YEAR_ALL ?>"><?php echo esc_html_x( 'Select year', 'filter', 'bimeson_list' ) ?></option>
 <?php
 	foreach ( $years as $y ) {
 		if ( is_string( $inst->year_format ) ) {
@@ -67,7 +67,8 @@ function _echo_year_select( $years, $state ) {
 		echo "<option value=\"$y\"" . ( ( (int) $y === (int) $val ) ? ' selected' : '' ) . ">$_label</option>";
 	}
 ?>
-			</select>
+				</select>
+			</label>
 		</div>
 	</div>
 <?php
@@ -102,7 +103,7 @@ function _echo_tax_checkboxes( $root_slug, $terms, $state, $filtered ) {
 		}
 		$checked = in_array( $t->slug, $qvals, true ) ? ' checked' : '';
 ?>
-				<label>
+				<label class="checkbox">
 					<input type="checkbox" name="<?php echo $_name ?>"<?php echo $checked; ?> value="<?php echo $_val ?>">
 					<?php echo $_label ?>
 				</label>

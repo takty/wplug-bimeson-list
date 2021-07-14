@@ -25,12 +25,13 @@ function initialize_taxonomy( $taxonomy = false, $sub_tax_base = false ) {
 		] );
 	}
 	register_taxonomy_for_object_type( $inst->root_tax, $inst::PT );
-	_register_sub_tax_all();
 
 	add_action( "{$inst->root_tax}_edit_form_fields", '\wplug\bimeson_list\_cb_taxonomy_edit_form_fields', 10, 2 );
 	add_action( "edit_terms",                         '\wplug\bimeson_list\_cb_edit_taxonomy', 10, 2 );
 	add_action( "edited_{$inst->root_tax}",           '\wplug\bimeson_list\_cb_edited_taxonomy', 10, 2 );
 	add_filter( 'query_vars',                         '\wplug\bimeson_list\_cb_query_vars_taxonomy' );
+
+	_register_sub_tax_all();
 
 	foreach ( $inst->sub_taxes as $sub_tax ) {
 		add_action( "{$sub_tax}_edit_form_fields", '\wplug\bimeson_list\_cb_taxonomy_edit_form_fields', 10, 2 );
@@ -130,6 +131,18 @@ function _get_root_terms() {
 	$inst = _get_instance();
 	if ( $inst->root_terms ) return $inst->root_terms;
 	$inst->root_terms = get_terms( $inst->root_tax, [ 'hide_empty' => 0 ] );
+
+	$ts = [];
+	$terms = get_terms( $inst->root_tax, [ 'hide_empty' => 0 ] );
+	foreach ( $terms as $t ) {
+		$idx  = intval( get_term_meta( $t->term_id, '_menu_order', true ) );
+		$ts[] = [ $idx, $t ];
+	}
+	usort( $ts, function ( $a, $b ) {
+		if ( $a[0] === $b[0] ) return 0;
+		return ( $a[0] < $b[0] ) ? -1 : 1;
+	} );
+	$inst->root_terms = array_column( $ts, 1 );
 	return $inst->root_terms;
 }
 
