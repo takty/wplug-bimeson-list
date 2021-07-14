@@ -96,8 +96,8 @@ function enqueue_script( $url_to = false ) {
 	if ( is_admin() ) {
 		enqueue_script_admin_dest( $url_to );
 	} else {
-		wp_enqueue_style(  'bimeson', $url_to . '/assets/css/filter.min.css' );
-		wp_enqueue_script( 'bimeson', $url_to . '/assets/js/filter.min.js' );
+		wp_enqueue_style(  'bimeson_list_filter', $url_to . '/assets/css/filter.min.css' );
+		wp_enqueue_script( 'bimeson_list_filter', $url_to . '/assets/js/filter.min.js' );
 	}
 }
 

@@ -9,8 +9,8 @@
 namespace wplug\bimeson_list;
 
 function enqueue_script_admin_dest( $url_to ) {
-	wp_enqueue_style(  'bimeson_admin_filter_admin', $url_to . '/assets/css/admin-dest.min.css' );
-	wp_enqueue_script( 'bimeson_admin_filter_admin', $url_to . '/assets/js/admin-dest.min.js' );
+	wp_enqueue_style(  'bimeson_list_admin_dest', $url_to . '/assets/css/admin-dest.min.css' );
+	wp_enqueue_script( 'bimeson_list_admin_dest', $url_to . '/assets/js/admin-dest.min.js' );
 }
 
 
