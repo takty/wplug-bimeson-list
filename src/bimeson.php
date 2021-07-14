@@ -10,11 +10,11 @@ namespace wplug\bimeson_list;
 
 require_once __DIR__ . '/assets/util.php';
 require_once __DIR__ . '/assets/field.php';
-require_once __DIR__ . '/_admin-dest.php';
-require_once __DIR__ . '/_admin-src.php';
-require_once __DIR__ . '/_taxonomy.php';
-require_once __DIR__ . '/_filter.php';
-require_once __DIR__ . '/_list.php';
+require_once __DIR__ . '/inc/admin-dest.php';
+require_once __DIR__ . '/inc/admin-src.php';
+require_once __DIR__ . '/inc/taxonomy.php';
+require_once __DIR__ . '/inc/filter.php';
+require_once __DIR__ . '/inc/list.php';
 
 function initialize( string $key_base = '_bimeson_', $taxonomy = false, $sub_tax_base = false, $url_to = false ) {
 	$inst = _get_instance();

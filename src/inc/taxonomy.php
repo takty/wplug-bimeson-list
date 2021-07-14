@@ -28,9 +28,9 @@ function initialize_taxonomy( $taxonomy = false, $sub_tax_base = false ) {
 	_register_sub_tax_all();
 
 	add_action( "{$inst->root_tax}_edit_form_fields", '\wplug\bimeson_list\_cb_taxonomy_edit_form_fields', 10, 2 );
-	add_action( "edit_terms",                          '\wplug\bimeson_list\_cb_edit_taxonomy', 10, 2 );
+	add_action( "edit_terms",                         '\wplug\bimeson_list\_cb_edit_taxonomy', 10, 2 );
 	add_action( "edited_{$inst->root_tax}",           '\wplug\bimeson_list\_cb_edited_taxonomy', 10, 2 );
-	add_filter( 'query_vars',                          '\wplug\bimeson_list\_cb_query_vars_taxonomy' );
+	add_filter( 'query_vars',                         '\wplug\bimeson_list\_cb_query_vars_taxonomy' );
 
 	foreach ( $inst->sub_taxes as $sub_tax ) {
 		add_action( "{$sub_tax}_edit_form_fields", '\wplug\bimeson_list\_cb_taxonomy_edit_form_fields', 10, 2 );

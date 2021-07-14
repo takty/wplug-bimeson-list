@@ -8,7 +8,7 @@
 
 namespace wplug\bimeson_list;
 
-require_once __DIR__ . '/assets/media-picker.php';
+require_once __DIR__ . '/../assets/media-picker.php';
 
 function initialize_admin_src( $url_to ) {
 	$inst = _get_instance();
