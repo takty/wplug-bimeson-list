@@ -1,7 +1,7 @@
 # Translation of Bimeson List - Development in Japanese
 # @package Bimeson List
 # @author Takuto Yanagida
-# @version 2021-07-13
+# @version 2021-07-14
 
 # Admin Dest -------------------------------------------------------------------
 
@@ -55,7 +55,10 @@ msgctxt "admin src"
 msgid "Add categories to the category group"
 msgstr "分類グループに分類を追加"
 
-# 'Update List',                          'admin src', 'ja', 'リストを更新'
+msgctxt "admin src"
+msgid "Update List"
+msgstr "リストを更新"
+
 # 'Publication List',                     'admin src', 'ja', '業績リスト'
 # 'Add category groups themselves',       'admin src', 'ja', '分類グループ自体を追加'
 # 'Add categories to the category group', 'admin src', 'ja', '分類グループに分類を追加'
@@ -83,6 +86,7 @@ msgctxt "taxonomy"
 msgid "Hide from view screen"
 msgstr "閲覧画面から隠す"
 
+# 'Category group',               'taxonomy', 'ja', '分類グループ'
 # 'Category',                     'taxonomy', 'ja', '分類'
 # 'Filter',                       'taxonomy', 'ja', 'フィルター'
 # 'Omit the last category group', 'taxonomy', 'ja', '一番最後の分類グループを省略する'
