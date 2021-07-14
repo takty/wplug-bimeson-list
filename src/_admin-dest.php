@@ -26,14 +26,14 @@ function save_meta_box_admin_dest( $post_id ) {
 	if ( ! isset( $_POST['bimeson_admin_nonce'] ) ) return;
 	if ( ! wp_verify_nonce( $_POST['bimeson_admin_nonce'], 'bimeson_admin' ) ) return;
 
-	$state = get_filter_state_from_post();
-	update_post_meta( $post_id, $inst->FLD_JSON_PARAMS, json_encode( $state ) );
-
-	$group = empty( $_POST[ $inst->FLD_SORT_BY_DATE_FIRST ] ) ? 'false' : 'true';
-	update_post_meta( $post_id, $inst->FLD_SORT_BY_DATE_FIRST, $group );
-	$show_filter = empty( $_POST[ $inst->FLD_SHOW_FILTER ] ) ? 'false' : 'true';
-	update_post_meta( $post_id, $inst->FLD_SHOW_FILTER, $show_filter );
+	$state           = get_filter_state_from_post();
+	$group           = empty( $_POST[ $inst->FLD_SORT_BY_DATE_FIRST ] ) ? 'false' : 'true';
+	$show_filter     = empty( $_POST[ $inst->FLD_SHOW_FILTER ] ) ? 'false' : 'true';
 	$omit_single_cat = empty( $_POST[ $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT ] ) ? 'false' : 'true';
+
+	update_post_meta( $post_id, $inst->FLD_JSON_PARAMS, json_encode( $state ) );
+	update_post_meta( $post_id, $inst->FLD_SORT_BY_DATE_FIRST, $group );
+	update_post_meta( $post_id, $inst->FLD_SHOW_FILTER, $show_filter );
 	update_post_meta( $post_id, $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT, $omit_single_cat );
 
 	save_post_meta( $post_id, $inst->FLD_COUNT );
