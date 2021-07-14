@@ -9,7 +9,7 @@
 
 
 function st_media_picker_initialize_admin(key) {
-	const NS = 'st-media-picker';
+	const NS = 'wplug-bimeson-list-media-picker';
 
 	const CLS_TABLE        = NS + '-table';
 	const CLS_ITEM         = NS + '-item';

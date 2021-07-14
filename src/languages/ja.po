@@ -1,0 +1,97 @@
+# Translation of Bimeson List - Development in Japanese
+# @package Bimeson List
+# @author Takuto Yanagida
+# @version 2021-07-13
+
+# Admin Dest -------------------------------------------------------------------
+
+msgctxt "admin dest"
+msgid "Used publication list:"
+msgstr "使用する業績リスト:"
+
+msgctxt "admin dest"
+msgid "Target period (years):"
+msgstr "対象期間（年）:"
+
+msgctxt "admin dest"
+msgid "Specify the number of items to be displayed:"
+msgstr "表示件数の指定:"
+
+msgctxt "admin dest"
+msgid "(If specified, the heading will be hidden)"
+msgstr "（指定すると、見出しは非表示になります）"
+
+msgctxt "admin dest"
+msgid "Show filter"
+msgstr "フィルターを表示"
+
+msgctxt "admin dest"
+msgid "Sort by date first"
+msgstr "最初に日付で並び替える"
+
+msgctxt "admin dest"
+msgid "Omit headings for categories with only one item"
+msgstr "項目が1つしかない分類の見出しを省略"
+
+# 'Used publication list:',                          'admin dest', 'ja', '使用する業績リスト:'
+# 'Target period (years):',                          'admin dest', 'ja', '対象期間（年）:'
+# 'Specify the number of items to be displayed:',    'admin dest', 'ja', '表示件数の指定:'
+# '(If specified, the heading will be hidden)',      'admin dest', 'ja', '（指定すると、見出しは非表示になります）'
+# 'Show filter',                                     'admin dest', 'ja', 'フィルターを表示'
+# 'Sort by date first',                              'admin dest', 'ja', '最初に日付で並び替える'
+# 'Omit headings for categories with only one item', 'admin dest', 'ja', '1つしかない分類の見出しを省略'
+
+# Admin Src --------------------------------------------------------------------
+
+msgctxt "admin src"
+msgid "Publication List"
+msgstr "業績リスト"
+
+msgctxt "admin src"
+msgid "Add category groups themselves"
+msgstr "分類グループ自体を追加"
+
+msgctxt "admin src"
+msgid "Add categories to the category group"
+msgstr "分類グループに分類を追加"
+
+# 'Update List',                          'admin src', 'ja', 'リストを更新'
+# 'Publication List',                     'admin src', 'ja', '業績リスト'
+# 'Add category groups themselves',       'admin src', 'ja', '分類グループ自体を追加'
+# 'Add categories to the category group', 'admin src', 'ja', '分類グループに分類を追加'
+# 'Update List',                          'admin src', 'ja', 'リストを更新'
+
+# Taxonomy ---------------------------------------------------------------------
+
+msgctxt "taxonomy"
+msgid "Category group"
+msgstr "分類グループ"
+
+msgctxt "taxonomy"
+msgid "Category"
+msgstr "分類"
+
+msgctxt "taxonomy"
+msgid "Filter"
+msgstr "フィルター"
+
+msgctxt "taxonomy"
+msgid "Omit the last category group"
+msgstr "一番最後の分類グループを省略する"
+
+msgctxt "taxonomy"
+msgid "Hide from view screen"
+msgstr "閲覧画面から隠す"
+
+# 'Category',                     'taxonomy', 'ja', '分類'
+# 'Filter',                       'taxonomy', 'ja', 'フィルター'
+# 'Omit the last category group', 'taxonomy', 'ja', '一番最後の分類グループを省略する'
+# 'Hide from view screen',        'taxonomy', 'ja', '閲覧画面から隠す'
+
+# Filter -----------------------------------------------------------------------
+
+msgctxt "filter"
+msgid "Select year"
+msgstr "年選択"
+
+# 'Select year', 'filter', 'ja', '年選択'

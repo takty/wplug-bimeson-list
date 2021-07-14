@@ -3,13 +3,12 @@
  * Media Picker (PHP)
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-12
  */
 
 namespace wplug\bimeson_list;
 
 require_once __DIR__ . '/field.php';
-require_once __DIR__ . '/url.php';
 
 class MediaPicker {
 
@@ -45,7 +44,6 @@ class MediaPicker {
 
 	static public function enqueue_script( $url_to = false ) {
 		if ( is_admin() ) {
-			if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
 			$url_to = untrailingslashit( $url_to );
 			wp_enqueue_script( 'picker-media', $url_to . '/js/picker-media.min.js', [], 1.0, true );
 			wp_enqueue_script( self::NS, $url_to . '/js/media-picker.min.js', [ 'picker-media', 'jquery-ui-sortable' ] );
@@ -72,8 +70,8 @@ class MediaPicker {
 	public function get_items( $post_id = false ) {
 		if ( $post_id === false ) $post_id = get_the_ID();
 
-		$skeys = [ 'media', 'url', 'title', 'filename', 'id' ];
-		$its = get_multiple_post_meta( $post_id, $this->_key, $skeys );
+		$keys = [ 'media', 'url', 'title', 'filename', 'id' ];
+		$its = get_multiple_post_meta( $post_id, $this->_key, $keys );
 
 		// For Backward Compatibility
 		foreach ( $its as $idx => &$it ) {
@@ -171,14 +169,14 @@ class MediaPicker {
 
 
 	public function save_items( $post_id ) {
-		$skeys = [ 'media', 'url', 'title', 'filename', 'delete' ];
+		$keys = [ 'media', 'url', 'title', 'filename', 'delete' ];
 
-		$its = get_multiple_post_meta_from_post( $this->_key, $skeys );
+		$its = get_multiple_post_meta_from_post( $this->_key, $keys );
 		$its = array_filter( $its, function ( $it ) { return ! $it['delete'] && ! empty( $it['url'] ); } );
 		$its = array_values( $its );
 
-		$skeys = [ 'media', 'url', 'title', 'filename' ];
-		update_multiple_post_meta( $post_id, $this->_key, $its, $skeys );
+		$keys = [ 'media', 'url', 'title', 'filename' ];
+		update_multiple_post_meta( $post_id, $this->_key, $its, $keys );
 	}
 
 }

@@ -23,6 +23,11 @@ function save_post_meta( $post_id, $key, $filter = null, $default = null ) {
 	update_post_meta( $post_id, $key, $val );
 }
 
+function name_id( $key ) {
+	$_key = esc_attr( $key );
+	echo "name=\"$_key\" id=\"$_key\"";
+}
+
 function normalize_date( $str ) {
 	$str = mb_convert_kana( $str, 'n', 'utf-8' );
 	$nums = preg_split( '/\D/', $str );

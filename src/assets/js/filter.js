@@ -3,14 +3,14 @@
  * Bimeson List Filter
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-14
  *
  */
 
 
 document.addEventListener('DOMContentLoaded', function () {
 
-	const SEL_ITEM_ALL        = '.bimeson-content > *';
+	const SEL_ITEM_ALL        = '.bimeson-list > *';
 	const SEL_FILTER_KEY      = '.bimeson-filter-key';
 	const SEL_FILTER_SWITCH   = '.bimeson-filter-switch';
 	const SEL_FILTER_CHECKBOX = 'input:not(.bimeson-filter-switch)';
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	const SEL_FILTER_SELECT = '.bimeson-filter-select';
 	const KEY_YEAR          = '_year';
 	const VAL_YEAR_ALL      = 'all';
-	const QVAR_YEAR         = 'bm-year';
 	const DS_KEY_YEAR       = 'year';
 
 	var keyToSwAndCbs = {}, yearSelect = null;
@@ -54,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// -------------------------------------------------------------------------
 
+
 	function setUrlParams(keyToSwAndCbs, yearSelect) {
 		var ps = [];
 		for (var key in keyToSwAndCbs) {
@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 	// -------------------------------------------------------------------------
+
 
 	function assignEventListener(sw, cbs, update) {
 		sw.addEventListener('click', function () {
@@ -130,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// -------------------------------------------------------------------------
 
+
 	function filterLists(elms, fkeyToVals, year) {
 		for (var j = 0, J = elms.length; j < J; j += 1) {
 			var elm = elms[j];
@@ -168,8 +170,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// -------------------------------------------------------------------------
 
+
 	function countUpItems(elms) {
-		var headingToDepthCount = {};
 		for (var i = 0, I = elms.length; i < I; i += 1) {
 			var elm = elms[i];
 			if (elm.dataset['depth']) elm.dataset['count'] = 0;  // 'elm' is heading

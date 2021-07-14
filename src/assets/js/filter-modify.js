@@ -3,7 +3,7 @@
  * Filter Modification (JS)
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-12
  *
  */
 
@@ -12,15 +12,15 @@
 
 	const filterElement = document.querySelector(".bimeson-filter-key[data-key~='theme'] .bimeson-filter-cbs");
 	if( filterElement === null ) return;
-	const defaultInputElements = filterElement.querySelectorAll("input");
+	const defaultInputElements = filterElement.querySelectorAll('input');
 
 	const labelElements = Array(3);
 	const inputElements = Array(3);
 
 	for( let i = 0; i < 3; i++ ) {
-		labelElements[i] = document.createElement("label");
+		labelElements[i] = document.createElement('label');
 		labelElements[i].style.display = 'inline-block';
-		inputElements[i] = document.createElement("input");
+		inputElements[i] = document.createElement('input');
 		inputElements[i].setAttribute('type','checkbox');
 		let text = '  A0' + (i + 1);
 		let str = document.createTextNode(text);

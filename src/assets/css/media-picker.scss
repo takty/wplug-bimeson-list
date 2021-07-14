@@ -3,7 +3,7 @@
  * Media Picker (SCSS)
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-13
  *
  */
 
@@ -11,33 +11,33 @@
 $breakpoint-single-wrap: 20rem;
 
 
-.st-media-picker-add-row {
+.wplug-bimeson-list-media-picker-add-row {
 	text-align: right;
 	margin-top: 0.5em;
 
-	.st-media-picker-item + & { margin-top: 1.5em; }
+	.wplug-bimeson-list-media-picker-item + & { margin-top: 1.5em; }
 }
 
-.st-media-picker-table {
+.wplug-bimeson-list-media-picker-table {
 	width: 100%;
 	display: flex;
 	flex-direction: column;
 	position: relative;
 }
 
-.st-media-picker-item-template {
+.wplug-bimeson-list-media-picker-item-template {
 	display: none;
 }
 
-.st-media-picker-item-placeholder {
+.wplug-bimeson-list-media-picker-item-placeholder {
 	height: 140px;
 }
 
-.st-media-picker-item {
+.wplug-bimeson-list-media-picker-item {
 	display: flex;
 	background-color: rgba(255, 255, 255, 0.75);
 
-	& + .st-media-picker-item {
+	& + .wplug-bimeson-list-media-picker-item {
 		margin-top: 1em;
 	}
 	&.ui-sortable-helper {
@@ -47,59 +47,59 @@ $breakpoint-single-wrap: 20rem;
 	> div:nth-child(2) {
 		flex-grow: 1;
 
-		display: flex;
-		flex-wrap: wrap;
+		display       : flex;
+		flex-wrap     : wrap;
 		flex-direction: column;
-		align-items: stretch;
+		align-items   : stretch;
 	}
 }
 
-.st-media-picker-item-ctrl {
-	display: flex;
+.wplug-bimeson-list-media-picker-item-ctrl {
+	display       : flex;
 	flex-direction: column;
-	padding-top: 0.15em;
-	padding-right: 16px;
-	width: 40px;
+	width         : 40px;
+	padding-top   : 0.15em;
+	padding-right : 16px;
 
-	.st-media-picker-handle {
+	.wplug-bimeson-list-media-picker-handle {
 		flex-grow: 1;
 
-		display: flex;
+		display        : flex;
+		align-items    : center;
 		justify-content: center;
-		align-items: center;
 
 		color: #bbb;
 		cursor: move;
 		max-height: 3rem;
 	}
-	.st-media-picker-delete-label {
-		display: flex;
+	.wplug-bimeson-list-media-picker-delete-label {
+		display       : flex;
 		flex-direction: column;
-		align-items: center;
+		align-items   : center;
 
 		white-space: nowrap;
 		color: #a00;
 		font-size: 11px;
 		line-height: 1;
 	}
-	.st-media-picker-delete {
+	.wplug-bimeson-list-media-picker-delete {
 		color: #a00;
 		margin-top: 2px;
 		margin-right: 0;
 	}
 }
 
-.st-media-picker-item-cont {
+.wplug-bimeson-list-media-picker-item-cont {
 	flex-grow: 1;
 	width: calc(100% - 40px);
 
-	.st-media-picker-item-deleted > & {
+	.wplug-bimeson-list-media-picker-item-deleted > & {
 		opacity: 0.5;
 		pointer-events: none;
 	}
 }
 
-.st-media-picker-item-inside-row {
+.wplug-bimeson-list-media-picker-item-inside-row {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -125,17 +125,23 @@ $breakpoint-single-wrap: 20rem;
 		flex-grow: 1;
 	}
 
-	.st-media-picker-select {
+	.wplug-bimeson-list-media-picker-select {
 		margin-left: 4px !important;
 	}
 }
 
-.st-media-picker-h-filename {
+.wplug-bimeson-list-media-picker-h-filename {
 	flex-grow: 1;
 	word-break: break-all;
 
-	border: 1px solid #eee;
-	margin: 1px;
+	margin : 1px;
 	padding: 3px 5px;
-}
 
+	border: 1px solid #ddd;
+
+	@media screen and (max-width: 782px) {
+		padding    : 3px 10px;
+		font-size  : 16px;
+		line-height: 2;
+	}
+}

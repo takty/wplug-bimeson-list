@@ -3,7 +3,7 @@
  * Common functions for gulp process
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-12
  *
  */
 
@@ -78,6 +78,15 @@ function makeCopyTask(src, dest = './dist', base = null) {
 	return copyTask;
 }
 
+function makeLocaleTask(src, dest = '/dest', base = null) {
+	const localeTask = () => gulp.src(src, { base: base })
+		.pipe($.plumber())
+		.pipe($.gettext())
+		.pipe($.changed(dest, { hasChanged: $.changed.compareContents, extension: '.mo' }))
+		.pipe(gulp.dest(dest));
+	return localeTask;
+}
+
 function makeTimestampTask(src, dest = './dist', base = null) {
 	const moment = require('moment');
 	const timestampTask = () => gulp.src(src, { base: base })
@@ -93,4 +102,5 @@ exports.makeJsTask        = makeJsTask;
 exports.makeCssTask       = makeCssTask;
 exports.makeSassTask      = makeSassTask;
 exports.makeCopyTask      = makeCopyTask;
+exports.makeLocaleTask    = makeLocaleTask;
 exports.makeTimestampTask = makeTimestampTask;
