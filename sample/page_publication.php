@@ -6,7 +6,7 @@
  * Template Name: Publications
  *
  * @author Takuto Yanagida
- * @version 2021-07-14
+ * @version 2021-07-19
  *
  */
 
@@ -15,19 +15,19 @@ get_header();
 ?>
 	<div id="primary" class="content-area">
 		<main id="main" class="site-main" role="main">
+
 <?php
 while ( have_posts() ) : the_post();
-	get_template_part( 'template-parts/content', 'page' );
-?>
-		<section>
-			<div class="entry-content">
-				<?php \wplug\bimeson_list\the_filter(); ?>
-				<?php \wplug\bimeson_list\the_list(); ?>
-			</div>
-		</section>
-<?php
+	get_template_part( 'template-parts/entry', 'page' );
 endwhile;
 ?>
+			<section>
+				<div class="entry-content">
+					<?php \wplug\bimeson_list\the_filter(); ?>
+					<?php \wplug\bimeson_list\the_list(); ?>
+				</div>
+			</section>
+
 		</main>
 	</div>
 <?php
