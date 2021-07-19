@@ -17,17 +17,17 @@ function register_shortcode( $lang ) {
 	\add_shortcode( 'publication', function ( $atts, ?string $content = null ) use ( $lang, $serial ): string {
 		if ( is_string( $atts ) ) $atts = [];
 
-		$list_id = _extractListIdAtts( $atts );
+		$list_id = _extract_list_id_atts( $atts );
 		if ( is_null( $list_id ) ) return '';
 
-		[ $date_bgn, $date_end ] = _extractDateAtts( $atts );
+		[ $date_bgn, $date_end ] = _extract_date_atts( $atts );
 
 		$count              = isset( $atts['count'] ) ? ( (int) $atts['count'] ) : null;
 		$sort_by_date_first = in_array( 'date-sort', $atts, true ) || (bool) ( $atts['date-sort'] ?? false );
 		$dup_multi_cat      = in_array( 'dup-item', $atts, true ) || (bool) ( $atts['dup-item'] ?? false );
 		$omit_single_cat    = in_array( 'omit-single', $atts, true ) || (bool) ( $atts['omit-single'] ?? false );
 
-		$filter_state = _extractFilterState( $atts );
+		$filter_state = _extract_filter_state( $atts );
 		[ $items, $years_exist ] = retrieve_items( $list_id, $lang, $date_bgn, $date_end, $count, $sort_by_date_first, $dup_multi_cat, $filter_state );
 
 		$serial += 1;
@@ -63,7 +63,7 @@ function register_shortcode( $lang ) {
 	} );
 }
 
-function _extractListIdAtts( array $atts ): ?int {
+function _extract_list_id_atts( array $atts ): ?int {
 	$slug = $atts['list'] ?? null;
 	if ( empty( $slug ) ) return null;
 
@@ -78,7 +78,7 @@ function _extractListIdAtts( array $atts ): ?int {
 	return null;
 }
 
-function _extractDateAtts( array $atts ): array {
+function _extract_date_atts( array $atts ): array {
 	$ds = [];
 	foreach ( [ 'date', 'date-start', 'date-end' ] as $key ) {
 		if ( ! empty( $atts[ $key ] ) ) {
@@ -98,7 +98,7 @@ function _extractDateAtts( array $atts ): array {
 	return [ $ds[0], end( $ds ) ];
 }
 
-function _extractFilterState( array $atts ): ?array {
+function _extract_filter_state( array $atts ): ?array {
 	$fs = [];
 	foreach ( get_root_slugs() as $rs ) {
 		if ( isset( $atts[ $rs ] ) ) {
