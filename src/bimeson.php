@@ -113,7 +113,7 @@ function save_meta_box( int $post_id ) {
 // -----------------------------------------------------------------------------
 
 
-function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-filter"%s>', string $after = '</div>', string $for = '' ) {
+function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-filter"%s>', string $after = '</div>', string $for = 'bml' ) {
 	$post    = get_post( $post_id );
 	$post_id = $post->ID;
 	$d       = _get_data( $post_id, $lang );
@@ -128,7 +128,7 @@ function the_filter( ?int $post_id = null, string $lang = '', string $before = '
 	echo $after;
 }
 
-function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-list"%s>', string $after = '</div>', string $id = '' ) {
+function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
 	$post    = get_post( $post_id );
 	$post_id = $post->ID;
 	$d       = _get_data( $post_id, $lang );
