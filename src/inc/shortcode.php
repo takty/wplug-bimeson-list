@@ -11,7 +11,7 @@
 
 namespace wplug\bimeson_list;
 
-function add_shortcode( $lang ) {
+function register_shortcode( $lang ) {
 	static $serial = 0;
 
 	\add_shortcode( 'publication', function ( $atts, ?string $content = null ) use ( $lang, $serial ): string {
@@ -35,6 +35,7 @@ function add_shortcode( $lang ) {
 
 		ob_start();
 		if ( isset( $atts['show-filter'] ) ) {
+			enqueue_script_filter();
 			printf( '<div class="bimeson-filter"%s>', " for=\"$id\"" );
 			echo_filter( $filter_state, $years_exist );
 			echo '</div>';

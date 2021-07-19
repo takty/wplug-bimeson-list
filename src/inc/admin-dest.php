@@ -8,15 +8,6 @@
 
 namespace wplug\bimeson_list;
 
-function enqueue_script_admin_dest( string $url_to ) {
-	wp_enqueue_style(  'bimeson_list_admin_dest', $url_to . '/assets/css/admin-dest.min.css' );
-	wp_enqueue_script( 'bimeson_list_admin_dest', $url_to . '/assets/js/admin-dest.min.js' );
-}
-
-
-// -----------------------------------------------------------------------------
-
-
 function add_meta_box_admin_dest( string $label, string $screen ) {
 	\add_meta_box( 'bimeson_admin_mb', $label, '\wplug\bimeson_list\_cb_output_html_admin_dest', $screen );
 }

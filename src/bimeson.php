@@ -23,7 +23,7 @@ function initialize( array $args = [] ) {
 	$inst = _get_instance();
 
 	$key_base = $args['key_base'] ?? '_bimeson_';
-	$url_to   = $args['url_to']   ?? false;
+	$url_to   = untrailingslashit( $args['url_to'] ?? get_file_uri( __DIR__ ) );
 	$lang     = $args['lang']     ?? '';
 
 	$inst->head_level       = $args['heading_level']    ?? 3;
@@ -49,15 +49,12 @@ function initialize( array $args = [] ) {
 	$inst->FLD_JSON_PARAMS             = $key_base . 'json_params';
 
 	_register_post_type();  // Do before initializing taxonomies
+
 	initialize_taxonomy();
 	initialize_filter();
 
-	if ( is_admin() ) {
-		if ( empty( $url_to ) ) $url_to = get_file_uri( __DIR__ );
-		initialize_admin_src( untrailingslashit( $url_to ) );
-	} else {
-		add_shortcode( $lang );
-	}
+	_register_script( $url_to );
+	if ( ! is_admin() ) register_shortcode( $lang );
 }
 
 function _register_post_type() {
@@ -75,6 +72,44 @@ function _register_post_type() {
 	] );
 }
 
+function _register_script( string $url_to ) {
+	if ( is_admin() ) {
+		if ( _is_the_src_post_type() ) {
+			add_action( 'admin_enqueue_scripts', function () use ( $url_to ) {
+				wp_enqueue_style(  'bimeson_list_admin_src', $url_to . '/assets/css/admin-src.min.css' );
+				wp_enqueue_script( 'bimeson_list_admin_src', $url_to . '/assets/js/admin-src.min.js' );
+				wp_enqueue_script( 'xlsx',                   $url_to . '/assets/js/xlsx.full.min.js' );
+
+				$pid = get_post_id();
+				wp_enqueue_media( [ 'post' => ( $pid === 0 ? null : $pid ) ] );
+				MediaPicker::enqueue_script( $url_to . '/assets/' );
+			} );
+			initialize_admin_src( $url_to );
+		} else {
+			add_action( 'admin_enqueue_scripts', function () use ( $url_to ) {
+				wp_enqueue_style(  'bimeson_list_admin_dest', $url_to . '/assets/css/admin-dest.min.css' );
+				wp_enqueue_script( 'bimeson_list_admin_dest', $url_to . '/assets/js/admin-dest.min.js' );
+			} );
+		}
+	} else {
+		add_action( 'wp_enqueue_scripts', function () use ( $url_to ) {
+			wp_register_style(  'bimeson_list_filter', $url_to . '/assets/css/filter.min.css' );
+			wp_register_script( 'bimeson_list_filter', $url_to . '/assets/js/filter.min.js' );
+		} );
+	}
+}
+
+function _is_the_src_post_type() {
+	$inst = _get_instance();
+	global $pagenow;
+	return in_array( $pagenow, [ 'post.php', 'post-new.php' ], true ) && is_post_type( $inst::PT );
+}
+
+function enqueue_script_filter() {
+	wp_enqueue_style(  'bimeson_list_filter' );
+	wp_enqueue_script( 'bimeson_list_filter' );
+}
+
 
 // -----------------------------------------------------------------------------
 
@@ -87,18 +122,6 @@ function get_taxonomy() {
 function get_sub_taxonomies() {
 	$inst = _get_instance();
 	return $inst->sub_taxes;
-}
-
-function enqueue_script( ?string $url_to = null ) {
-	if ( is_null( $url_to ) ) $url_to = get_file_uri( __DIR__ );
-	$url_to = untrailingslashit( $url_to );
-
-	if ( is_admin() ) {
-		enqueue_script_admin_dest( $url_to );
-	} else {
-		wp_enqueue_style(  'bimeson_list_filter', $url_to . '/assets/css/filter.min.css' );
-		wp_enqueue_script( 'bimeson_list_filter', $url_to . '/assets/js/filter.min.js' );
-	}
 }
 
 function add_meta_box( string $label, string $screen ) {
@@ -114,6 +137,7 @@ function save_meta_box( int $post_id ) {
 
 
 function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-filter"%s>', string $after = '</div>', string $for = 'bml' ) {
+	enqueue_script_filter();
 	$post    = get_post( $post_id );
 	$post_id = $post->ID;
 	$d       = _get_data( $post_id, $lang );

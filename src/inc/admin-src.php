@@ -12,26 +12,11 @@ require_once __DIR__ . '/../assets/media-picker.php';
 
 function initialize_admin_src( string $url_to ) {
 	$inst = _get_instance();
+
 	add_action( 'admin_menu',             '\wplug\bimeson_list\_cb_admin_menu_admin_src' );
 	add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_admin_src' );
 
-	_enqueue_script_admin_src( $url_to );
 	$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );
-}
-
-function _enqueue_script_admin_src( string $url_to ) {
-	$inst = _get_instance();
-	global $pagenow;
-	if ( $pagenow !== 'post.php' && $pagenow !== 'post-new.php' ) return;
-	if ( ! is_post_type( $inst::PT ) ) return;
-
-	MediaPicker::enqueue_script( $url_to . '/assets/' );
-	wp_enqueue_style(  'bimeson_list_admin_src', $url_to . '/assets/css/admin-src.min.css' );
-	wp_enqueue_script( 'bimeson_list_admin_src', $url_to . '/assets/js/admin-src.min.js' );
-	wp_enqueue_script( 'xlsx',                   $url_to . '/assets/js/xlsx.full.min.js' );
-
-	$pid = get_post_id();
-	wp_enqueue_media( [ 'post' => ( $pid === 0 ? null : $pid ) ] );
 }
 
 

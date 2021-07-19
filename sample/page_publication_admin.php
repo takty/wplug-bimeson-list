@@ -4,13 +4,12 @@
  * Admin for the Template for Publication Static Pages
  *
  * @author Takuto Yanagida
- * @version 2021-07-14
+ * @version 2021-07-19
  *
  */
 
 
 function setup_template_admin() {
-	\wplug\bimeson_list\enqueue_script();
 	\wplug\bimeson_list\add_meta_box( __( 'Publications' ), 'page' );
 
 	add_action( 'save_post_page', function ( $post_id ) {
