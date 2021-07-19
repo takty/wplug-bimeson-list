@@ -3,26 +3,26 @@
  * Utilities for Bimeson List
  *
  * @author Takuto Yanagida
- * @version 2021-07-09
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
 
-function is_post_type( $post_type ) {
+function is_post_type( string $post_type ): bool {
 	$post_id = get_post_id();
 	$pt = get_post_type_in_admin( $post_id );
 	return $post_type === $pt;
 }
 
-function get_post_id() {
+function get_post_id(): int {
 	$post_id = '';
 	if ( isset( $_GET['post'] ) || isset( $_POST['post_ID'] ) ) {
 		$post_id = isset( $_GET['post'] ) ? $_GET['post'] : $_POST['post_ID'];
 	}
-	return intval( $post_id );
+	return (int) $post_id;
 }
 
-function get_post_type_in_admin( $post_id ) {
+function get_post_type_in_admin( int $post_id ): string {
 	$p = get_post( $post_id );
 	if ( $p === null ) {
 		if ( isset( $_GET['post_type'] ) ) return $_GET['post_type'];
@@ -35,7 +35,7 @@ function get_post_type_in_admin( $post_id ) {
 // -----------------------------------------------------------------------------
 
 
-function get_file_uri( $path ) {
+function get_file_uri( string $path ): string {
 	$path = wp_normalize_path( $path );
 
 	if ( is_child_theme() ) {
@@ -57,7 +57,7 @@ function get_file_uri( $path ) {
 	}
 }
 
-function abs_url( $base, $rel ) {
+function abs_url( string $base, string $rel ): string {
 	if ( parse_url( $rel, PHP_URL_SCHEME ) != '' ) return $rel;
 	$base = trailingslashit( $base );
 	if ( $rel[0] === '#' || $rel[0] === '?' ) return $base . $rel;

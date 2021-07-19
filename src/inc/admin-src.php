@@ -3,14 +3,14 @@
  * Bimeson (Admin Src)
  *
  * @author Takuto Yanagida
- * @version 2021-07-14
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
 
 require_once __DIR__ . '/../assets/media-picker.php';
 
-function initialize_admin_src( $url_to ) {
+function initialize_admin_src( string $url_to ) {
 	$inst = _get_instance();
 	add_action( 'admin_menu',             '\wplug\bimeson_list\_cb_admin_menu_admin_src' );
 	add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_admin_src' );
@@ -19,7 +19,7 @@ function initialize_admin_src( $url_to ) {
 	$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );
 }
 
-function _enqueue_script_admin_src( $url_to ) {
+function _enqueue_script_admin_src( string $url_to ) {
 	$inst = _get_instance();
 	global $pagenow;
 	if ( $pagenow !== 'post.php' && $pagenow !== 'post-new.php' ) return;
@@ -35,7 +35,7 @@ function _enqueue_script_admin_src( $url_to ) {
 }
 
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 
 function _cb_admin_menu_admin_src() {
@@ -72,7 +72,7 @@ function _cb_output_html_admin_src() {
 <?php
 }
 
-function _cb_save_post_admin_src( $post_id ) {
+function _cb_save_post_admin_src( int $post_id ) {
 	$inst = _get_instance();
 	if ( ! isset( $_POST['bimeson_list_nonce'] ) || ! wp_verify_nonce( $_POST['bimeson_list_nonce'], 'bimeson_list' ) ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
@@ -93,10 +93,10 @@ function _cb_save_post_admin_src( $post_id ) {
 }
 
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 
-function _process_items( &$items ) {
+function _process_items( array &$items ) {
 	$inst = _get_instance();
 	foreach ( $items as &$item ) {
 		$date = ( ! empty( $item[ $inst::IT_DATE ] ) ) ? normalize_date( $item[ $inst::IT_DATE ] ) : '';

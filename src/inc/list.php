@@ -3,25 +3,22 @@
  * Bimeson (List)
  *
  * @author Takuto Yanagida
- * @version 2021-07-14
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
 
-function echo_heading_list_element( $args ) {
+function echo_heading_list_element( array $args ) {
 	$inst = _get_instance();
 
-	$its              = $args['items']       ?? [];
-	$lang             = $args['lang']        ?? '';
-	$year_format      = $args['year_format'] ?? null;
-	$term_name_getter = $args['term_name_getter'] ?? null;
+	$its  = $args['items'] ?? [];
+	$lang = $args['lang']  ?? '';
 
 	$root_slug_to_depth    = get_root_slug_to_sub_depths();
 	$sub_slug_to_last_omit = get_sub_slug_to_last_omit();
 
-	$filter_state       = $args['filter_state']       ?? false;
-	$sort_by_year_first = $args['sort_by_year_first'] ?? false;
-	$head_level         = $args['head_level']         ?? false;
+	$filter_state       = $args['filter_state']       ?? null;
+	$sort_by_date_first = $args['sort_by_date_first'] ?? false;
 
 	$last_cat_depth  = $root_slug_to_depth[ array_key_last( $root_slug_to_depth ) ];
 	$omitted_heading = _make_omitted_heading( $filter_state );
@@ -37,20 +34,20 @@ function echo_heading_list_element( $args ) {
 	$buf = new ItemBuffer( $lang );
 	$cur_year = '';
 	foreach ( $its as $it ) {
-		if ( $sort_by_year_first && isset( $it[ $inst::IT_DATE_NUM ] ) ) {
+		if ( $sort_by_date_first && isset( $it[ $inst::IT_DATE_NUM ] ) ) {
 			$year = substr( $it[ $inst::IT_DATE_NUM ], 0, 4 );
 			if ( $cur_year !== $year ) {
 				$buf->echo();
-				_echo_heading_year( 2, $it[ $inst::IT_DATE_NUM ], $year_format );
+				_echo_heading_year( 2, $it[ $inst::IT_DATE_NUM ], $inst->year_format );
 				$cur_year = $year;
 			}
 		}
-		$cat_slug = _get_cat_slug( $it, $hr_size_orig );
+		$cat_slugs = _get_cat_slug( $it, $hr_size_orig );
 		$hr = -1;
 		$hr_size = $hr_size_orig;
 
 		for ( $h = 0; $h < $hr_size_orig; $h++ ) {
-			$key = $cat_slug[ $h ];
+			$key = $cat_slugs[ $h ];
 			if ( isset( $sub_slug_to_last_omit[ $key ] ) ) {
 				$hr_size = $hr_size_orig - $last_cat_depth;
 			}
@@ -62,22 +59,21 @@ function echo_heading_list_element( $args ) {
 		if ( $hr !== -1 && $hr < $hr_size ) {
 			$is_cat_exist = false;
 			for ( $h = $hr; $h < $hr_size; $h++ ) {
-				if ( ! empty( $cat_slug[ $h ] ) ) {
-					$is_cat_exist = _is_cat_exist( $hr_to_sub_tax[ $h ], $cat_slug[ $h ] );
+				if ( ! empty( $cat_slugs[ $h ] ) ) {
+					$is_cat_exist = _is_cat_exist( $hr_to_sub_tax[ $h ], $cat_slugs[ $h ] );
 					if ( $is_cat_exist ) break;
 				}
 			}
 			if ( $is_cat_exist ) $buf->echo();
 			for ( $h = $hr; $h < $hr_size; $h++ ) {
-				if ( ! empty( $cat_slug[ $h ] ) ) {
-					if ( $omitted_heading === false || ! $omitted_heading[ $hr_to_sub_tax[ $h ] ] ) {
-						_echo_heading( $h, $head_level, $sort_by_year_first ? 1 : 0, $hr_to_sub_tax[ $h ], $cat_slug[ $h ], $term_name_getter );
+				if ( ! empty( $cat_slugs[ $h ] ) ) {
+					if ( is_null( $omitted_heading ) || ! $omitted_heading[ $hr_to_sub_tax[ $h ] ] ) {
+						_echo_heading( $h, $sort_by_date_first ? 1 : 0, $hr_to_sub_tax[ $h ], $cat_slugs[ $h ] );
 					}
 				}
 			}
 		}
-		$prev_cat_slug = $cat_slug;  // Clone!
-		$it['__cats__'] = implode( ',', $cat_slug );
+		$prev_cat_slug = $cat_slugs;  // Clone!
 		$buf->add( $it );
 	}
 	$buf->echo();
@@ -87,9 +83,9 @@ function echo_heading_list_element( $args ) {
 // -----------------------------------------------------------------------------
 
 
-function _make_omitted_heading( $filter_state ) {
+function _make_omitted_heading( ?array $filter_state ): ?array {
+	if ( is_null( $filter_state ) ) return null;
 	$inst = _get_instance();
-	if ( $filter_state === false ) return false;
 	$ret = [];
 	foreach ( $inst->sub_taxes as $rs => $sub_tax ) {
 		$ret[ $sub_tax ] = false;
@@ -99,16 +95,16 @@ function _make_omitted_heading( $filter_state ) {
 	return $ret;
 }
 
-function _get_cat_slug( $it, $hr_size ) {
+function _get_cat_slug( array $it, int $hr_size ): array {
 	$inst = _get_instance();
-	$cat_slug = explode( ',', $it[ $inst::IT_CAT_KEY ] );
-	if ( count( $cat_slug ) !== $hr_size ) {  // for invalid 'sortkey'
-		$cat_slug = array_pad( $cat_slug, $hr_size, '' );
+	$cat_slugs = explode( ',', $it[ $inst::IT_CAT_KEY ] );
+	if ( count( $cat_slugs ) !== $hr_size ) {  // for invalid sort key
+		$cat_slugs = array_pad( $cat_slugs, $hr_size, '' );
 	}
-	return $cat_slug;
+	return $cat_slugs;
 }
 
-function _is_cat_exist( $sub_tax, $slug ) {
+function _is_cat_exist( string $sub_tax, string $slug ): bool {
 	$t = get_term_by( 'slug', $slug, $sub_tax );
 	if ( ! $t ) return false;
 	return true;
@@ -118,24 +114,26 @@ function _is_cat_exist( $sub_tax, $slug ) {
 // -----------------------------------------------------------------------------
 
 
-function _echo_heading( $hr, $head_level, $sort_by_year_first, $sub_tax, $slug, $term_name_getter ) {
+function _echo_heading( int $hr, bool $sort_by_date_first, string $sub_tax, string $slug ) {
+	$inst = _get_instance();
+
 	$t = get_term_by( 'slug', $slug, $sub_tax );
 	if ( $t ) {
-		if ( is_callable( $term_name_getter ) ) {
-			$_label = esc_html( $term_name_getter( $t ) );
+		if ( is_callable( $inst->term_name_getter ) ) {
+			$_label = esc_html( ( $inst->term_name_getter )( $t ) );
 		} else {
 			$_label = esc_html( $t->name );
 		}
 	} else {
 		$_label = esc_html( is_numeric( $slug ) ? $slug : "[$slug]" );
 	}
-	$level = $hr + $head_level + ( $sort_by_year_first ? 1 : 0 );
+	$level = $hr + $inst->head_level + ( $sort_by_date_first ? 1 : 0 );
 	$tag   = ( $level <= 6 ) ? "h$level" : 'div';
 	$depth = $level - 1;
 	echo "<$tag class=\"$slug\" data-depth=\"$depth\">$_label</$tag>\n";
 }
 
-function _echo_heading_year( $level, $date_num, $format ) {
+function _echo_heading_year( int $level, string $date_num, string $format ) {
 	$year = substr( $date_num, 0, 4 );
 	if ( is_string( $format ) ) {
 		$_label = esc_html( sprintf( $format, (int) $year ) );
@@ -156,33 +154,30 @@ class ItemBuffer {
 	private $_items = [];
 	private $_lang;
 
-	public function __construct( $lang ) {
+	public function __construct( string $lang ) {
 		$this->_lang = $lang;
 	}
 
-	public function add( $item ) {
+	public function add( array $item ) {
 		$this->_items[] = $item;
 	}
 
 	public function echo() {
 		if ( ! empty( $this->_items ) ) {
-			echo_list_element( [ 'items' => $this->_items, 'lang' => $this->_lang ] );
+			echo_list_element( $this->_items, $this->_lang );
 			$this->_items = [];
 		}
 	}
 
-	public function has_item() {
+	public function has_item(): bool {
 		return ! empty( $this->_items );
 	}
 
 }
 
-function echo_list_element( $args ) {
-	$its  = $args['items'] ?? [];
-	$lang = $args['lang']  ?? '';
-
+function echo_list_element( array $its, string $lang ) {
 	$tag = ( count( $its ) === 1 ) ? 'ul' : 'ol';
-	echo "<$tag>\n";
+	echo "<$tag data-bm>\n";
 	foreach ( $its as $it ) _echo_list_item( $it, $lang );
 	echo "</$tag>\n";
 }
@@ -191,19 +186,9 @@ function _echo_list_item( $it, $lang ) {
 	$inst = _get_instance();
 
 	$body = '';
-	if ( ! empty( $lang ) && ! empty( $it[ $inst::IT_BODY . "_$lang" ] ) ) {
-		$body = $it[ $inst::IT_BODY . "_$lang" ];
-	} else if ( ! empty( $it[ $inst::IT_BODY ] ) ) {
-		$body = $it[ $inst::IT_BODY ];
-	} else {
-		return;
-	}
-	$_year = '';
-	if ( isset( $it[ $inst::IT_DATE_NUM ] ) ) {
-		$_year = esc_attr( substr( '' . $it[ $inst::IT_DATE_NUM ], 0, 4 ) );
-	}
-	$_cls = esc_attr( _make_cls( $it ) );
-	$_key = esc_attr( $it['__cats__'] ?? '' );
+	if ( ! empty( $lang ) ) $body = $it[ $inst::IT_BODY . "_$lang" ] ?? '';
+	if ( empty( $body ) ) $body = $it[ $inst::IT_BODY ] ?? '';
+	if ( empty( $body ) ) return;
 
 	$doi   = $it[ $inst::IT_DOI ]        ?? '';
 	$url   = $it[ $inst::IT_LINK_URL ]   ?? '';
@@ -211,9 +196,13 @@ function _echo_list_item( $it, $lang ) {
 
 	$_doi = '';
 	if ( ! empty( $doi ) ) {
-		$_url   = esc_url( "https://doi.org/$doi" );
-		$_title = esc_html( $doi );
-		$_doi   = "<span class=\"doi\">DOI: <a href=\"$_url\">$_title</a></span>";
+		$doi = preg_replace( '/^https?:\/\/doi\.org\//i', '', $doi );
+		$doi = trim( ltrim( $doi, '/' ) );
+		if ( ! empty( $doi ) ) {
+			$_url   = esc_url( "https://doi.org/$doi" );
+			$_title = esc_html( $doi );
+			$_doi   = "<span class=\"doi\">DOI: <a href=\"$_url\">$_title</a></span>";
+		}
 	}
 	$_link = '';
 	if ( ! empty( $url ) ) {
@@ -221,19 +210,24 @@ function _echo_list_item( $it, $lang ) {
 		$_title = empty( $title ) ? $_url : esc_html( $title );
 		$_link  = "<span class=\"link\"><a href=\"$_url\">$_title</a></span>";
 	}
+	$_cls = esc_attr( _make_cls( $it ) );
 
-	echo "<li class=\"$_cls\" data-year=\"$_year\" data-catkey=\"$_key\"><div>\n";
+	echo "<li class=\"$_cls\"><div>\n";
 	echo "<span class=\"body\">$body</span>$_link$_doi\n";
 	echo "</div></li>\n";
 }
 
-function _make_cls( $it ) {
+function _make_cls( array $it ): string {
 	$inst = _get_instance();
-	$cs  = [];
-	$tax = str_replace( '_', '-', $inst->root_tax );
-	foreach ( $it as $key => $val ) {
-		if ( $key[0] === '_' ) continue;
-		foreach ( $val as $v ) $cs[] = "$tax-$key-$v";
+	$cs   = [];
+
+	$year = $it[ $inst::IT_DATE_NUM ] ?? '';
+	if ( ! empty( $year ) ) {
+		$cs[] = $inst->year_cls_base . substr( '' . $year, 0, 4 );
 	}
-	return implode( ' ', $cs );
+	foreach ( $inst->sub_taxes as $rs => $sub_tax ) {
+		$ss = $it[ $rs ] ?? [];
+		foreach ( $ss as $s ) $cs[] = $inst->sub_tax_cls_base . "$rs-$s";
+	}
+	return str_replace( '_', '-', implode( ' ', $cs ) );
 }

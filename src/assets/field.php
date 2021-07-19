@@ -3,12 +3,12 @@
  * Custom Field Utilities
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
 
-function save_post_meta( $post_id, $key, $filter = null, $default = null ) {
+function save_post_meta( int $post_id, string $key, $filter = null, $default = null ) {
 	$val = isset( $_POST[ $key ] ) ? $_POST[ $key ] : null;
 	if ( $filter !== null && $val !== null ) {
 		$val = $filter( $val );
@@ -23,12 +23,12 @@ function save_post_meta( $post_id, $key, $filter = null, $default = null ) {
 	update_post_meta( $post_id, $key, $val );
 }
 
-function name_id( $key ) {
+function name_id( string $key ) {
 	$_key = esc_attr( $key );
 	echo "name=\"$_key\" id=\"$_key\"";
 }
 
-function normalize_date( $str ) {
+function normalize_date( string $str ): string {
 	$str = mb_convert_kana( $str, 'n', 'utf-8' );
 	$nums = preg_split( '/\D/', $str );
 	$vals = [];
@@ -50,32 +50,32 @@ function normalize_date( $str ) {
 // Multiple Post Meta ----------------------------------------------------------
 
 
-function get_multiple_post_meta( $post_id, $base_key, $keys ) {
-	$ret = [];
+function get_multiple_post_meta( int $post_id, string $base_key, array $keys ): array {
+	$ret   = [];
 	$count = (int) get_post_meta( $post_id, $base_key, true );
 
 	for ( $i = 0; $i < $count; $i += 1 ) {
 		$bki = "{$base_key}_{$i}_";
 		$set = [];
 		foreach ( $keys as $key ) {
-			$val = get_post_meta( $post_id, $bki . $key, true );
-			$set[$key] = $val;
+			$val         = get_post_meta( $post_id, $bki . $key, true );
+			$set[ $key ] = $val;
 		}
 		$ret[] = $set;
 	}
 	return $ret;
 }
 
-function get_multiple_post_meta_from_post( $base_key, $keys ) {
-	$ret = [];
-	$count = isset( $_POST[$base_key] ) ? (int) $_POST[$base_key] : 0;
+function get_multiple_post_meta_from_post( string $base_key, array $keys ): array {
+	$ret   = [];
+	$count = (int) ( $_POST[ $base_key ] ?? 0 );
 
 	for ( $i = 0; $i < $count; $i += 1 ) {
 		$bki = "{$base_key}_{$i}_";
 		$set = [];
 		foreach ( $keys as $key ) {
-			$k = $bki . $key;
-			$val = isset( $_POST[$k] ) ? $_POST[$k] : '';
+			$k         = $bki . $key;
+			$val       = $_POST[ $k ] ?? '';
 			$set[$key] = $val;
 		}
 		$ret[] = $set;
@@ -83,7 +83,7 @@ function get_multiple_post_meta_from_post( $base_key, $keys ) {
 	return $ret;
 }
 
-function update_multiple_post_meta( $post_id, $base_key, $metas, $keys = null ) {
+function update_multiple_post_meta( int $post_id, string $base_key, array $metas, ?array $keys = null ) {
 	$metas = array_values( $metas );
 	$count = count( $metas );
 
@@ -105,9 +105,9 @@ function update_multiple_post_meta( $post_id, $base_key, $metas, $keys = null ) 
 	update_post_meta( $post_id, $base_key, $count );
 	for ( $i = 0; $i < $count; $i += 1 ) {
 		$bki = "{$base_key}_{$i}_";
-		$set = $metas[$i];
+		$set = $metas[ $i ];
 		foreach ( $keys as $key ) {
-			update_post_meta( $post_id, $bki . $key, $set[$key] );
+			update_post_meta( $post_id, $bki . $key, $set[ $key ] );
 		}
 	}
 }

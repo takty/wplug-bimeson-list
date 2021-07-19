@@ -3,14 +3,16 @@
  * Bimeson List Filter
  *
  * @author Takuto Yanagida
- * @version 2021-07-14
+ * @version 2021-07-19
  *
  */
 
 
 document.addEventListener('DOMContentLoaded', function () {
 
-	const SEL_ITEM_ALL        = '.bimeson-list > *';
+	const SEL_FILTER = '.bimeson-filter';
+	const SEL_LIST   = '.bimeson-list';
+
 	const SEL_FILTER_KEY      = '.bimeson-filter-key';
 	const SEL_FILTER_SWITCH   = '.bimeson-filter-switch';
 	const SEL_FILTER_CHECKBOX = 'input:not(.bimeson-filter-switch)';
@@ -18,64 +20,82 @@ document.addEventListener('DOMContentLoaded', function () {
 	const SEL_FILTER_SELECT = '.bimeson-filter-select';
 	const KEY_YEAR          = '_year';
 	const VAL_YEAR_ALL      = 'all';
-	const DS_KEY_YEAR       = 'year';
 
-	var keyToSwAndCbs = {}, yearSelect = null;
-	var fkElms = document.querySelectorAll(SEL_FILTER_KEY);
-	for (var i = 0; i < fkElms.length; i += 1) {
-		var elm = fkElms[i];
-		var sw = elm.querySelector(SEL_FILTER_SWITCH);
-		var cbs = elm.querySelectorAll(SEL_FILTER_CHECKBOX);
-		if (sw && cbs) keyToSwAndCbs[elm.dataset.key] = [sw, cbs];
-		if (elm.dataset.key === KEY_YEAR) {
-			yearSelect = elm.querySelector(SEL_FILTER_SELECT);
+	const SUB_TAX_CLS_BASE  = document.getElementById('bimeson-sub-tax-cls-base')?.value  ?? 'bm-cat-';
+	const SUB_TAX_QVAR_BASE = document.getElementById('bimeson-sub-tax-qvar-base')?.value ?? 'bm_';
+	const YEAR_CLS_BASE     = document.getElementById('bimeson-year-cls-base')?.value     ?? 'bm-year-';
+	const YEAR_QVAR         = document.getElementById('bimeson-year-qvar')?.value         ?? 'bm_year';
+
+	const DS_KEY   = 'key';    // For filters
+	const DS_COUNT = 'count';  // For headings and lists
+	const DS_DEPTH = 'depth';  // For headings
+
+	const fs = document.querySelectorAll(SEL_FILTER);
+	for (let i = 0; i < fs.length; i += 1) {
+		const f = fs[i];
+		const t = f.getAttribute('for');
+		if (t) {
+			let l = document.querySelector(SEL_LIST + '#' + t);
+			if (!l) l = document.querySelector(SEL_LIST);
+			if (l) initialize(f, l);
+		} else {
+			const l = document.querySelector(SEL_LIST);
+			if (l) initialize(f, l);
 		}
 	}
 
-	for (var key in keyToSwAndCbs) {
-		var sw = keyToSwAndCbs[key][0];
-		var cbs = keyToSwAndCbs[key][1];
-		assignEventListener(sw, cbs, update);
+	function initialize(filterElm, listElm) {
+		const fkElms  = filterElm.querySelectorAll(SEL_FILTER_KEY);
+		const allElms = listElm.querySelectorAll(':scope > *');
+
+		const keyToSwAndCbs = {};
+		let yearSelect = null;
+
+		for (let i = 0; i < fkElms.length; i += 1) {
+			const elm = fkElms[i];
+			if (elm.dataset[DS_KEY] === KEY_YEAR) {
+				yearSelect = elm.querySelector(SEL_FILTER_SELECT);
+			} else {
+				const sw  = elm.querySelector(SEL_FILTER_SWITCH);
+				const cbs = elm.querySelectorAll(SEL_FILTER_CHECKBOX);
+				if (sw && cbs) keyToSwAndCbs[elm.dataset[DS_KEY]] = [sw, cbs];
+			}
+		}
+		for (let key in keyToSwAndCbs) {
+			const [sw, cbs] = keyToSwAndCbs[key];
+			assignEventListener(sw, cbs, () => { update(allElms, keyToSwAndCbs, yearSelect); });
+		}
+		if (yearSelect) {
+			assignEventListenerSelect(yearSelect, () => { update(allElms, keyToSwAndCbs, yearSelect); });
+		}
+		update(allElms, keyToSwAndCbs, yearSelect);
 	}
-	if (yearSelect) assignEventListenerSelect(yearSelect);
 
-	var allElms = document.querySelectorAll(SEL_ITEM_ALL);
-	update();
-
-	function update() {
-		var keyToVals = getKeyToVals(keyToSwAndCbs);
-		var year = (yearSelect && yearSelect.value !== VAL_YEAR_ALL) ? yearSelect.value : false;
+	function update(allElms, keyToSwAndCbs, yearSelect) {
+		const keyToVals = getKeyToVals(keyToSwAndCbs);
+		const year = (yearSelect && yearSelect.value !== VAL_YEAR_ALL) ? yearSelect.value : null;
 		filterLists(allElms, keyToVals, year);
 		countUpItems(allElms);
-		setUrlParams(keyToSwAndCbs, yearSelect);
+		setUrlParams(keyToVals, yearSelect);
 	}
 
 
 	// -------------------------------------------------------------------------
 
 
-	function setUrlParams(keyToSwAndCbs, yearSelect) {
-		var ps = [];
-		for (var key in keyToSwAndCbs) {
-			var sw = keyToSwAndCbs[key][0];
-			var cbs = keyToSwAndCbs[key][1];
-			if (sw.checked) ps.push('bm-cat-' + key + '=' + concatCheckedQvals(cbs));
+	function setUrlParams(keyToVals, yearSelect) {
+		const ps = [];
+		for (let key in keyToVals) {
+			const vs = keyToVals[key];
+			ps.push(`${SUB_TAX_QVAR_BASE}${key}=${vs.join(',')}`);
 		}
-		if (yearSelect && yearSelect.value !== VAL_YEAR_ALL) ps.push('bm-year=' + yearSelect.value);
+		if (yearSelect && yearSelect.value !== VAL_YEAR_ALL) ps.push(`${YEAR_QVAR}=${yearSelect.value}`);
 		if (ps.length > 0) {
-			var ret = '?' + ps.join('&');
+			const ret = '?' + ps.join('&');
 			history.replaceState('', '', ret);
 		} else {
 			history.replaceState('', '', document.location.origin + document.location.pathname);
 		}
-	}
-
-	function concatCheckedQvals(cbs) {
-		var vs = [];
-		for (var i = 0; i < cbs.length; i += 1) {
-			if (cbs[i].checked) vs.push(cbs[i].value);
-		}
-		return vs.join(',');
 	}
 
 
@@ -85,11 +105,14 @@ document.addEventListener('DOMContentLoaded', function () {
 	function assignEventListener(sw, cbs, update) {
 		sw.addEventListener('click', function () {
 			if (sw.checked && !isCheckedAtLeastOne(cbs)) {
-				for (var i = 0; i < cbs.length; i += 1) cbs[i].checked = true;
+				for (let i = 0; i < cbs.length; i += 1) cbs[i].checked = true;
+			}
+			if (!sw.checked && isCheckedAll(cbs)) {
+				for (let i = 0; i < cbs.length; i += 1) cbs[i].checked = false;
 			}
 			update();
 		});
-		for (var i = 0; i < cbs.length; i += 1) {
+		for (let i = 0; i < cbs.length; i += 1) {
 			cbs[i].addEventListener('click', function () {
 				sw.checked = isCheckedAtLeastOne(cbs);
 				update();
@@ -97,32 +120,38 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	}
 
-	function assignEventListenerSelect(yearSelect) {
+	function assignEventListenerSelect(yearSelect, update) {
 		yearSelect.addEventListener('change', function() {
 			update();
 		});
 	}
 
 	function isCheckedAtLeastOne(cbs) {
-		for (var i = 0; i < cbs.length; i += 1) {
+		for (let i = 0; i < cbs.length; i += 1) {
 			if (cbs[i].checked) return true;
 		}
 		return false;
 	}
 
+	function isCheckedAll(cbs) {
+		for (let i = 0; i < cbs.length; i += 1) {
+			if (!cbs[i].checked) return false;
+		}
+		return true;
+	}
+
 	function getKeyToVals(keyToSwAndCbs) {
-		var kvs = {};
-		for (var key in keyToSwAndCbs) {
-			var fs = keyToSwAndCbs[key][0];
-			var cbs = keyToSwAndCbs[key][1];
-			if (fs.checked) kvs[key] = getCheckedVals(cbs);
+		const kvs = {};
+		for (let key in keyToSwAndCbs) {
+			const [sw, cbs] = keyToSwAndCbs[key];
+			if (sw.checked) kvs[key] = getCheckedVals(cbs);
 		}
 		return kvs;
 	}
 
 	function getCheckedVals(cbs) {
-		var vs = [];
-		for (var i = 0; i < cbs.length; i += 1) {
+		const vs = [];
+		for (let i = 0; i < cbs.length; i += 1) {
 			if (cbs[i].checked) vs.push(cbs[i].value);
 		}
 		return vs;
@@ -132,32 +161,38 @@ document.addEventListener('DOMContentLoaded', function () {
 	// -------------------------------------------------------------------------
 
 
-	function filterLists(elms, fkeyToVals, year) {
-		for (var j = 0, J = elms.length; j < J; j += 1) {
-			var elm = elms[j];
+	function filterLists(elms, keyToVals, year) {
+		for (let j = 0, J = elms.length; j < J; j += 1) {
+			const elm = elms[j];
 			if (elm.tagName !== 'OL' && elm.tagName !== 'UL') continue;
-			var lis = elm.getElementsByTagName('li');
-			var showCount = 0;
-			for (var i = 0, I = lis.length; i < I; i += 1) {
-				var li = lis[i];
-				var show = isMatch(li, fkeyToVals, year);
-				li.style.display = show ? '' : 'none';
-				if (show) showCount += 1;
+			const lis = elm.getElementsByTagName('li');
+			let showCount = 0;
+			for (let i = 0, I = lis.length; i < I; i += 1) {
+				const li = lis[i];
+				const show = isMatch(li, keyToVals, year);
+				if (show) {
+					showCount += 1;
+					li.removeAttribute('hidden');
+				} else {
+					li.setAttribute('hidden', '');
+				}
 			}
-			elm.dataset['count'] = showCount;
+			elm.dataset[DS_COUNT] = showCount;
 		}
 	}
 
-	function isMatch(itemElm, fkeyToVals, year) {
-		if (year !== false) {
-			if (itemElm.dataset[DS_KEY_YEAR] !== year) return false;
+	function isMatch(itemElm, keyToVals, year) {
+		if (year !== null) {
+			const cls = `${YEAR_CLS_BASE}${year}`.replace('_', '-');
+			if (!itemElm.classList.contains(cls)) return false;
 		}
-		for (var key in fkeyToVals) {
-			var fvals = fkeyToVals[key];
-			var contains = false;
+		for (let key in keyToVals) {
+			const vs = keyToVals[key];
+			let contains = false;
 
-			for (var i = 0; i < fvals.length; i += 1) {
-				if (itemElm.classList.contains('bm-cat-' + key + '-' + fvals[i])) {
+			for (let i = 0; i < vs.length; i += 1) {
+				const cls = `${SUB_TAX_CLS_BASE}${key}-${vs[i]}`.replace('_', '-');
+				if (itemElm.classList.contains(cls)) {
 					contains = true;
 					break;
 				}
@@ -172,34 +207,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 	function countUpItems(elms) {
-		for (var i = 0, I = elms.length; i < I; i += 1) {
-			var elm = elms[i];
-			if (elm.dataset['depth']) elm.dataset['count'] = 0;  // 'elm' is heading
+		for (let i = 0, I = elms.length; i < I; i += 1) {
+			const elm = elms[i];
+			if (elm.dataset[DS_DEPTH]) elm.dataset[DS_COUNT] = 0;  // 'elm' is heading
 		}
-		var headers = [];
-		for (var i = 0, I = elms.length; i < I; i += 1) {
-			var elm = elms[i];
-			if (elm.dataset['depth']) {  // 'elm' is heading
-				var hi = parseInt(elm.dataset.depth);
+		const headers = [];
+		for (let i = 0, I = elms.length; i < I; i += 1) {
+			const elm = elms[i];
+			if (elm.dataset[DS_DEPTH]) {  // 'elm' is heading
+				const hi = parseInt(elm.dataset[DS_DEPTH]);
 				while (headers.length > 0) {
-					var l = headers[headers.length - 1];
-					if (hi > parseInt(l.dataset.depth)) break;
+					const l = headers[headers.length - 1];
+					if (hi > parseInt(l.dataset[DS_DEPTH])) break;
 					headers.length -= 1;
 				}
 				headers.push(elm);
 			} else {  // 'elm' is list
-				var itemCount = parseInt(elm.dataset['count']);
-				for (var j = 0; j < headers.length; j += 1) {
-					var h = headers[j];
-					h.dataset['count'] = parseInt(h.dataset['count']) + itemCount;
+				const itemCount = parseInt(elm.dataset[DS_COUNT]);
+				for (let j = 0; j < headers.length; j += 1) {
+					const h = headers[j];
+					h.dataset[DS_COUNT] = parseInt(h.dataset[DS_COUNT]) + itemCount;
 				}
-			}
-		}
-		for (var i = 0, I = elms.length; i < I; i += 1) {
-			var elm = elms[i];
-			if (elm.dataset['depth']) {  // 'elm' is heading
-				var itemCount = parseInt(elm.dataset['count']);
-				elm.style.display = itemCount > 0 ? '' : 'none';
 			}
 		}
 	}

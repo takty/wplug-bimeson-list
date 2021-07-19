@@ -3,7 +3,7 @@
  * Media Picker (JS)
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2021-07-19
  *
  */
 
@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 });
 
-function setMediaPicker(elm, cls = false, fn = null, opts = {}) {
-	if (cls === false) cls = 'media';
-	opts = Object.assign({ multiple: false, type: '', parentGen: 1, title: false }, opts);
+function setMediaPicker(elm, cls = null, fn = null, opts = {}) {
+	if (cls === null) cls = 'media';
+	opts = Object.assign({ multiple: false, type: '', parentGen: 1, title: null }, opts);
 
 	const postId = document.getElementById('post_ID').value;
 	let cm = null;
@@ -25,7 +25,7 @@ function setMediaPicker(elm, cls = false, fn = null, opts = {}) {
 		e.preventDefault();
 		if (!cm) {
 			wp.media.view.AttachmentsBrowser = AttachmentsBrowserCustom;
-			cm = createMedia(postId, opts.title === false ? e.target.innerText : opts.title, opts.multiple, opts.type);
+			cm = createMedia(postId, opts.title === null ? e.target.innerText : opts.title, opts.multiple, opts.type);
 			cm.on('select', function () {
 				const parent = getParent(e.target, opts.parentGen);
 				if (opts.multiple) {

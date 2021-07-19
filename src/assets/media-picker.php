@@ -3,7 +3,7 @@
  * Media Picker (PHP)
  *
  * @author Takuto Yanagida
- * @version 2021-07-12
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
@@ -36,13 +36,13 @@ class MediaPicker {
 
 	static private $_instance = [];
 
-	static public function get_instance( $key = false ) {
-		if ( $key === false ) return reset( self::$_instance );
+	static public function get_instance( ?string $key ) {
+		if ( is_null( $key ) ) return reset( self::$_instance );
 		if ( isset( self::$_instance[ $key ] ) ) return self::$_instance[ $key ];
 		return new MediaPicker( $key );
 	}
 
-	static public function enqueue_script( $url_to = false ) {
+	static public function enqueue_script( string $url_to ) {
 		if ( is_admin() ) {
 			$url_to = untrailingslashit( $url_to );
 			wp_enqueue_script( 'picker-media', $url_to . '/js/picker-media.min.js', [], 1.0, true );
@@ -56,19 +56,19 @@ class MediaPicker {
 
 	private $_is_title_editable = true;
 
-	public function __construct( $key ) {
+	public function __construct( string $key ) {
 		$this->_key = $key;
 		$this->_id  = $key;
 		self::$_instance[ $key ] = $this;
 	}
 
-	public function set_title_editable( $flag ) {
+	public function set_title_editable( bool $flag ) {
 		$this->_is_title_editable = $flag;
 		return $this;
 	}
 
-	public function get_items( $post_id = false ) {
-		if ( $post_id === false ) $post_id = get_the_ID();
+	public function get_items( ?int $post_id = null ): array {
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
 
 		$keys = [ 'media', 'url', 'title', 'filename', 'id' ];
 		$its = get_multiple_post_meta( $post_id, $this->_key, $keys );
@@ -88,11 +88,11 @@ class MediaPicker {
 	// -------------------------------------------------------------------------
 
 
-	public function add_meta_box( $label, $screen, $context = 'advanced' ) {
+	public function add_meta_box( string $label, string $screen, string $context = 'advanced' ) {
 		\add_meta_box( "{$this->_key}_mb", $label, [ $this, '_cb_output_html' ], $screen, $context );
 	}
 
-	public function save_meta_box( $post_id ) {
+	public function save_meta_box( int $post_id ) {
 		if ( ! isset( $_POST["{$this->_key}_nonce"] ) ) return;
 		if ( ! wp_verify_nonce( $_POST["{$this->_key}_nonce"], $this->_key ) ) return;
 		if ( empty( $_POST[ $this->_key ] ) ) return;  // Do not save before JS is executed
@@ -103,12 +103,12 @@ class MediaPicker {
 	// -------------------------------------------------------------------------
 
 
-	public function _cb_output_html( $post ) {  // Private
+	public function _cb_output_html( \WP_Post $post ) {  // Private
 		wp_nonce_field( $this->_key, "{$this->_key}_nonce" );
 		$this->output_html( $post->ID );
 	}
 
-	public function output_html( $post_id = false ) {
+	public function output_html( ?int $post_id = null ) {
 		$its = $this->get_items( $post_id );
 ?>
 		<input type="hidden" <?php name_id( $this->_id ) ?> value="" />
@@ -130,7 +130,7 @@ class MediaPicker {
 	const CLS_ITEM_CTRL = self::NS . '-item-ctrl';
 	const CLS_ITEM_CONT = self::NS . '-item-cont';
 
-	public function _output_row( $it, $cls ) {
+	public function _output_row( array $it, string $cls ) {
 		$_url       = isset( $it['url'] )      ? esc_attr( $it['url'] )      : '';
 		$_media     = isset( $it['media'] )    ? esc_attr( $it['media'] )    : '';
 		$_title     = isset( $it['title'] )    ? esc_attr( $it['title'] )    : '';
@@ -168,7 +168,7 @@ class MediaPicker {
 	// -------------------------------------------------------------------------
 
 
-	public function save_items( $post_id ) {
+	public function save_items( int $post_id ) {
 		$keys = [ 'media', 'url', 'title', 'filename', 'delete' ];
 
 		$its = get_multiple_post_meta_from_post( $this->_key, $keys );

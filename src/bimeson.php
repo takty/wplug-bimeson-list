@@ -3,7 +3,7 @@
  * Functions and Definitions for Bimeson
  *
  * @author Takuto Yanagida
- * @version 2021-07-15
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
@@ -11,38 +11,52 @@ namespace wplug\bimeson_list;
 require_once __DIR__ . '/assets/util.php';
 require_once __DIR__ . '/assets/field.php';
 require_once __DIR__ . '/inc/inst.php';
+require_once __DIR__ . '/inc/taxonomy.php';
+require_once __DIR__ . '/inc/retriever.php';
 require_once __DIR__ . '/inc/admin-dest.php';
 require_once __DIR__ . '/inc/admin-src.php';
-require_once __DIR__ . '/inc/taxonomy.php';
 require_once __DIR__ . '/inc/filter.php';
 require_once __DIR__ . '/inc/list.php';
+require_once __DIR__ . '/inc/shortcode.php';
 
-function initialize( string $key_base = '_bimeson_', $taxonomy = false, $sub_tax_base = false, $url_to = false ) {
+function initialize( array $args = [] ) {
 	$inst = _get_instance();
+
+	$key_base = $args['key_base'] ?? '_bimeson_';
+	$url_to   = $args['url_to']   ?? false;
+	$lang     = $args['lang']     ?? '';
+
+	$inst->head_level       = $args['heading_level']    ?? 3;
+	$inst->year_format      = $args['year_format']      ?? null;
+	$inst->term_name_getter = $args['term_name_getter'] ?? null;
+
+	$inst->root_tax          = $args['taxonomy']          ?? $inst::DEFAULT_TAXONOMY;
+	$inst->sub_tax_base      = $args['sub_tax_base']      ?? $inst::DEFAULT_SUB_TAX_BASE;
+	$inst->sub_tax_cls_base  = $args['sub_tax_cls_base']  ?? $inst::DEFAULT_SUB_TAX_CLS_BASE;
+	$inst->sub_tax_qvar_base = $args['sub_tax_qvar_base'] ?? $inst::DEFAULT_SUB_TAX_QVAR_BASE;
+
+	$inst->year_cls_base = $args['year_cls_base'] ?? $inst::DEFAULT_YEAR_CLS_BASE;
+	$inst->year_qvar     = $args['year_qvar']     ?? $inst::DEFAULT_YEAR_QVAR;
+
 	$inst->FLD_LIST_ID                 = $key_base . 'list_id';
 	$inst->FLD_YEAR_START              = $key_base . 'year_start';
 	$inst->FLD_YEAR_END                = $key_base . 'year_end';
 	$inst->FLD_COUNT                   = $key_base . 'count';
-	$inst->FLD_SHOW_FILTER             = $key_base . 'show_filter';
 	$inst->FLD_SORT_BY_DATE_FIRST      = $key_base . 'sort_by_date_first';
+	$inst->FLD_DUP_MULTI_CAT           = $key_base . 'duplicate_multi_category';
+	$inst->FLD_SHOW_FILTER             = $key_base . 'show_filter';
 	$inst->FLD_OMIT_HEAD_OF_SINGLE_CAT = $key_base . 'omit_head_of_single_cat';
 	$inst->FLD_JSON_PARAMS             = $key_base . 'json_params';
 
 	_register_post_type();  // Do before initializing taxonomies
-	initialize_taxonomy( $taxonomy, $sub_tax_base );
+	initialize_taxonomy();
 	initialize_filter();
 
 	if ( is_admin() ) {
-		initialize_admin_src( $url_to );
+		if ( empty( $url_to ) ) $url_to = get_file_uri( __DIR__ );
+		initialize_admin_src( untrailingslashit( $url_to ) );
 	} else {
-		add_shortcode( 'publication', function ( $atts, $content = null ) {
-			global $post;
-			ob_start();
-			$inst->the_filter_list( $post->ID );
-			$ret = ob_get_contents();
-			ob_end_clean();
-			return $ret;
-		} );
+		add_shortcode( $lang );
 	}
 }
 
@@ -61,23 +75,8 @@ function _register_post_type() {
 	] );
 }
 
-function set_heading_level( $level ) {
-	$inst = _get_instance();
-	$inst->head_level = $level;
-}
 
-function set_year_format( $format ) {
-	$inst = _get_instance();
-	$inst->year_format = $format;
-}
-
-function set_term_name_getter( $func ) {
-	$inst = _get_instance();
-	$inst->term_name_getter = $func;
-}
-
-
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 
 function get_taxonomy() {
@@ -90,8 +89,8 @@ function get_sub_taxonomies() {
 	return $inst->sub_taxes;
 }
 
-function enqueue_script( $url_to = false ) {
-	if ( $url_to === false ) $url_to = get_file_uri( __DIR__ );
+function enqueue_script( ?string $url_to = null ) {
+	if ( is_null( $url_to ) ) $url_to = get_file_uri( __DIR__ );
 	$url_to = untrailingslashit( $url_to );
 
 	if ( is_admin() ) {
@@ -102,216 +101,94 @@ function enqueue_script( $url_to = false ) {
 	}
 }
 
-function add_meta_box( $label, $screen ) {
+function add_meta_box( string $label, string $screen ) {
 	add_meta_box_admin_dest( $label, $screen );
 }
 
-function save_meta_box( $post_id ) {
+function save_meta_box( int $post_id ) {
 	save_meta_box_admin_dest( $post_id );
 }
 
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 
-function the_filter( $post_id = null, $lang = '' ) {
-	$post = get_post( $post_id );
+function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-filter"%s>', string $after = '</div>', string $for = '' ) {
+	$post    = get_post( $post_id );
 	$post_id = $post->ID;
+	$d       = _get_data( $post_id, $lang );
 
-	$d = _get_data( $post_id, $lang );
-	if ( $d['show_filter'] ) {
-		echo_filter( $d['filter_state'], $d['years_exist'] );
-	}
+	if ( ! $d || ! $d['show_filter'] ) return;
+
+	if ( ! empty( $for ) ) $for = " for=\"$for\"";
+	$before = sprintf( $before, $for );
+
+	echo $before;
+	echo_filter( $d['filter_state'], $d['years_exist'] );
+	echo $after;
 }
 
-function the_list( $post_id = null, $lang = '', $before = '<div class="bimeson-list">', $after = '</div>' ) {
-	$inst = _get_instance();
-	$post = get_post( $post_id );
+function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-list"%s>', string $after = '</div>', string $id = '' ) {
+	$post    = get_post( $post_id );
 	$post_id = $post->ID;
+	$d       = _get_data( $post_id, $lang );
 
-	$d = _get_data( $post_id, $lang );
-	if ( is_array( $d['items'] ) ) {
-		echo $before;
-		if ( $d['count'] === false ) {
-			echo_heading_list_element( [
-				'items'            => $d['items'],
-				'lang'             => $lang,
-				'year_format'      => $inst->year_format,
-				'term_name_getter' => $inst->term_name_getter,
+	if ( ! $d || ! is_array( $d['items'] ) ) return;
 
-				'filter_state'       => $d['omit_single_cat'] ? $d['filter_state'] : false,
-				'sort_by_year_first' => $d['sort_by_year_first'],
-				'head_level'         => $inst->head_level,
-			] );
-		} else {
-			echo_list_element( [
-				'items'    => $d['items'],
-				'lang'     => $lang,
-			] );
-		}
-		echo $after;
+	if ( ! empty( $id ) ) $id = " id=\"$id\"";
+	$before = sprintf( $before, $id );
+
+	echo $before;
+	if ( is_null( $d['count'] ) ) {
+		echo_heading_list_element( [
+			'items' => $d['items'],
+			'lang'  => $lang,
+
+			'sort_by_date_first' => $d['sort_by_date_first'],
+			'filter_state'       => $d['omit_single_cat'] ? $d['filter_state'] : null,
+		] );
+	} else {
+		echo_list_element( $d['items'], $lang );
 	}
+	echo $after;
 }
 
-
-// -------------------------------------------------------------------------
-
-
-function _get_data( $post_id, $lang ) {
+function _get_data( int $post_id, string $lang ): array {
 	$inst = _get_instance();
 	if ( isset( $inst->cache[ "$post_id$lang" ] ) ) return $inst->cache[ "$post_id$lang" ];
 
-	$filter_state       = json_decode( get_post_meta( $post_id, $inst->FLD_JSON_PARAMS, true ), true );
-	$sort_by_year_first = get_post_meta( $post_id, $inst->FLD_SORT_BY_DATE_FIRST, true ) === 'true';
-	$show_filter        = get_post_meta( $post_id, $inst->FLD_SHOW_FILTER, true ) === 'true';
-	$omit_single_cat    = get_post_meta( $post_id, $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT, true ) === 'true';
-	$temp               = get_post_meta( $post_id, $inst->FLD_COUNT, true );
-	$count              = ( empty( $temp ) || (int) $temp < 1 ) ? false : (int) $temp;
-	$temp               = get_post_meta( $post_id, $inst->FLD_YEAR_START, true );
-	$year_bgn           = ( empty( $temp ) || (int) $temp < 1970 || (int) $temp > 3000 ) ? false : (int) $temp;
-	$temp               = get_post_meta( $post_id, $inst->FLD_YEAR_END, true );
-	$year_end           = ( empty( $temp ) || (int) $temp < 1970 || (int) $temp > 3000 ) ? false : (int) $temp;
+	$year_bgn = _get_post_meta_int( $post_id, $inst->FLD_YEAR_START, 1970, 3000 );
+	$year_end = _get_post_meta_int( $post_id, $inst->FLD_YEAR_END, 1970, 3000 );
+	if ( is_int( $year_bgn ) && is_int( $year_end ) && $year_end < $year_bgn ) {
+		[ $year_bgn, $year_end ] = [ $year_end, $year_bgn ];
+	}
+	$count    = _get_post_meta_int( $post_id, $inst->FLD_COUNT, 1, 9999 );
 
-	$items = _get_list_items( $post_id );
-	_sort_list_items( $items, $sort_by_year_first );
-	[ $items, $years_exist ] = _filter_list_items( $items, $lang, $filter_state, $year_bgn, $year_end, $count );
+	$sort_by_date_first = get_post_meta( $post_id, $inst->FLD_SORT_BY_DATE_FIRST, true ) === 'true';
+	$dup_multi_cat      = get_post_meta( $post_id, $inst->FLD_DUP_MULTI_CAT, true ) === 'true';
+	$filter_state       = json_decode( get_post_meta( $post_id, $inst->FLD_JSON_PARAMS, true ), true );
+
+	$list_id = get_post_meta( $post_id, $inst->FLD_LIST_ID, true );
+	if ( empty( $list_id ) ) return null;
+
+	[ $items, $years_exist ] = retrieve_items( $list_id, $lang, $year_bgn, $year_end, $count, $sort_by_date_first, $dup_multi_cat, $filter_state );
+
+	$show_filter     = get_post_meta( $post_id, $inst->FLD_SHOW_FILTER, true ) === 'true';
+	$omit_single_cat = get_post_meta( $post_id, $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT, true ) === 'true';
 
 	$d = compact(
-		'items', 'years_exist',
-		'count', 'show_filter', 'sort_by_year_first', 'omit_single_cat',
+		'items', 'years_exist', 'count',
+		'sort_by_date_first',
+		'show_filter', 'omit_single_cat',
 		'filter_state',
 	);
 	$inst->cache[ "$post_id$lang" ] = $d;
 	return $d;
 }
 
-function _get_list_items( $post_id ) {
-	$inst = _get_instance();
-	$list_id = get_post_meta( $post_id, $inst->FLD_LIST_ID, true );
-	if ( empty( $list_id ) ) return [];
-
-	$items_json = get_post_meta( $list_id, $inst::FLD_ITEMS, true );
-	if ( empty( $items_json ) ) return [];
-
-	$items = json_decode( $items_json, true );
-	if ( ! is_array( $items ) ) return [];
-
-	return $items;
-}
-
-function _sort_list_items( array &$items, $sort_by_year_first ) {
-	$inst = _get_instance();
-	if ( empty( $items ) ) return;
-	$inst->sort_by_year_first = $sort_by_year_first;
-
-	$rs_to_slugs       = get_root_slug_to_sub_slugs();
-	$rs_to_depths      = get_root_slug_to_sub_depths();
-	$slug_to_ancestors = get_sub_slug_to_ancestors();
-
-	foreach ( $items as $idx => &$it ) {
-		$it[ $inst::IT_CAT_KEY ] = _make_cat_key( $it, $rs_to_slugs, $rs_to_depths, $slug_to_ancestors );
-		$it[ $inst::IT_INDEX ]   = $idx;
-	}
-	usort( $items, '\wplug\bimeson_list\_cb_compare_item' );
-}
-
-function _make_cat_key( $item, $rs_to_slugs, $rs_to_depths, $slug_to_ancestors ) {
-	$cats = [];
-	foreach ( $rs_to_slugs as $rs => $slugs ) {
-		if ( ! isset( $rs_to_depths[ $rs ] ) ) continue;
-		$depth = $rs_to_depths[ $rs ];
-
-		list( $idx, $s ) = _get_one_of_ordered_terms( $item, $rs, $slugs );
-		if ( $s ) {
-			if ( isset( $slug_to_ancestors[ $s ] ) ) {
-				$cats = array_merge( $cats, $slug_to_ancestors[ $s ] );
-			}
-			$cats[] = $s;
-			$depth -= count( $cats );
-		}
-		for ( $i = 0; $i < $depth; $i += 1 ) $cats[] = '';
-	}
-	return implode( ',', $cats );
-}
-
-function _cb_compare_item( $a, $b ) {
-	$inst = _get_instance();
-	if ( $inst->sort_by_year_first !== false ) {
-		if ( isset( $a[ $inst::IT_DATE_NUM ] ) && isset( $b[ $inst::IT_DATE_NUM ] ) && $a[ $inst::IT_DATE_NUM ] !== $b[ $inst::IT_DATE_NUM ] ) {
-			return $a[ $inst::IT_DATE_NUM ] < $b[ $inst::IT_DATE_NUM ] ? 1 : -1;
-		}
-	}
-	$rs_to_slugs = get_root_slug_to_sub_slugs();
-
-	$idx = 0;
-	foreach ( $rs_to_slugs as $rs => $slugs ) {
-		list( $ai, $av ) = _get_one_of_ordered_terms( $a, $rs, $slugs );
-		list( $bi, $bv ) = _get_one_of_ordered_terms( $b, $rs, $slugs );
-		if ( $av === null && $bv === null) continue;
-
-		if ( $ai === -1 && $bi === -1) {
-			$c = strcmp( $av, $bv );
-			if ( $c !== 0 ) return $c;
-		} else {
-			if ( $ai < $bi ) return -1;
-			if ( $ai > $bi ) return 1;
-		}
-	}
-	if ( isset( $a[ $inst::IT_DATE_NUM ] ) && isset( $b[ $inst::IT_DATE_NUM ] ) && $a[ $inst::IT_DATE_NUM ] !== $b[ $inst::IT_DATE_NUM ] ) {
-		return $a[ $inst::IT_DATE_NUM ] < $b[ $inst::IT_DATE_NUM ] ? 1 : -1;
-	}
-	return $a[ $inst::IT_INDEX ] < $b[ $inst::IT_INDEX ] ? -1 : 1;
-}
-
-function _get_one_of_ordered_terms( $item, $rs, $sub_slugs ) {
-	if ( ! isset( $item[ $rs ] ) ) return [ -1, null ];
-	$vs = $item[ $rs ];
-	foreach ( $sub_slugs as $idx => $s ) {
-		if ( in_array( $s, $vs, true ) ) return [ $idx, $s ];
-	}
-	return [ -1, null ];
-}
-
-
-// -------------------------------------------------------------------------
-
-
-function _filter_list_items( $items, $lang, $filter_state, $year_bgn, $year_end, $count ) {
-	$inst = _get_instance();
-	if ( empty( $items ) ) return [ [], [] ];
-	$ret   = [];
-	$years = [];
-
-	$do_year_filter = ( $year_bgn !== false || $year_end !== false );
-	$year_bgn = ( $year_bgn === false ) ? 0        : (int) str_pad( $year_bgn . '', 8, '0', STR_PAD_RIGHT );
-	$year_end = ( $year_end === false ) ? 99999999 : (int) str_pad( $year_end . '', 8, '9', STR_PAD_RIGHT );
-
-	foreach ( $items as $item ) {
-		if ( $do_year_filter ) {
-			if ( ! isset( $item[ $inst::IT_DATE_NUM ] ) ) continue;  // next item
-			$date = (int) $item[ $inst::IT_DATE_NUM ];
-			if ( $date < $year_bgn || $year_end < $date ) continue;  // next item
-		}
-		if ( ! _match_filter( $item, $filter_state ) ) continue;
-		if ( empty( $item[ $inst::IT_BODY . "_$lang" ] ) && empty( $item[ $inst::IT_BODY ] ) ) continue;
-
-		$ret[] = $item;
-		if ( isset( $item[ $inst::IT_DATE_NUM ] ) ) {
-			$years[ substr( $item[ $inst::IT_DATE_NUM ], 0, 4 ) ] = 1;
-		}
-		if ( $count !== false && count( $ret ) === $count ) break;
-	}
-	$years = array_keys( $years );
-	rsort( $years );
-	return [ $ret, $years ];
-}
-
-function _match_filter( $item, $filter_state ) {
-	if ( ! is_array( $filter_state ) ) return true;
-	foreach ( $filter_state as $rs => $slugs ) {
-		if ( ! isset( $item[ $rs ] ) ) return false;
-		$int = array_intersect( $slugs, $item[ $rs ] );
-		if ( 0 === count( $int ) ) return false;
-	}
-	return true;
+function _get_post_meta_int( int $post_id, string $key, int $min, int $max ): ?int {
+	$temp = get_post_meta( $post_id, $key, true );
+	if ( empty( $temp ) ) return null;
+	$val = (int) $temp;
+	return ( $val < $min || $max < $val ) ? false : $val;
 }

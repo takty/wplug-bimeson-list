@@ -3,7 +3,7 @@
  * Bimeson (Instance)
  *
  * @author Takuto Yanagida
- * @version 2021-07-15
+ * @version 2021-07-18
  */
 
 namespace wplug\bimeson_list;
@@ -27,8 +27,9 @@ function _get_instance(): object {
 		public $FLD_YEAR_START;
 		public $FLD_YEAR_END;
 		public $FLD_COUNT;
-		public $FLD_SHOW_FILTER;
 		public $FLD_SORT_BY_DATE_FIRST;
+		public $FLD_DUP_MULTI_CAT;
+		public $FLD_SHOW_FILTER;
 		public $FLD_OMIT_HEAD_OF_SINGLE_CAT;
 		public $FLD_JSON_PARAMS;
 
@@ -60,27 +61,35 @@ function _get_instance(): object {
 
 		// Common
 
-		public $head_level       = 2;
+		public $head_level       = 3;
 		public $year_format      = null;
 		public $term_name_getter = null;
 
-		public $cache = [];
+		public $cache  = [];
+		public $rs_idx = null;
 
 		// Taxonomy
-
-		const DEFAULT_TAXONOMY     = 'bm_cat';
-		const DEFAULT_SUB_TAX_BASE = 'bm_cat_';
 
 		const KEY_LAST_CAT_OMITTED = '_bimeson_last_cat_omitted';
 		const KEY_IS_HIDDEN        = '_bimeson_is_hidden';
 
-		public $sub_tax_base;
+		const DEFAULT_TAXONOMY          = 'bm_cat';
+		const DEFAULT_SUB_TAX_BASE      = 'bm_cat_';
+		const DEFAULT_SUB_TAX_CLS_BASE  = 'bm-cat-';
+		const DEFAULT_SUB_TAX_QVAR_BASE = 'bm_';
 		public $root_tax;
-		public $sub_taxes = [];
+		public $sub_tax_base;
+		public $sub_tax_cls_base;
+		public $sub_tax_qvar_base;
 
-		public $old_tax   = [];
-		public $old_terms = [];
+		const DEFAULT_YEAR_CLS_BASE = 'bm-year-';
+		const DEFAULT_YEAR_QVAR     = 'bm_year';
+		public $year_cls_base;
+		public $year_qvar;
 
+		public $sub_taxes        = [];
+		public $old_tax          = [];
+		public $old_terms        = [];
 		public $root_terms       = null;
 		public $sub_tax_to_terms = [];
 
@@ -88,7 +97,7 @@ function _get_instance(): object {
 
 		const KEY_YEAR     = '_year';
 		const VAL_YEAR_ALL = 'all';
-		const QVAR_YEAR    = 'bm-year';
+
 	};
 	return $values;
 }

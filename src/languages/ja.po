@@ -22,12 +22,16 @@ msgid "(If specified, the heading will be hidden)"
 msgstr "（指定すると、見出しは非表示になります）"
 
 msgctxt "admin dest"
-msgid "Show filter"
-msgstr "フィルターを表示"
-
-msgctxt "admin dest"
 msgid "Sort by date first"
 msgstr "最初に日付で並び替える"
+
+msgctxt "admin dest"
+msgid "Duplicate multi-category items"
+msgstr "複数のカテゴリーを持つ項目を複製"
+
+msgctxt "admin dest"
+msgid "Show filter"
+msgstr "フィルターを表示"
 
 msgctxt "admin dest"
 msgid "Omit headings for categories with only one item"
@@ -37,8 +41,9 @@ msgstr "項目が1つしかない分類の見出しを省略"
 # 'Target period (years):',                          'admin dest', 'ja', '対象期間（年）:'
 # 'Specify the number of items to be displayed:',    'admin dest', 'ja', '表示件数の指定:'
 # '(If specified, the heading will be hidden)',      'admin dest', 'ja', '（指定すると、見出しは非表示になります）'
-# 'Show filter',                                     'admin dest', 'ja', 'フィルターを表示'
 # 'Sort by date first',                              'admin dest', 'ja', '最初に日付で並び替える'
+# 'Duplicate multi-category items',                  'admin dest', 'ja', '複数のカテゴリーを持つ項目を複製'
+# 'Show filter',                                     'admin dest', 'ja', 'フィルターを表示'
 # 'Omit headings for categories with only one item', 'admin dest', 'ja', '1つしかない分類の見出しを省略'
 
 # Admin Src --------------------------------------------------------------------

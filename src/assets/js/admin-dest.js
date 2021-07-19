@@ -3,7 +3,7 @@
  * Bimeson List Page Admin
  *
  * @author Takuto Yanagida
- * @version 2021-07-12
+ * @version 2021-07-18
  *
  */
 
@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (sw.checked && !isCheckedAtLeastOne(cbs)) {
 				for (let i = 0; i < cbs.length; i += 1) cbs[i].checked = true;
 			}
+			if (!sw.checked && isCheckedAll(cbs)) {
+				for (let i = 0; i < cbs.length; i += 1) cbs[i].checked = false;
+			}
 		});
 		for (let i = 0; i < cbs.length; i += 1) {
 			cbs[i].addEventListener('click', () => { sw.checked = isCheckedAtLeastOne(cbs); });
@@ -49,6 +52,13 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (cbs[i].checked) return true;
 		}
 		return false;
+	}
+
+	function isCheckedAll(cbs) {
+		for (let i = 0; i < cbs.length; i += 1) {
+			if (!cbs[i].checked) return false;
+		}
+		return true;
 	}
 
 });

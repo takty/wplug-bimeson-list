@@ -3,12 +3,12 @@
  * Bimeson (Admin Dest)
  *
  * @author Takuto Yanagida
- * @version 2021-07-14
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
 
-function enqueue_script_admin_dest( $url_to ) {
+function enqueue_script_admin_dest( string $url_to ) {
 	wp_enqueue_style(  'bimeson_list_admin_dest', $url_to . '/assets/css/admin-dest.min.css' );
 	wp_enqueue_script( 'bimeson_list_admin_dest', $url_to . '/assets/js/admin-dest.min.js' );
 }
@@ -17,22 +17,24 @@ function enqueue_script_admin_dest( $url_to ) {
 // -----------------------------------------------------------------------------
 
 
-function add_meta_box_admin_dest( $label, $screen ) {
+function add_meta_box_admin_dest( string $label, string $screen ) {
 	\add_meta_box( 'bimeson_admin_mb', $label, '\wplug\bimeson_list\_cb_output_html_admin_dest', $screen );
 }
 
-function save_meta_box_admin_dest( $post_id ) {
+function save_meta_box_admin_dest( int $post_id ) {
 	$inst = _get_instance();
 	if ( ! isset( $_POST['bimeson_admin_nonce'] ) ) return;
 	if ( ! wp_verify_nonce( $_POST['bimeson_admin_nonce'], 'bimeson_admin' ) ) return;
 
-	$state           = get_filter_state_from_post();
-	$group           = empty( $_POST[ $inst->FLD_SORT_BY_DATE_FIRST ] ) ? 'false' : 'true';
-	$show_filter     = empty( $_POST[ $inst->FLD_SHOW_FILTER ] ) ? 'false' : 'true';
-	$omit_single_cat = empty( $_POST[ $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT ] ) ? 'false' : 'true';
+	$state              = get_filter_state_from_post();
+	$sort_by_date_first = empty( $_POST[ $inst->FLD_SORT_BY_DATE_FIRST ] ) ? 'false' : 'true';
+	$dup_multi_cat      = empty( $_POST[ $inst->FLD_DUP_MULTI_CAT ] ) ? 'false' : 'true';
+	$show_filter        = empty( $_POST[ $inst->FLD_SHOW_FILTER ] ) ? 'false' : 'true';
+	$omit_single_cat    = empty( $_POST[ $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT ] ) ? 'false' : 'true';
 
 	update_post_meta( $post_id, $inst->FLD_JSON_PARAMS, json_encode( $state ) );
-	update_post_meta( $post_id, $inst->FLD_SORT_BY_DATE_FIRST, $group );
+	update_post_meta( $post_id, $inst->FLD_SORT_BY_DATE_FIRST, $sort_by_date_first );
+	update_post_meta( $post_id, $inst->FLD_DUP_MULTI_CAT, $dup_multi_cat );
 	update_post_meta( $post_id, $inst->FLD_SHOW_FILTER, $show_filter );
 	update_post_meta( $post_id, $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT, $omit_single_cat );
 
@@ -43,14 +45,15 @@ function save_meta_box_admin_dest( $post_id ) {
 	save_post_meta( $post_id, $inst->FLD_LIST_ID );
 }
 
-function _cb_output_html_admin_dest( $post ) {
+function _cb_output_html_admin_dest( \WP_Post $post ) {
 	$inst = _get_instance();
 	wp_nonce_field( 'bimeson_admin', 'bimeson_admin_nonce' );
 
-	$list_id         = (int) get_post_meta( $post->ID, $inst->FLD_LIST_ID, true );
-	$group           = get_post_meta( $post->ID, $inst->FLD_SORT_BY_DATE_FIRST, true );
-	$show_filter     = get_post_meta( $post->ID, $inst->FLD_SHOW_FILTER, true );
-	$omit_single_cat = get_post_meta( $post->ID, $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT, true );
+	$list_id            = (int) get_post_meta( $post->ID, $inst->FLD_LIST_ID, true );
+	$sort_by_date_first = get_post_meta( $post->ID, $inst->FLD_SORT_BY_DATE_FIRST, true );
+	$dup_multi_cat      = get_post_meta( $post->ID, $inst->FLD_DUP_MULTI_CAT, true );
+	$show_filter        = get_post_meta( $post->ID, $inst->FLD_SHOW_FILTER, true );
+	$omit_single_cat    = get_post_meta( $post->ID, $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT, true );
 
 	$temp       = get_post_meta( $post->ID, $inst->FLD_COUNT, true );
 	$count      = ( empty( $temp ) || (int) $temp < 1 ) ? '' : (int) $temp;
@@ -80,12 +83,16 @@ function _cb_output_html_admin_dest( $post ) {
 		</div>
 		<div class="bimeson-admin-setting-cbs">
 			<label>
-				<input type="checkbox" name="<?php echo $inst->FLD_SHOW_FILTER ?>" value="true" <?php checked( $show_filter, 'true' ) ?>>
-				<?php echo _x( 'Show filter', 'admin dest', 'bimeson_list' ); ?>
+				<input type="checkbox" name="<?php echo $inst->FLD_SORT_BY_DATE_FIRST ?>" value="true" <?php checked( $sort_by_date_first, 'true' ) ?>>
+				<?php echo _x( 'Sort by date first', 'admin dest', 'bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="<?php echo $inst->FLD_SORT_BY_DATE_FIRST ?>" value="true" <?php checked( $group, 'true' ) ?>>
-				<?php echo _x( 'Sort by date first', 'admin dest', 'bimeson_list' ); ?>
+				<input type="checkbox" name="<?php echo $inst->FLD_DUP_MULTI_CAT ?>" value="true" <?php checked( $dup_multi_cat, 'true' ) ?>>
+				<?php echo _x( 'Duplicate multi-category items', 'admin dest', 'bimeson_list' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="<?php echo $inst->FLD_SHOW_FILTER ?>" value="true" <?php checked( $show_filter, 'true' ) ?>>
+				<?php echo _x( 'Show filter', 'admin dest', 'bimeson_list' ); ?>
 			</label>
 			<label>
 				<input type="checkbox" name="<?php echo $inst->FLD_OMIT_HEAD_OF_SINGLE_CAT ?>" value="true" <?php checked( $omit_single_cat, 'true' ) ?>>
@@ -99,7 +106,7 @@ function _cb_output_html_admin_dest( $post ) {
 <?php
 }
 
-function _echo_list_select( $cur_id ) {
+function _echo_list_select( string $cur_id ) {
 	$inst = _get_instance();
 	$its = get_posts( [
 		'post_type'      => $inst::PT,
@@ -132,13 +139,13 @@ function _echo_filter() {
 	}
 }
 
-function _echo_tax_checkboxes_admin( $root_slug, $terms, $state ) {
+function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $state ) {
 	$inst = _get_instance();
 	$t = get_term_by( 'slug', $root_slug, $inst->root_tax );
 	if ( is_callable( $inst->term_name_getter ) ) {
-		$_cat_name = esc_html( ( $inst->term_name_getter )( $t ) );
+		$_cat_label = esc_html( ( $inst->term_name_getter )( $t ) );
 	} else {
-		$_cat_name = esc_html( $t->name );
+		$_cat_label = esc_html( $t->name );
 	}
 	$_slug = esc_attr( $root_slug );
 	$qvals = $state[ $root_slug ];
@@ -148,12 +155,12 @@ function _echo_tax_checkboxes_admin( $root_slug, $terms, $state ) {
 			<div>
 				<input type="checkbox" class="bimeson-admin-filter-switch tgl tgl-light" id="<?php echo $_slug ?>" name="<?php echo $_slug ?>" <?php if ( ! empty( $qvals ) ) echo 'checked' ?> value="1"></input>
 				<label class="tgl-btn" for="<?php echo $_slug ?>"></label>
-				<span class="bimeson-admin-filter-cat"><?php echo $_cat_name ?></span>
+				<span class="bimeson-admin-filter-cat"><?php echo $_cat_label; ?></span>
 			</div>
 			<div class="bimeson-admin-filter-cbs">
 <?php
 	foreach ( $terms as $t ) :
-		$_name = esc_attr( sub_term_to_id( $t ) );
+		$_name = esc_attr( sub_term_to_name( $t ) );
 		$_val  = esc_attr( $t->slug );
 		if ( is_callable( $inst->term_name_getter ) ) {
 			$_label = esc_html( ( $inst->term_name_getter )( $t ) );
@@ -164,7 +171,7 @@ function _echo_tax_checkboxes_admin( $root_slug, $terms, $state ) {
 ?>
 				<label>
 					<input type="checkbox" name="<?php echo $_name ?>"<?php echo $checked; ?> value="<?php echo $_val ?>">
-					<?php echo $_label ?>
+					<?php echo $_label; ?>
 				</label>
 <?php
 	endforeach;

@@ -3,7 +3,7 @@
  * Bimeson List Post Type Admin
  *
  * @author Takuto Yanagida
- * @version 2021-07-13
+ * @version 2021-07-19
  *
  */
 
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		for (let x = x0; x < x1; x += 1) {
 			const cell = sheet[XLSX.utils.encode_cell({c: x, r: y0})];
 			if (!cell || cell.w === '') {
-				colToKey[x] = false;
+				colToKey[x] = null;
 			} else {
 				colToKey[x] = normalizeKey(cell.w + '', true);
 			}
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			for (let x = x0; x < x1; x += 1) {
 				const cell = sheet[XLSX.utils.encode_cell({c: x, r: y})];
 				const key = colToKey[x];
-				if (key === false) continue;
+				if (key === null) continue;
 				if (key === KEY_BODY || key.indexOf(KEY_BODY + '_') === 0) {
 					if (cell && cell.h && cell.h.length > 0) {
 						let text = stripUnnecessarySpan(cell.h);  // remove automatically inserted 'span' tag.
