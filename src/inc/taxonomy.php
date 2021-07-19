@@ -94,7 +94,7 @@ function root_term_to_sub_tax( $term ): string {
 }
 
 function get_root_slug_to_sub_slugs( bool $do_omit_first = false, bool $do_hide = false ): array {
-	$subs = get_root_slug_to_sub_terms( $do_omit_first, $do_hide );
+	$subs  = get_root_slug_to_sub_terms( $do_omit_first, $do_hide );
 	$slugs = [];
 	foreach ( $subs as $slug => $terms ) {
 		$slugs[ $slug ] = array_map( function ( $e ) { return $e->slug; }, $terms );
@@ -121,19 +121,18 @@ function get_root_slug_to_sub_terms( bool $do_omit_first = false, bool $do_hide 
 function _get_root_terms(): array {
 	$inst = _get_instance();
 	if ( $inst->root_terms ) return $inst->root_terms;
-	$inst->root_terms = get_terms( $inst->root_tax, [ 'hide_empty' => 0 ] );
 
-	$ts = [];
-	$terms = get_terms( $inst->root_tax, [ 'hide_empty' => 0 ] );
-	foreach ( $terms as $t ) {
-		$idx  = intval( get_term_meta( $t->term_id, '_menu_order', true ) );
-		$ts[] = [ $idx, $t ];
+	$idx_ts = [];
+	$ts     = get_terms( $inst->root_tax, [ 'hide_empty' => 0 ] );
+	foreach ( $ts as $t ) {
+		$idx      = (int) get_term_meta( $t->term_id, '_menu_order', true );
+		$idx_ts[] = [ $idx, $t ];
 	}
-	usort( $ts, function ( $a, $b ) {
+	usort( $idx_ts, function ( $a, $b ) {
 		if ( $a[0] === $b[0] ) return 0;
 		return ( $a[0] < $b[0] ) ? -1 : 1;
 	} );
-	$inst->root_terms = array_column( $ts, 1 );
+	$inst->root_terms = array_column( $idx_ts, 1 );
 	return $inst->root_terms;
 }
 

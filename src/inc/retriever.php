@@ -52,10 +52,6 @@ function _get_list_items( int $list_id ): array {
 	return $items;
 }
 
-
-// -----------------------------------------------------------------------------
-
-
 function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ) {
 	$inst = _get_instance();
 	$ret  = [];

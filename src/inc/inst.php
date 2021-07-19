@@ -3,7 +3,7 @@
  * Bimeson (Instance)
  *
  * @author Takuto Yanagida
- * @version 2021-07-18
+ * @version 2021-07-19
  */
 
 namespace wplug\bimeson_list;
@@ -21,6 +21,7 @@ function _get_instance(): object {
 		return $values;
 	}
 	$values = new class() {
+
 		// Admin Dest
 
 		public $FLD_LIST_ID;

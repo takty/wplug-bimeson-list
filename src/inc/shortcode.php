@@ -6,7 +6,6 @@
  * @version 2021-07-19
  *
  * [publication list="<slug or post ID>" count="10" date-sort omit-single dup-item date="2020-2021" taxonomy="slug1, slug2, ..."]
- *
  */
 
 namespace wplug\bimeson_list;
