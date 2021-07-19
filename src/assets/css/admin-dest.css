@@ -3,7 +3,7 @@
  * Bimeson List Page Admin
  *
  * @author Takuto Yanagida
- * @version 2021-07-12
+ * @version 2021-07-19
  *
  */
 
@@ -56,11 +56,13 @@
 }
 
 .bimeson-admin-filter-key-inner > div:first-child {
-	display: flex;
+	display    : flex;
+	align-items: center;
 }
 
 .bimeson-admin-filter-cat {
 	font-weight: bold;
+	user-select: none;
 }
 
 .bimeson-admin-filter-cbs {

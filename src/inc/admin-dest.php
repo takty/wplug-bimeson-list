@@ -146,7 +146,7 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 			<div>
 				<input type="checkbox" class="bimeson-admin-filter-switch tgl tgl-light" id="<?php echo $_slug ?>" name="<?php echo $_slug ?>" <?php if ( ! empty( $qvals ) ) echo 'checked' ?> value="1"></input>
 				<label class="tgl-btn" for="<?php echo $_slug ?>"></label>
-				<span class="bimeson-admin-filter-cat"><?php echo $_cat_label; ?></span>
+				<span class="bimeson-admin-filter-cat"><label for="<?php echo $_slug; ?>"><?php echo $_cat_label; ?></label></span>
 			</div>
 			<div class="bimeson-admin-filter-cbs">
 <?php
