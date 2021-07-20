@@ -13,7 +13,7 @@ require_once __DIR__ . '/../assets/media-picker.php';
 function initialize_post_type( string $url_to ) {
 	$inst = _get_instance();
 	register_post_type( $inst::PT, [
-		'label'         => _x( 'Publication List', 'post type', 'bimeson_list' ),
+		'label'         => __( 'Publication List', 'bimeson_list' ),
 		'labels'        => [],
 		'public'        => true,
 		'show_ui'       => true,
@@ -47,7 +47,7 @@ function initialize_post_type( string $url_to ) {
 function _cb_admin_menu_post_type() {
 	$inst = _get_instance();
 	if ( ! is_post_type( $inst::PT ) ) return;
-	\add_meta_box( 'bimeson_mb', _x( 'Publication List', 'post type', 'bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
+	\add_meta_box( 'bimeson_mb', __( 'Publication List', 'bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
 }
 
 function _cb_output_html_post_type() {
@@ -60,16 +60,16 @@ function _cb_output_html_post_type() {
 		<div class="bimeson-list-edit-row">
 			<label>
 				<input type="checkbox" name="<?php echo $inst::FLD_ADD_TAX ?>" value="true">
-				<?php echo _x( 'Add category groups themselves', 'post type', 'bimeson_list' ); ?>
+				<?php esc_html_e( 'Add category groups themselves', 'bimeson_list' ); ?>
 			</label>
 			<label>
 				<input type="checkbox" name="<?php echo $inst::FLD_ADD_TERM ?>" value="true">
-				<?php echo _x( 'Add categories to the category group', 'post type', 'bimeson_list' ); ?>
+				<?php esc_html_e( 'Add categories to the category group', 'bimeson_list' ); ?>
 			</label>
 			<div>
 				<span class="bimeson-list-loading-spin"><span></span></span>
 				<button class="bimeson-list-filter-button button button-primary button-large">
-					<?php echo _x( 'Update List', 'post type', 'bimeson_list' ); ?>
+					<?php esc_html_e( 'Update List', 'bimeson_list' ); ?>
 				</button>
 			</div>
 		</div>

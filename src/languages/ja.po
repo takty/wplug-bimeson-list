@@ -21,10 +21,10 @@ msgctxt "post type"
 msgid "Update List"
 msgstr "リストを更新"
 
-# 'Publication List',                     'post type', 'ja', '業績リスト'
-# 'Add category groups themselves',       'post type', 'ja', '分類グループ自体を追加'
-# 'Add categories to the category group', 'post type', 'ja', '分類グループに分類を追加'
-# 'Update List',                          'post type', 'ja', 'リストを更新'
+# 'Publication List',                     'ja', '業績リスト'
+# 'Add category groups themselves',       'ja', '分類グループ自体を追加'
+# 'Add categories to the category group', 'ja', '分類グループに分類を追加'
+# 'Update List',                          'ja', 'リストを更新'
 
 # Taxonomy ---------------------------------------------------------------------
 
@@ -48,13 +48,16 @@ msgctxt "taxonomy"
 msgid "Hide from view screen"
 msgstr "閲覧画面から隠す"
 
-# 'Category group',               'taxonomy', 'ja', '分類グループ'
-# 'Category',                     'taxonomy', 'ja', '分類'
-# 'Filter',                       'taxonomy', 'ja', 'フィルター'
-# 'Omit the last category group', 'taxonomy', 'ja', '一番最後の分類グループを省略する'
-# 'Hide from view screen',        'taxonomy', 'ja', '閲覧画面から隠す'
+# 'Category group',               'ja', '分類グループ'
+# 'Category',                     'ja', '分類'
+# 'Filter',                       'ja', 'フィルター'
+# 'Omit the last category group', 'ja', '一番最後の分類グループを省略する'
+# 'Hide from view screen',        'ja', '閲覧画面から隠す'
 
 # Template Admin ---------------------------------------------------------------
+
+msgid "Publication list"
+msgstr "業績リスト"
 
 msgctxt "template admin"
 msgid "Used publication list:"
@@ -88,11 +91,12 @@ msgctxt "template admin"
 msgid "Omit headings for categories with only one item"
 msgstr "項目が1つしかない分類の見出しを省略"
 
-# 'Used publication list:',                          'template admin', 'ja', '使用する業績リスト:'
-# 'Target period (years):',                          'template admin', 'ja', '対象期間（年）:'
-# 'Specify the number of items to be displayed:',    'template admin', 'ja', '表示件数の指定:'
-# '(If specified, the heading will be hidden)',      'template admin', 'ja', '（指定すると、見出しは非表示になります）'
-# 'Sort by date first',                              'template admin', 'ja', '最初に日付で並び替える'
-# 'Duplicate multi-category items',                  'template admin', 'ja', '複数のカテゴリーを持つ項目を複製'
-# 'Show filter',                                     'template admin', 'ja', 'フィルターを表示'
-# 'Omit headings for categories with only one item', 'template admin', 'ja', '1つしかない分類の見出しを省略'
+# 'Publication list',                                'ja', '業績リスト'
+# 'Used publication list:',                          'ja', '使用する業績リスト:'
+# 'Target period (years):',                          'ja', '対象期間（年）:'
+# 'Specify the number of items to be displayed:',    'ja', '表示件数の指定:'
+# '(If specified, the heading will be hidden)',      'ja', '（指定すると、見出しは非表示になります）'
+# 'Sort by date first',                              'ja', '最初に日付で並び替える'
+# 'Duplicate multi-category items',                  'ja', '複数のカテゴリーを持つ項目を複製'
+# 'Show filter',                                     'ja', 'フィルターを表示'
+# 'Omit headings for categories with only one item', 'ja', '1つしかない分類の見出しを省略'

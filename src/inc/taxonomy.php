@@ -3,7 +3,7 @@
  * Bimeson (Taxonomy)
  *
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2021-07-20
  */
 
 namespace wplug\bimeson_list;
@@ -14,7 +14,7 @@ function initialize_taxonomy() {
 	if ( ! taxonomy_exists( $inst->root_tax ) ) {
 		register_taxonomy( $inst->root_tax, null, [
 			'hierarchical'       => true,
-			'label'              => _x( 'Category group', 'taxonomy', 'bimeson_list' ),
+			'label'              => __( 'Category group', 'bimeson_list' ),
 			'public'             => false,
 			'show_ui'            => true,
 			'show_in_quick_edit' => false,
@@ -64,7 +64,7 @@ function _register_sub_tax( string $tax, string $name ) {
 	if ( ! taxonomy_exists( $tax ) ) {
 		register_taxonomy( $tax, null, [
 			'hierarchical'       => true,
-			'label'              => _x( 'Category', 'taxonomy', 'bimeson_list' ) . " ($name)",
+			'label'              => __( 'Category', 'bimeson_list' ) . " ($name)",
 			'public'             => true,
 			'show_ui'            => true,
 			'rewrite'            => false,
@@ -266,9 +266,9 @@ function _cb_query_vars_taxonomy( array $query_vars ): array {
 function _cb_taxonomy_edit_form_fields( \WP_Term $term, string $tax ) {
 	$inst = _get_instance();
 	if ( $tax === $inst->root_tax ) {
-		_bool_field( $term, $inst::KEY_IS_HIDDEN, _x( 'Hide from view screen', 'taxonomy', 'bimeson_list' ) );
+		_bool_field( $term, $inst::KEY_IS_HIDDEN, __( 'Hide from view screen', 'bimeson_list' ) );
 	} else {
-		_bool_field( $term, $inst::KEY_LAST_CAT_OMITTED, _x( 'Omit the last category group', 'taxonomy', 'bimeson_list' ) );
+		_bool_field( $term, $inst::KEY_LAST_CAT_OMITTED, __( 'Omit the last category group', 'bimeson_list' ) );
 	}
 }
 
@@ -276,7 +276,7 @@ function _bool_field( \WP_Term $term, string $key, string $label ) {
 	$val = get_term_meta( $term->term_id, $key, true );
 	?>
 	<tr class="form-field">
-		<th style="padding-bottom: 20px;"><label for="<?php echo $key ?>"><?php echo _x( 'Filter', 'taxonomy', 'bimeson_list' ); ?></label></th>
+		<th style="padding-bottom: 20px;"><label for="<?php echo $key ?>"><?php esc_html_e( 'Filter', 'bimeson_list' ); ?></label></th>
 		<td style="padding-bottom: 20px;">
 			<label>
 				<input type="checkbox" name="<?php echo $key ?>" id="<?php echo $key ?>" <?php checked( $val, 1 ) ?>/>
