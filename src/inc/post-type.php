@@ -24,7 +24,7 @@ function initialize_post_type( string $url_to ) {
 		'supports'      => [ 'title' ],
 	] );
 
-	if ( is_admin() && _is_the_src_post_type() ) {
+	if ( is_admin() && _is_the_post_type() ) {
 		add_action( 'admin_enqueue_scripts', function () use ( $url_to ) {
 			wp_enqueue_style(  'bimeson_list_post_type', $url_to . '/assets/css/post-type.min.css' );
 			wp_enqueue_script( 'bimeson_list_post_type', $url_to . '/assets/js/post-type.min.js' );
@@ -104,12 +104,12 @@ function _cb_save_post_post_type( int $post_id ) {
 
 function _process_items( array &$items ) {
 	$inst = _get_instance();
-	foreach ( $items as &$item ) {
-		$date = ( ! empty( $item[ $inst::IT_DATE ] ) ) ? normalize_date( $item[ $inst::IT_DATE ] ) : '';
+	foreach ( $items as &$it ) {
+		$date = ( ! empty( $it[ $inst::IT_DATE ] ) ) ? normalize_date( $it[ $inst::IT_DATE ] ) : '';
 		if ( $date ) {
 			$date_num = str_pad( str_replace( '-', '', $date ), 8, '9', STR_PAD_RIGHT );
-			$item[ $inst::IT_DATE_NUM ] = $date_num;
+			$it[ $inst::IT_DATE_NUM ] = $date_num;
 		}
-		unset( $item[ $inst::IT_DATE ] );
+		unset( $it[ $inst::IT_DATE ] );
 	}
 }

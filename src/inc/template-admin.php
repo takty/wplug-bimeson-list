@@ -72,12 +72,12 @@ function _cb_output_html_template_admin( \WP_Post $post ) {
 	$inst = _get_instance();
 	wp_nonce_field( 'bimeson_admin', 'bimeson_admin_nonce' );
 
-	$temp       = get_post_meta( $post->ID, $inst->FLD_COUNT, true );
-	$count      = ( empty( $temp ) || (int) $temp < 1 ) ? '' : (int) $temp;
 	$temp       = get_post_meta( $post->ID, $inst->FLD_YEAR_START, true );
 	$year_start = ( empty( $temp ) || (int) $temp < 1970 || (int) $temp > 3000 ) ? '' : (int) $temp;
 	$temp       = get_post_meta( $post->ID, $inst->FLD_YEAR_END, true );
 	$year_end   = ( empty( $temp ) || (int) $temp < 1970 || (int) $temp > 3000 ) ? '' : (int) $temp;
+	$temp       = get_post_meta( $post->ID, $inst->FLD_COUNT, true );
+	$count      = ( empty( $temp ) || (int) $temp < 1 ) ? '' : (int) $temp;
 
 	$sort_by_date_first = get_post_meta( $post->ID, $inst->FLD_SORT_BY_DATE_FIRST, true );
 	$dup_multi_cat      = get_post_meta( $post->ID, $inst->FLD_DUP_MULTI_CAT, true );

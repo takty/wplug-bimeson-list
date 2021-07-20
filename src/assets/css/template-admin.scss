@@ -8,13 +8,14 @@
  */
 
 
-.bimeson-admin input[type='number'] {
-	padding-right: 0;
-	width: 4.5rem;
-}
-
-.bimeson-admin > div:not(:first-child) {
-	margin-top: 16px;
+.bimeson-admin {
+	input[type='number'] {
+		padding-right: 0;
+		width: 4.5rem;
+	}
+	> div:not(:first-child) {
+		margin-top: 16px;
+	}
 }
 
 .bimeson-admin-setting-row {
@@ -23,15 +24,16 @@
 	align-items: center;
 }
 
-.bimeson-admin-setting-cbs > label {
-	display    : inline-flex;
-	align-items: center;
-	padding    : 8px;
-	user-select: none;
-}
-
-.bimeson-admin-setting-cbs input[type=checkbox] {
-	margin-top: 0;
+.bimeson-admin-setting-cbs {
+	> label {
+		display    : inline-flex;
+		align-items: center;
+		padding    : 8px;
+		user-select: none;
+	}
+	input[type=checkbox] {
+		margin-top: 0;
+	}
 }
 
 .bimeson-admin-filter-row {
@@ -69,17 +71,16 @@
 	display    : flex;
 	flex-wrap  : wrap;
 	padding-top: 8px;
-}
 
-.bimeson-admin-filter-cbs label {
-	display    : inline-flex;
-	align-items: center;
-	padding    : 8px;
-	user-select: none;
-}
-
-.bimeson-admin-filter-cbs input[type=checkbox] {
-	margin-top: 0;
+	label {
+		display    : inline-flex;
+		align-items: center;
+		padding    : 8px;
+		user-select: none;
+	}
+	input[type=checkbox] {
+		margin-top: 0;
+	}
 }
 
 

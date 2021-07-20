@@ -10,6 +10,7 @@ namespace wplug\bimeson_list;
 
 function retrieve_items( array $items, ?int $count, bool $sort_by_date_first, bool $dup_multi_cat ) {
 	$rs_idx = _make_rs_idx();
+
 	$items = _align_sub_slugs( $items, $rs_idx );
 	if ( $dup_multi_cat ) $items = _duplicate_items( $items );
 	_sort_list_items( $items, $sort_by_date_first, $rs_idx );
@@ -59,7 +60,7 @@ function _duplicate_items( array $items ): array {
 		$array = [];
 		$do = false;
 		foreach ( $rss as $rs ) {
-			$vs = $it[ $rs ];
+			$vs = $it[ $rs ] ?? [];
 			if ( 1 < count( $vs ) ) {
 				$do = true;
 			}

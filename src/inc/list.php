@@ -14,9 +14,9 @@ function echo_the_list( array $args, string $lang, string $before = '<div class=
 
 	echo $before;
 	if ( is_null( $args['count'] ) ) {
-		echo_heading_list_element( $args['items'], $lang, $args['sort_by_date_first'], $args['omit_single_cat'] ? $args['filter_state'] : null );
+		_echo_heading_list_element( $args['items'], $lang, $args['sort_by_date_first'], $args['omit_single_cat'] ? $args['filter_state'] : null );
 	} else {
-		echo_list_element( $args['items'], $lang );
+		_echo_list_element( $args['items'], $lang );
 	}
 	echo $after;
 }
@@ -25,7 +25,7 @@ function echo_the_list( array $args, string $lang, string $before = '<div class=
 // -----------------------------------------------------------------------------
 
 
-function echo_heading_list_element( array $its, string $lang, bool $sort_by_date_first, ?array $filter_state ) {
+function _echo_heading_list_element( array $its, string $lang, bool $sort_by_date_first, ?array $filter_state ) {
 	$inst = _get_instance();
 
 	$root_slug_to_depth    = get_root_slug_to_sub_depths();
@@ -175,7 +175,7 @@ class ItemBuffer {
 
 	public function echo() {
 		if ( ! empty( $this->_items ) ) {
-			echo_list_element( $this->_items, $this->_lang );
+			_echo_list_element( $this->_items, $this->_lang );
 			$this->_items = [];
 		}
 	}
@@ -186,7 +186,7 @@ class ItemBuffer {
 
 }
 
-function echo_list_element( array $its, string $lang ) {
+function _echo_list_element( array $its, string $lang ) {
 	$tag = ( count( $its ) === 1 ) ? 'ul' : 'ol';
 	echo "<$tag data-bm>\n";
 	foreach ( $its as $it ) _echo_list_item( $it, $lang );

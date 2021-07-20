@@ -22,7 +22,7 @@ function _get_instance(): object {
 	}
 	$values = new class() {
 
-		// Admin Dest
+		// Template Admin
 
 		public $FLD_LIST_ID;
 		public $FLD_YEAR_START;
@@ -34,7 +34,7 @@ function _get_instance(): object {
 		public $FLD_OMIT_HEAD_OF_SINGLE_CAT;
 		public $FLD_JSON_PARAMS;
 
-		// Admin Src
+		// Post Type
 
 		const PT = 'bimeson_list';  // Each post means publication list (bimeson list)
 

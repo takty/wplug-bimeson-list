@@ -3,49 +3,6 @@
 # @author Takuto Yanagida
 # @version 2021-07-20
 
-# Template Admin ---------------------------------------------------------------
-
-msgctxt "template admin"
-msgid "Used publication list:"
-msgstr "使用する業績リスト:"
-
-msgctxt "template admin"
-msgid "Target period (years):"
-msgstr "対象期間（年）:"
-
-msgctxt "template admin"
-msgid "Specify the number of items to be displayed:"
-msgstr "表示件数の指定:"
-
-msgctxt "template admin"
-msgid "(If specified, the heading will be hidden)"
-msgstr "（指定すると、見出しは非表示になります）"
-
-msgctxt "template admin"
-msgid "Sort by date first"
-msgstr "最初に日付で並び替える"
-
-msgctxt "template admin"
-msgid "Duplicate multi-category items"
-msgstr "複数のカテゴリーを持つ項目を複製"
-
-msgctxt "template admin"
-msgid "Show filter"
-msgstr "フィルターを表示"
-
-msgctxt "template admin"
-msgid "Omit headings for categories with only one item"
-msgstr "項目が1つしかない分類の見出しを省略"
-
-# 'Used publication list:',                          'template admin', 'ja', '使用する業績リスト:'
-# 'Target period (years):',                          'template admin', 'ja', '対象期間（年）:'
-# 'Specify the number of items to be displayed:',    'template admin', 'ja', '表示件数の指定:'
-# '(If specified, the heading will be hidden)',      'template admin', 'ja', '（指定すると、見出しは非表示になります）'
-# 'Sort by date first',                              'template admin', 'ja', '最初に日付で並び替える'
-# 'Duplicate multi-category items',                  'template admin', 'ja', '複数のカテゴリーを持つ項目を複製'
-# 'Show filter',                                     'template admin', 'ja', 'フィルターを表示'
-# 'Omit headings for categories with only one item', 'template admin', 'ja', '1つしかない分類の見出しを省略'
-
 # Post Type --------------------------------------------------------------------
 
 msgctxt "post type"
@@ -96,3 +53,46 @@ msgstr "閲覧画面から隠す"
 # 'Filter',                       'taxonomy', 'ja', 'フィルター'
 # 'Omit the last category group', 'taxonomy', 'ja', '一番最後の分類グループを省略する'
 # 'Hide from view screen',        'taxonomy', 'ja', '閲覧画面から隠す'
+
+# Template Admin ---------------------------------------------------------------
+
+msgctxt "template admin"
+msgid "Used publication list:"
+msgstr "使用する業績リスト:"
+
+msgctxt "template admin"
+msgid "Target period (years):"
+msgstr "対象期間（年）:"
+
+msgctxt "template admin"
+msgid "Specify the number of items to be displayed:"
+msgstr "表示件数の指定:"
+
+msgctxt "template admin"
+msgid "(If specified, the heading will be hidden)"
+msgstr "（指定すると、見出しは非表示になります）"
+
+msgctxt "template admin"
+msgid "Sort by date first"
+msgstr "最初に日付で並び替える"
+
+msgctxt "template admin"
+msgid "Duplicate multi-category items"
+msgstr "複数のカテゴリーを持つ項目を複製"
+
+msgctxt "template admin"
+msgid "Show filter"
+msgstr "フィルターを表示"
+
+msgctxt "template admin"
+msgid "Omit headings for categories with only one item"
+msgstr "項目が1つしかない分類の見出しを省略"
+
+# 'Used publication list:',                          'template admin', 'ja', '使用する業績リスト:'
+# 'Target period (years):',                          'template admin', 'ja', '対象期間（年）:'
+# 'Specify the number of items to be displayed:',    'template admin', 'ja', '表示件数の指定:'
+# '(If specified, the heading will be hidden)',      'template admin', 'ja', '（指定すると、見出しは非表示になります）'
+# 'Sort by date first',                              'template admin', 'ja', '最初に日付で並び替える'
+# 'Duplicate multi-category items',                  'template admin', 'ja', '複数のカテゴリーを持つ項目を複製'
+# 'Show filter',                                     'template admin', 'ja', 'フィルターを表示'
+# 'Omit headings for categories with only one item', 'template admin', 'ja', '1つしかない分類の見出しを省略'

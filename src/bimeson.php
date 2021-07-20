@@ -42,7 +42,6 @@ function initialize( array $args = [] ) {
 	$inst->year_qvar     = $args['year_qvar']     ?? $inst::DEFAULT_YEAR_QVAR;
 
 	initialize_post_type( $url_to );  // Do before initializing taxonomies
-
 	initialize_taxonomy();
 	initialize_filter();
 
@@ -52,7 +51,7 @@ function initialize( array $args = [] ) {
 
 function _register_script( string $url_to ) {
 	if ( is_admin() ) {
-		if ( ! _is_the_src_post_type() ) {
+		if ( ! _is_the_post_type() ) {
 			add_action( 'admin_enqueue_scripts', function () use ( $url_to ) {
 				wp_enqueue_style(  'bimeson_list_template_admin', $url_to . '/assets/css/template-admin.min.css' );
 				wp_enqueue_script( 'bimeson_list_template_admin', $url_to . '/assets/js/template-admin.min.js' );
@@ -66,7 +65,7 @@ function _register_script( string $url_to ) {
 	}
 }
 
-function _is_the_src_post_type() {
+function _is_the_post_type() {
 	$inst = _get_instance();
 	global $pagenow;
 	return in_array( $pagenow, [ 'post.php', 'post-new.php' ], true ) && is_post_type( $inst::PT );
@@ -119,7 +118,7 @@ function _get_data( int $post_id, string $lang ): array {
 	if ( isset( $inst->cache["$post_id$lang"] ) ) return $inst->cache["$post_id$lang"];
 
 	$d = get_template_admin_config( $post_id );
-	if ( empty( $d['list_id'] ) ) return null;
+	if ( empty( $d['list_id'] ) ) return null;  // Bimeson List
 
 	// Bimeson List
 	$items = get_filtered_items( $d['list_id'], $lang, $d['year_bgn'], $d['year_end'], $d['filter_state'] );
