@@ -2,6 +2,7 @@
 /**
  * Bimeson (Shortcode)
  *
+ * @package Wplug Bimeson List
  * @author Takuto Yanagida
  * @version 2021-07-20
  *
