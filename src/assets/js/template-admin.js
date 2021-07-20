@@ -1,9 +1,9 @@
 /**
  *
- * Bimeson List Page Admin
+ * Bimeson (Template Admin)
  *
  * @author Takuto Yanagida
- * @version 2021-07-18
+ * @version 2021-07-20
  *
  */
 

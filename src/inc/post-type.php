@@ -1,35 +1,56 @@
 <?php
 /**
- * Bimeson (Admin Src)
+ * Bimeson (Post Type)
  *
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2021-07-20
  */
 
 namespace wplug\bimeson_list;
 
 require_once __DIR__ . '/../assets/media-picker.php';
 
-function initialize_admin_src( string $url_to ) {
+function initialize_post_type( string $url_to ) {
 	$inst = _get_instance();
+	register_post_type( $inst::PT, [
+		'label'         => _x( 'Publication List', 'post type', 'bimeson_list' ),
+		'labels'        => [],
+		'public'        => true,
+		'show_ui'       => true,
+		'menu_position' => 5,
+		'menu_icon'     => 'dashicons-analytics',
+		'has_archive'   => false,
+		'rewrite'       => false,
+		'supports'      => [ 'title' ],
+	] );
 
-	add_action( 'admin_menu',             '\wplug\bimeson_list\_cb_admin_menu_admin_src' );
-	add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_admin_src' );
+	if ( is_admin() && _is_the_src_post_type() ) {
+		add_action( 'admin_enqueue_scripts', function () use ( $url_to ) {
+			wp_enqueue_style(  'bimeson_list_post_type', $url_to . '/assets/css/post-type.min.css' );
+			wp_enqueue_script( 'bimeson_list_post_type', $url_to . '/assets/js/post-type.min.js' );
+			wp_enqueue_script( 'xlsx',                   $url_to . '/assets/js/xlsx.full.min.js' );
 
-	$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );
+			$pid = get_post_id();
+			wp_enqueue_media( [ 'post' => ( $pid === 0 ? null : $pid ) ] );
+			MediaPicker::enqueue_script( $url_to . '/assets/' );
+		} );
+		add_action( 'admin_menu',             '\wplug\bimeson_list\_cb_admin_menu_post_type' );
+		add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_post_type' );
+		$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );
+	}
 }
 
 
 // -----------------------------------------------------------------------------
 
 
-function _cb_admin_menu_admin_src() {
+function _cb_admin_menu_post_type() {
 	$inst = _get_instance();
 	if ( ! is_post_type( $inst::PT ) ) return;
-	\add_meta_box( 'bimeson_mb', _x( 'Publication List', 'admin src', 'bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_admin_src', $inst::PT, 'normal', 'high' );
+	\add_meta_box( 'bimeson_mb', _x( 'Publication List', 'post type', 'bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
 }
 
-function _cb_output_html_admin_src() {
+function _cb_output_html_post_type() {
 	$inst = _get_instance();
 	wp_nonce_field( 'bimeson_list', 'bimeson_list_nonce' );
 	$inst->media_picker->set_title_editable( false );
@@ -39,16 +60,16 @@ function _cb_output_html_admin_src() {
 		<div class="bimeson-list-edit-row">
 			<label>
 				<input type="checkbox" name="<?php echo $inst::FLD_ADD_TAX ?>" value="true">
-				<?php echo _x( 'Add category groups themselves', 'admin src', 'bimeson_list' ); ?>
+				<?php echo _x( 'Add category groups themselves', 'post type', 'bimeson_list' ); ?>
 			</label>
 			<label>
 				<input type="checkbox" name="<?php echo $inst::FLD_ADD_TERM ?>" value="true">
-				<?php echo _x( 'Add categories to the category group', 'admin src', 'bimeson_list' ); ?>
+				<?php echo _x( 'Add categories to the category group', 'post type', 'bimeson_list' ); ?>
 			</label>
 			<div>
 				<span class="bimeson-list-loading-spin"><span></span></span>
 				<button class="bimeson-list-filter-button button button-primary button-large">
-					<?php echo _x( 'Update List', 'admin src', 'bimeson_list' ); ?>
+					<?php echo _x( 'Update List', 'post type', 'bimeson_list' ); ?>
 				</button>
 			</div>
 		</div>
@@ -57,7 +78,7 @@ function _cb_output_html_admin_src() {
 <?php
 }
 
-function _cb_save_post_admin_src( int $post_id ) {
+function _cb_save_post_post_type( int $post_id ) {
 	$inst = _get_instance();
 	if ( ! isset( $_POST['bimeson_list_nonce'] ) || ! wp_verify_nonce( $_POST['bimeson_list_nonce'], 'bimeson_list' ) ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;

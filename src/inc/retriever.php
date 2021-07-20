@@ -3,17 +3,13 @@
  * Bimeson List (Retriever)
  *
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2021-07-20
  */
 
 namespace wplug\bimeson_list;
 
-function retrieve_items( int $list_id, string $lang, ?string $date_bgn, ?string $date_end, ?int $count, bool $sort_by_date_first, bool $dup_multi_cat, ?array $filter_state ) {
+function retrieve_items( array $items, ?int $count, bool $sort_by_date_first, bool $dup_multi_cat ) {
 	$rs_idx = _make_rs_idx();
-
-	$items = _get_list_items( $list_id );
-	$items = _filter_items( $items, $lang, $date_bgn, $date_end, $filter_state );
-
 	$items = _align_sub_slugs( $items, $rs_idx );
 	if ( $dup_multi_cat ) $items = _duplicate_items( $items );
 	_sort_list_items( $items, $sort_by_date_first, $rs_idx );
@@ -25,6 +21,10 @@ function retrieve_items( int $list_id, string $lang, ?string $date_bgn, ?string 
 	return [ $items, $years_exist ];
 }
 
+
+// -----------------------------------------------------------------------------
+
+
 function _make_rs_idx() {
 	$rs_idx = [];
 	foreach ( get_root_slug_to_sub_slugs() as $rs => $ss ) {
@@ -32,61 +32,6 @@ function _make_rs_idx() {
 	}
 	return $rs_idx;
 }
-
-
-// -----------------------------------------------------------------------------
-
-
-function _get_list_items( int $list_id ): array {
-	$inst = _get_instance();
-
-	$items_json = get_post_meta( $list_id, $inst::FLD_ITEMS, true );
-	if ( empty( $items_json ) ) return [];
-
-	$items = json_decode( $items_json, true );
-	if ( ! is_array( $items ) ) return [];
-
-	foreach ( $items as $idx => &$it ) {
-		$it[ $inst::IT_INDEX ] = $idx;
-	}
-	return $items;
-}
-
-function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ) {
-	$inst = _get_instance();
-	$ret  = [];
-
-	$by_date = ( ! empty( $date_bgn ) || ! empty( $date_end ) );
-	$date_b  = (int) str_pad( empty( $date_bgn ) ? '' : $date_bgn, 8, '0', STR_PAD_RIGHT );
-	$date_e  = (int) str_pad( empty( $date_end ) ? '' : $date_end, 8, '9', STR_PAD_RIGHT );
-
-	foreach ( $items as $it ) {
-		if ( $by_date ) {
-			if ( ! isset( $it[ $inst::IT_DATE_NUM ] ) ) continue;  // next item
-			$date = (int) $it[ $inst::IT_DATE_NUM ];
-			if ( $date < $date_b || $date_e < $date ) continue;  // next item
-		}
-		if ( ! _match_filter( $it, $filter_state ) ) continue;
-		if ( empty( $it[ $inst::IT_BODY . "_$lang" ] ) && empty( $it[ $inst::IT_BODY ] ) ) continue;
-
-		$ret[] = $it;
-	}
-	return $ret;
-}
-
-function _match_filter( array $it, ?array $filter_state ): bool {
-	if ( ! is_array( $filter_state ) ) return true;
-	foreach ( $filter_state as $rs => $slugs ) {
-		if ( ! isset( $it[ $rs ] ) ) return false;
-		$int = array_intersect( $slugs, $it[ $rs ] );
-		if ( 0 === count( $int ) ) return false;
-	}
-	return true;
-}
-
-
-// -----------------------------------------------------------------------------
-
 
 function _align_sub_slugs( array $items, array $rs_idx ): array {
 	$inst = _get_instance();

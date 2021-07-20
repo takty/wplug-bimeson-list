@@ -3,22 +3,33 @@
  * Bimeson (List)
  *
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2021-07-20
  */
 
 namespace wplug\bimeson_list;
 
-function echo_heading_list_element( array $args ) {
-	$inst = _get_instance();
+function echo_the_list( array $args, string $lang, string $before = '<div class="bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
+	if ( ! empty( $id ) ) $id = " id=\"$id\"";
+	$before = sprintf( $before, $id );
 
-	$its  = $args['items'] ?? [];
-	$lang = $args['lang']  ?? '';
+	echo $before;
+	if ( is_null( $args['count'] ) ) {
+		echo_heading_list_element( $args['items'], $lang, $args['sort_by_date_first'], $args['omit_single_cat'] ? $args['filter_state'] : null );
+	} else {
+		echo_list_element( $args['items'], $lang );
+	}
+	echo $after;
+}
+
+
+// -----------------------------------------------------------------------------
+
+
+function echo_heading_list_element( array $its, string $lang, bool $sort_by_date_first, ?array $filter_state ) {
+	$inst = _get_instance();
 
 	$root_slug_to_depth    = get_root_slug_to_sub_depths();
 	$sub_slug_to_last_omit = get_sub_slug_to_last_omit();
-
-	$filter_state       = $args['filter_state']       ?? null;
-	$sort_by_date_first = $args['sort_by_date_first'] ?? false;
 
 	$last_cat_depth  = $root_slug_to_depth[ array_key_last( $root_slug_to_depth ) ];
 	$omitted_heading = _make_omitted_heading( $filter_state );
