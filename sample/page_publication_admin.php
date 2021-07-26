@@ -1,10 +1,10 @@
 <?php
 /**
  *
- * Admin for the Template for Publication Static Pages
+ * Admin for the Template for Publication List Static Pages
  *
  * @author Takuto Yanagida
- * @version 2021-07-20
+ * @version 2021-07-26
  *
  */
 

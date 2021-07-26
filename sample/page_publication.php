@@ -3,10 +3,10 @@
  *
  * The Template for Publication Static Pages
  *
- * Template Name: Publications
+ * Template Name: Publication List
  *
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2021-07-26
  *
  */
 
