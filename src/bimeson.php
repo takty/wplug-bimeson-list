@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-07-20
+ * @version 2021-07-28
  */
 
 namespace wplug\bimeson_list;
@@ -137,6 +137,9 @@ function _get_data( int $post_id, string $lang ): array {
 
 
 function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ) {
+	$inst = _get_instance();
+	if ( isset( $filter_state[ $inst::KEY_VISIBLE ] ) ) unset( $filter_state[ $inst::KEY_VISIBLE ] );
+
 	$items = _get_list_items( $list_id );
 	$items = _filter_items( $items, $lang, $date_bgn, $date_end, $filter_state );
 	return $items;
