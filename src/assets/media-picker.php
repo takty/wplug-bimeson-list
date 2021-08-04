@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2021-08-04
  */
 
 namespace wplug\bimeson_list;
@@ -70,18 +70,8 @@ class MediaPicker {
 
 	public function get_items( ?int $post_id = null ): array {
 		if ( is_null( $post_id ) ) $post_id = get_the_ID();
-
 		$keys = [ 'media', 'url', 'title', 'filename', 'id' ];
-		$its = get_multiple_post_meta( $post_id, $this->_key, $keys );
-
-		// For Backward Compatibility
-		foreach ( $its as $idx => &$it ) {
-			if ( empty( $it['media'] ) ) {
-				$it['media'] = $it['id'];
-				if ( ! empty( $it['media'] ) ) update_post_meta( $post_id, "{$this->_key}_{$idx}_media", $it['media'] );
-			}
-			$it['id'] = $it['media'];
-		}
+		$its  = get_multiple_post_meta( $post_id, $this->_key, $keys );
 		return $its;
 	}
 
