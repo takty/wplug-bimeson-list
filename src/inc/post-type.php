@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-07-20
+ * @version 2021-08-04
  */
 
 namespace wplug\bimeson_list;
@@ -36,6 +36,7 @@ function initialize_post_type( string $url_to ) {
 			MediaPicker::enqueue_script( $url_to . '/assets/' );
 		} );
 		add_action( 'admin_menu',             '\wplug\bimeson_list\_cb_admin_menu_post_type' );
+		add_filter( 'wp_insert_post_data',    '\wplug\bimeson_list\_cb_insert_post_data', 99, 2 );
 		add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_post_type' );
 		$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );
 	}
@@ -77,6 +78,16 @@ function _cb_output_html_post_type() {
 		<input type="hidden" id="<?php echo $inst::FLD_ITEMS ?>" name="<?php echo $inst::FLD_ITEMS ?>" value="<?php echo esc_attr( $inst::NOT_MODIFIED ) ?>" />
 	</div>
 <?php
+}
+
+function _cb_insert_post_data( array $data, array $postarr ): array {
+	$inst = _get_instance();
+	if ( $postarr['post_type'] === $inst::PT ) {
+		if ( empty( $postarr['post_title'] ) && ! empty( $postarr['_bimeson_media_0_title'] ) ) {
+			$data['post_title'] = $postarr['_bimeson_media_0_title'];
+		}
+	}
+	return $data;
 }
 
 function _cb_save_post_post_type( int $post_id ) {
