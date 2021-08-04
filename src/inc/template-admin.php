@@ -59,16 +59,8 @@ function save_meta_box_template_admin( int $post_id ) {
 	$json = json_encode( $cfg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
 	update_post_meta( $post_id, $inst->FLD_LIST_CFG, addslashes( $json ) );  // Because the meta value is passed through the stripslashes() function upon being stored.
 
-	// Compat
-	delete_post_meta( $post_id, '_bimeson_list_id' );  // Bimeson List
-	delete_post_meta( $post_id, '_bimeson_year_start' );
-	delete_post_meta( $post_id, '_bimeson_year_end' );
-	delete_post_meta( $post_id, '_bimeson_count' );
-	delete_post_meta( $post_id, '_bimeson_sort_by_date_first' );
-	delete_post_meta( $post_id, '_bimeson_duplicate_multi_category' );
-	delete_post_meta( $post_id, '_bimeson_show_filter' );
-	delete_post_meta( $post_id, '_bimeson_omit_head_of_single_cat' );
-	delete_post_meta( $post_id, '_bimeson_json_params' );
+	// For backward compatibility
+	_delete_old_post_meta( $post_id );
 }
 
 function _cb_output_html_template_admin( \WP_Post $post ) {
@@ -221,4 +213,20 @@ function _get_filter_state_from_env(): array {
 		$ret[ $inst::KEY_VISIBLE ] = array_values( array_intersect( get_root_slugs(), $_POST['_bimeson_visible'] ) );
 	}
 	return $ret;
+}
+
+
+// -----------------------------------------------------------------------------
+
+
+function _delete_old_post_meta( int $post_id ) {
+	delete_post_meta( $post_id, '_bimeson_list_id' );  // Bimeson List
+	delete_post_meta( $post_id, '_bimeson_year_start' );
+	delete_post_meta( $post_id, '_bimeson_year_end' );
+	delete_post_meta( $post_id, '_bimeson_count' );
+	delete_post_meta( $post_id, '_bimeson_sort_by_date_first' );
+	delete_post_meta( $post_id, '_bimeson_duplicate_multi_category' );
+	delete_post_meta( $post_id, '_bimeson_show_filter' );
+	delete_post_meta( $post_id, '_bimeson_omit_head_of_single_cat' );
+	delete_post_meta( $post_id, '_bimeson_json_params' );
 }
