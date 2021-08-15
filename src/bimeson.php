@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-04
+ * @version 2021-08-15
  */
 
 namespace wplug\bimeson_list;
@@ -122,7 +122,7 @@ function _get_data( int $post_id, string $lang ): array {
 
 	// Bimeson List
 	$items = get_filtered_items( $d['list_id'], $lang, (string) $d['year_bgn'], (string) $d['year_end'], $d['filter_state'] );
-	[ $items, $years_exist ] = retrieve_items( $items, $d['count'], $d['sort_by_date_first'], $d['dup_multi_cat'] );
+	[ $items, $years_exist ] = retrieve_items( $items, $d['count'], $d['sort_by_date_first'], $d['dup_multi_cat'], $d['filter_state'] );
 
 	$d['items']       = $items;
 	$d['years_exist'] = $years_exist;
