@@ -4,44 +4,63 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-15
+ * @version 2021-08-31
  *
  * [publication list="<slug or post ID>" count="10" date-sort omit-single dup-item date="2020-2021" taxonomy="slug1, slug2, ..."]
  */
 
 namespace wplug\bimeson_list;
 
-function register_shortcode( $lang ) {
+/**
+ * Registers the shortcode.
+ *
+ * @param string $lang Language.
+ */
+function register_shortcode( string $lang ) {
 	static $serial = 0;
 
-	\add_shortcode( 'publication', function ( $atts, ?string $content = null ) use ( $lang, $serial ): string {
-		if ( is_string( $atts ) ) $atts = [];
+	\add_shortcode(
+		'publication',
+		function ( $atts, ?string $content = null ) use ( $lang, $serial ): string {
+			if ( is_string( $atts ) ) {
+				$atts = array();
+			}
+			$d = _get_data_shortcode( $atts, $lang );
+			++$serial;
+			$id = "bml-sc$serial";
 
-		$d      =  _get_date_shortcode( $atts, $lang );
-		$serial += 1;
-		$id     =  "bml-sc$serial";
-
-		ob_start();
-		if ( $d && $d['show_filter'] ) {
-			echo_the_filter( $d['filter_state'], $d['years_exist'], '<div class="bimeson-filter"%s>', '</div>', $id );
+			ob_start();
+			if ( $d && $d['show_filter'] ) {
+				echo_the_filter( $d['filter_state'], $d['years_exist'], '<div class="bimeson-filter"%s>', '</div>', $id );
+			}
+			if ( ! is_null( $content ) ) {
+				echo str_replace( '<p></p>', '', balanceTags( $content, true ) );  // phpcs:ignore
+			}
+			if ( $d ) {
+				echo_the_list( $d, $lang, '<div class="bimeson-list"%s>', '</div>', $id );
+			}
+			$ret = ob_get_contents();
+			ob_end_clean();
+			return $ret;
 		}
-		if ( ! is_null( $content ) ) {
-			echo str_replace( '<p></p>', '', balanceTags( $content, true ) );
-		}
-		if ( $d ) {
-			echo_the_list( $d, $lang, '<div class="bimeson-list"%s>', '</div>', $id );
-		}
-		$ret = ob_get_contents();
-		ob_end_clean();
-		return $ret;
-	} );
+	);
 }
 
-function _get_date_shortcode( array $atts, string $lang ) {
-	$list_id = _extract_list_id_atts( $atts );  // Bimeson List
-	if ( is_null( $list_id ) ) return '';
-
-	[ $date_bgn, $date_end ] = _extract_date_atts( $atts );
+/**
+ * Retrieves the data of the shortcode.
+ *
+ * @access private
+ *
+ * @param array  $atts Attributes.
+ * @param string $lang Language.
+ * @return array Data.
+ */
+function _get_data_shortcode( array $atts, string $lang ): array {
+	$list_id = _extract_list_id_atts( $atts );  // Bimeson List.
+	if ( is_null( $list_id ) ) {
+		return '';
+	}
+	list( $date_bgn, $date_end ) = _extract_date_atts( $atts );
 
 	$count              = isset( $atts['count'] ) ? ( (int) $atts['count'] ) : null;
 	$sort_by_date_first = in_array( 'date-sort', $atts, true ) || (bool) ( $atts['date-sort'] ?? false );
@@ -50,9 +69,10 @@ function _get_date_shortcode( array $atts, string $lang ) {
 
 	$filter_state = _extract_filter_state( $atts );
 
-	// Bimeson List
+	// Bimeson List.
 	$items = get_filtered_items( $list_id, $lang, $date_bgn, $date_end, $filter_state );
-	[ $items, $years_exist ] = retrieve_items( $items, $count, $sort_by_date_first, $dup_multi_cat, $filter_state );
+
+	list( $items, $years_exist ) = retrieve_items( $items, $count, $sort_by_date_first, $dup_multi_cat, $filter_state );
 
 	$d = compact( 'count', 'sort_by_date_first', 'omit_single_cat', 'filter_state' );
 
@@ -62,32 +82,51 @@ function _get_date_shortcode( array $atts, string $lang ) {
 	return $d;
 }
 
+/**
+ * Extracts date attribute.
+ *
+ * @access private
+ *
+ * @param array $atts Attributes.
+ * @return array Date.
+ */
 function _extract_date_atts( array $atts ): array {
-	$ds = [];
-	foreach ( [ 'date', 'date-start', 'date-end' ] as $key ) {
+	$ds = array();
+	foreach ( array( 'date', 'date-start', 'date-end' ) as $key ) {
 		if ( ! empty( $atts[ $key ] ) ) {
 			if ( is_numeric( $atts[ $key ] ) ) {
 				$ds[] = $atts[ $key ];
 			} else {
 				$vs = array_map( '\trim', explode( '-', $atts[ $key ] ) );
 				foreach ( $vs as $v ) {
-					if ( is_numeric( $v ) ) $ds[] = $v;
+					if ( is_numeric( $v ) ) {
+						$ds[] = $v;
+					}
 				}
 			}
 		}
 	}
-	sort( $ds );  // Sort as strings
+	sort( $ds );  // Sort as strings.
 
-	if ( 0 === count( $ds ) ) return [ null, null ];
-	return [ $ds[0], end( $ds ) ];
+	if ( 0 === count( $ds ) ) {
+		return array( null, null );
+	}
+	return array( $ds[0], end( $ds ) );
 }
 
+/**
+ * Extracts filter state attribute.
+ *
+ * @access private
+ *
+ * @param array $atts Attributes.
+ * @return ?array Filter states.
+ */
 function _extract_filter_state( array $atts ): ?array {
-	$fs = [];
+	$fs = array();
 	foreach ( get_root_slugs() as $rs ) {
 		if ( isset( $atts[ $rs ] ) ) {
-			$vs = array_map( '\trim', explode( ',', $atts[ $rs ] ) );
-			$fs[ $rs ] = $vs;
+			$fs[ $rs ] = array_map( '\trim', explode( ',', $atts[ $rs ] ) );
 		}
 	}
 	return count( $fs ) ? $fs : null;
@@ -97,17 +136,30 @@ function _extract_filter_state( array $atts ): ?array {
 // -----------------------------------------------------------------------------
 
 
-function _extract_list_id_atts( array $atts ): ?int {  // Bimeson List
+/**
+ * Extracts list id attribute.
+ *
+ * @access private
+ *
+ * @param array $atts Attributes.
+ * @return ?int List ID.
+ */
+function _extract_list_id_atts( array $atts ): ?int {
+	// Bimeson List.
 	$slug = $atts['list'] ?? null;
-	if ( empty( $slug ) ) return null;
-
+	if ( empty( $slug ) ) {
+		return null;
+	}
 	$inst = _get_instance();
 	$list = get_page_by_path( $slug, 'OBJECT', $inst::PT );
-	if ( $list ) return $list->ID;
-
+	if ( $list ) {
+		return $list->ID;
+	}
 	if ( is_numeric( $slug ) ) {
 		$list = get_post( (int) $slug );
-		if ( $list ) return $list->ID;
+		if ( $list ) {
+			return $list->ID;
+		}
 	}
 	return null;
 }
