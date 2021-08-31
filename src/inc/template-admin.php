@@ -38,7 +38,7 @@ function get_template_admin_config( int $post_id ): ?array {
  * @param ?string $screen (Optional) The screen or screens on which to show the box.
  */
 function add_meta_box_template_admin( string $title, ?string $screen = null ) {
-	\add_meta_box( 'bimeson_admin_mb', $title, '\wplug\bimeson_list\_cb_output_html_template_admin', $screen );
+	\add_meta_box( 'wplug_bimeson_list_admin_mb', $title, '\wplug\bimeson_list\_cb_output_html_template_admin', $screen );
 }
 
 /**
@@ -47,19 +47,19 @@ function add_meta_box_template_admin( string $title, ?string $screen = null ) {
  * @param int $post_id Post ID.
  */
 function save_meta_box_template_admin( int $post_id ) {
-	if ( ! isset( $_POST['bimeson_admin_nonce'] ) ) {
+	if ( ! isset( $_POST['wplug_bimeson_admin_nonce'] ) ) {
 		return;
 	}
-	if ( ! wp_verify_nonce( sanitize_key( $_POST['bimeson_admin_nonce'] ), 'bimeson_admin' ) ) {
+	if ( ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_admin_nonce'] ), 'wplug_bimeson_admin' ) ) {
 		return;
 	}
 	$inst = _get_instance();
 	$cfg  = array();
 
 	// phpcs:disable
-	$cfg['year_bgn'] = empty( $_POST['_bimeson_year_bgn'] ) ? null : intval( $_POST['_bimeson_year_bgn'] );
-	$cfg['year_end'] = empty( $_POST['_bimeson_year_end'] ) ? null : intval( $_POST['_bimeson_year_end'] );
-	$cfg['count']    = empty( $_POST['_bimeson_count'] )    ? null : intval( $_POST['_bimeson_count'] );
+	$cfg['year_bgn'] = empty( $_POST['wplug_bimeson_year_bgn'] ) ? null : intval( $_POST['wplug_bimeson_year_bgn'] );
+	$cfg['year_end'] = empty( $_POST['wplug_bimeson_year_end'] ) ? null : intval( $_POST['wplug_bimeson_year_end'] );
+	$cfg['count']    = empty( $_POST['wplug_bimeson_count'] )    ? null : intval( $_POST['wplug_bimeson_count'] );
 	// phpcs:enable
 
 	if ( $cfg['year_bgn'] ) {
@@ -74,13 +74,13 @@ function save_meta_box_template_admin( int $post_id ) {
 	if ( is_int( $cfg['year_bgn'] ) && is_int( $cfg['year_end'] ) && $cfg['year_end'] < $cfg['year_bgn'] ) {
 		list( $cfg['year_bgn'], $cfg['year_end'] ) = array( $cfg['year_end'], $cfg['year_bgn'] );
 	}
-	$cfg['sort_by_date_first'] = ! empty( $_POST['_bimeson_sort_by_date_first'] );
-	$cfg['dup_multi_cat']      = ! empty( $_POST['_bimeson_dup_multi_cat'] );
-	$cfg['show_filter']        = ! empty( $_POST['_bimeson_show_filter'] );
-	$cfg['omit_single_cat']    = ! empty( $_POST['_bimeson_omit_single_cat'] );
+	$cfg['sort_by_date_first'] = ! empty( $_POST['wplug_bimeson_sort_by_date_first'] );
+	$cfg['dup_multi_cat']      = ! empty( $_POST['wplug_bimeson_dup_multi_cat'] );
+	$cfg['show_filter']        = ! empty( $_POST['wplug_bimeson_show_filter'] );
+	$cfg['omit_single_cat']    = ! empty( $_POST['wplug_bimeson_omit_single_cat'] );
 
 	$cfg['filter_state'] = _get_filter_state_from_env();
-	$cfg['list_id']      = empty( $_POST['_bimeson_list_id'] ) ? null : intval( $_POST['_bimeson_list_id'] );  // Bimeson List.
+	$cfg['list_id']      = empty( $_POST['wplug_bimeson_list_id'] ) ? null : intval( $_POST['wplug_bimeson_list_id'] );  // Bimeson List.
 
 	$json = wp_json_encode( $cfg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
 	// Because the meta value is passed through the stripslashes() function upon being stored.
@@ -99,7 +99,7 @@ function save_meta_box_template_admin( int $post_id ) {
  */
 function _cb_output_html_template_admin( \WP_Post $post ) {
 	$inst = _get_instance();
-	wp_nonce_field( 'bimeson_admin', 'bimeson_admin_nonce' );
+	wp_nonce_field( 'wplug_bimeson_admin', 'wplug_bimeson_admin_nonce' );
 	$cfg = get_template_admin_config( $post->ID );
 
 	// phpcs:disable
@@ -116,44 +116,44 @@ function _cb_output_html_template_admin( \WP_Post $post ) {
 	$list_id = $cfg['list_id']      ?? null;  // Bimeson List.
 	// phpcs:enable
 	?>
-	<div class="bimeson-admin">
-		<div class="bimeson-admin-config-row">
+	<div class="wplug-bimeson-admin">
+		<div class="wplug-bimeson-admin-config-row">
 			<?php _echo_list_select( $list_id );  // Bimeson List. ?>
 		</div>
-		<div class="bimeson-admin-config-row">
+		<div class="wplug-bimeson-admin-config-row">
 			<label>
-				<?php esc_html_e( 'Target period (years):', 'bimeson_list' ); ?>
-				<input type="number" size="4" name="_bimeson_year_bgn" value="<?php echo esc_attr( $year_bgn ); ?>">
+				<?php esc_html_e( 'Target period (years):', 'wplug_bimeson_list' ); ?>
+				<input type="number" size="4" name="wplug_bimeson_year_bgn" value="<?php echo esc_attr( $year_bgn ); ?>">
 				<span>-</span>
-				<input type="number" size="4" name="_bimeson_year_end" value="<?php echo esc_attr( $year_end ); ?>">
+				<input type="number" size="4" name="wplug_bimeson_year_end" value="<?php echo esc_attr( $year_end ); ?>">
 			</label>
 		</div>
-		<div class="bimeson-admin-config-row">
+		<div class="wplug-bimeson-admin-config-row">
 			<label>
-				<?php esc_html_e( 'Specify the number of items to be displayed:', 'bimeson_list' ); ?>
-				<input type="number" size="4" name="_bimeson_count" value="<?php echo esc_attr( $count ); ?>">
+				<?php esc_html_e( 'Specify the number of items to be displayed:', 'wplug_bimeson_list' ); ?>
+				<input type="number" size="4" name="wplug_bimeson_count" value="<?php echo esc_attr( $count ); ?>">
 			</label>
-			&nbsp;<span><?php esc_html_e( '(If specified, the heading will be hidden)', 'bimeson_list' ); ?></span>
+			&nbsp;<span><?php esc_html_e( '(If specified, the heading will be hidden)', 'wplug_bimeson_list' ); ?></span>
 		</div>
-		<div class="bimeson-admin-config-cbs">
+		<div class="wplug-bimeson-admin-config-cbs">
 			<label>
-				<input type="checkbox" name="_bimeson_sort_by_date_first" value="true" <?php checked( $sort_by_date_first ); ?>>
-				<?php esc_html_e( 'Sort by date first', 'bimeson_list' ); ?>
+				<input type="checkbox" name="wplug_bimeson_sort_by_date_first" value="true" <?php checked( $sort_by_date_first ); ?>>
+				<?php esc_html_e( 'Sort by date first', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="_bimeson_dup_multi_cat" value="true" <?php checked( $dup_multi_cat ); ?>>
-				<?php esc_html_e( 'Duplicate multi-category items', 'bimeson_list' ); ?>
+				<input type="checkbox" name="wplug_bimeson_dup_multi_cat" value="true" <?php checked( $dup_multi_cat ); ?>>
+				<?php esc_html_e( 'Duplicate multi-category items', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="_bimeson_show_filter" value="true" <?php checked( $show_filter ); ?>>
-				<?php esc_html_e( 'Show filter', 'bimeson_list' ); ?>
+				<input type="checkbox" name="wplug_bimeson_show_filter" value="true" <?php checked( $show_filter ); ?>>
+				<?php esc_html_e( 'Show filter', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="_bimeson_omit_single_cat" value="true" <?php checked( $omit_single_cat ); ?>>
-				<?php esc_html_e( 'Omit headings for categories with only one item', 'bimeson_list' ); ?>
+				<input type="checkbox" name="wplug_bimeson_omit_single_cat" value="true" <?php checked( $omit_single_cat ); ?>>
+				<?php esc_html_e( 'Omit headings for categories with only one item', 'wplug_bimeson_list' ); ?>
 			</label>
 		</div>
-		<div class="bimeson-admin-filter-row">
+		<div class="wplug-bimeson-admin-filter-row">
 			<?php _echo_filter( $state ); ?>
 		</div>
 	</div>
@@ -177,8 +177,8 @@ function _echo_list_select( ?int $cur_id ) {
 	);
 	?>
 	<label>
-		<?php esc_html_e( 'Used publication list:', 'bimeson_list' ); ?>
-		<select name="_bimeson_list_id">
+		<?php esc_html_e( 'Used publication list:', 'wplug_bimeson_list' ); ?>
+		<select name="wplug_bimeson_list_id">
 	<?php
 	foreach ( $its as $it ) {
 		$_id    = esc_attr( $it->ID );
@@ -234,21 +234,20 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 	$visible = empty( $state[ $inst::KEY_VISIBLE ] ) ? true : in_array( $root_slug, $state[ $inst::KEY_VISIBLE ], true );
 	$vc      = $visible ? ' checked' : '';
 	?>
-	<div class="bimeson-admin-filter-key" data-key="<?php echo esc_attr( $slug ); ?>">
-		<div class="bimeson-admin-filter-key-inner">
+	<div class="wplug-bimeson-admin-filter-key" data-key="<?php echo esc_attr( $slug ); ?>">
+		<div class="wplug-bimeson-admin-filter-key-inner">
 			<div>
-				<input type="checkbox" class="bimeson-admin-filter-switch tgl tgl-light" id="<?php echo esc_attr( $slug ); ?>" name="<?php echo esc_attr( $sub_tax ); ?>"<?php echo $checked; // phpcs:ignore ?> value="1">
+				<input type="checkbox" class="wplug-bimeson-admin-filter-switch tgl tgl-light" id="<?php echo esc_attr( $slug ); ?>" name="<?php echo esc_attr( $sub_tax ); ?>"<?php echo $checked; // phpcs:ignore ?> value="1">
 				<label class="tgl-btn" for="<?php echo esc_attr( $slug ); ?>"></label>
-				<span class="bimeson-admin-filter-cat"><label for="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $cat_label ); ?></label></span>
+				<span class="wplug-bimeson-admin-filter-cat"><label for="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $cat_label ); ?></label></span>
 				<label>
-					<input type="checkbox" class="bimeson-admin-filter-visible" name="_bimeson_visible[]"<?php echo $vc; // phpcs:ignore ?> value="<?php echo esc_attr( $slug ); ?>">
+					<input type="checkbox" class="wplug-bimeson-admin-filter-visible" name="wplug_bimeson_visible[]"<?php echo $vc; // phpcs:ignore ?> value="<?php echo esc_attr( $slug ); ?>">
 					<?php esc_html_e( 'Visible' ); ?>
 				</label>
 			</div>
-			<div class="bimeson-admin-filter-cbs">
+			<div class="wplug-bimeson-admin-filter-cbs">
 	<?php
 	foreach ( $terms as $t ) :
-		$name    = sub_term_to_name( $t );
 		$val     = $t->slug;
 		$label   = $func( $t );
 		$checked = in_array( $t->slug, $qvs, true ) ? ' checked' : '';
@@ -288,8 +287,8 @@ function _get_filter_state_from_env(): array {
 		$ret[ $rs ] = array_values( array_intersect( $slugs, wp_unslash( $_POST[ "{$sub_tax}_slugs" ] ) ) );  // phpcs:ignore
 	}
 	$inst = _get_instance();
-	if ( isset( $_POST['_bimeson_visible'] ) ) {  // phpcs:ignore
-		$ret[ $inst::KEY_VISIBLE ] = array_values( array_intersect( get_root_slugs(), wp_unslash( $_POST['_bimeson_visible'] ) ) );  // phpcs:ignore
+	if ( isset( $_POST['wplug_bimeson_visible'] ) ) {  // phpcs:ignore
+		$ret[ $inst::KEY_VISIBLE ] = array_values( array_intersect( get_root_slugs(), wp_unslash( $_POST['wplug_bimeson_visible'] ) ) );  // phpcs:ignore
 	}
 	return $ret;
 }

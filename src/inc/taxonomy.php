@@ -21,7 +21,7 @@ function initialize_taxonomy() {
 			null,
 			array(
 				'hierarchical'       => true,
-				'label'              => __( 'Category group', 'bimeson_list' ),
+				'label'              => __( 'Category group', 'wplug_bimeson_list' ),
 				'public'             => false,
 				'show_ui'            => true,
 				'show_in_quick_edit' => false,
@@ -101,14 +101,13 @@ function _register_sub_tax( string $tax, string $label ) {
 			null,
 			array(
 				'hierarchical'       => true,
-				'label'              => __( 'Category', 'bimeson_list' ) . " ($label)",
+				'label'              => __( 'Category', 'wplug_bimeson_list' ) . " ($label)",
 				'public'             => true,
 				'show_ui'            => true,
 				'rewrite'            => false,
 				'sort'               => true,
 				'show_admin_column'  => false,
 				'show_in_quick_edit' => false,
-				'meta_box_cb'        => false,
 			)
 		);
 	}
@@ -179,6 +178,7 @@ function get_root_slug_to_sub_terms( bool $do_omit_first = false, bool $do_hide 
 	$inst  = _get_instance();
 	$roots = _get_root_terms();
 	$terms = array();
+
 	foreach ( $roots as $idx => $r ) {
 		if ( $do_omit_first && 0 === $idx ) {
 			continue;
@@ -189,8 +189,7 @@ function get_root_slug_to_sub_terms( bool $do_omit_first = false, bool $do_hide 
 				continue;
 			}
 		}
-		$sub_tax = root_term_to_sub_tax( $r );
-
+		$sub_tax           = root_term_to_sub_tax( $r );
 		$terms[ $r->slug ] = _get_sub_terms( $sub_tax );
 	}
 	return $terms;
@@ -447,9 +446,9 @@ function _cb_query_vars_taxonomy( array $query_vars ): array {
 function _cb_taxonomy_edit_form_fields( \WP_Term $term, string $tax ) {
 	$inst = _get_instance();
 	if ( $tax === $inst->root_tax ) {
-		_bool_field( $term, $inst::KEY_IS_HIDDEN, __( 'Hide from view screen', 'bimeson_list' ) );
+		_bool_field( $term, $inst::KEY_IS_HIDDEN, __( 'Hide from view screen', 'wplug_bimeson_list' ) );
 	} else {
-		_bool_field( $term, $inst::KEY_LAST_CAT_OMITTED, __( 'Omit the heading of the last category group', 'bimeson_list' ) );
+		_bool_field( $term, $inst::KEY_LAST_CAT_OMITTED, __( 'Omit the heading of the last category group', 'wplug_bimeson_list' ) );
 	}
 }
 
@@ -466,7 +465,7 @@ function _bool_field( \WP_Term $term, string $key, string $label ) {
 	$val = get_term_meta( $term->term_id, $key, true );
 	?>
 	<tr class="form-field">
-		<th style="padding-bottom: 20px;"><label for="<?php echo esc_attr( $key ); ?>"><?php esc_html_e( 'List', 'bimeson_list' ); ?></label></th>
+		<th style="padding-bottom: 20px;"><label for="<?php echo esc_attr( $key ); ?>"><?php esc_html_e( 'List', 'wplug_bimeson_list' ); ?></label></th>
 		<td style="padding-bottom: 20px;">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" <?php checked( $val, 1 ); ?>>
@@ -541,39 +540,27 @@ function process_terms( array $items, bool $add_taxonomies = false, bool $add_te
 		}
 	}
 	if ( $add_taxonomies ) {
-		foreach ( $new_tax_term as $slug => $terms ) {
-			wp_insert_term( $slug, $inst->root_tax, array( 'slug' => $slug ) );
+		foreach ( $new_tax_term as $rs => $terms ) {
+			wp_insert_term( $rs, $inst->root_tax, array( 'slug' => $rs ) );
 
-			$sub_tax = root_term_to_sub_tax( $slug );
+			$sub_tax = root_term_to_sub_tax( $rs );
 			_register_sub_tax( $sub_tax, $sub_tax );
 
 			if ( $add_terms ) {
 				foreach ( $terms as $t ) {
 					$ret = wp_insert_term( $t, $sub_tax, array( 'slug' => $t ) );
-					if ( is_array( $ret ) ) {
-						if ( ! isset( $roots_subs[ $slug ] ) ) {
-							$roots_subs[ $slug ] = array();
-						}
-						$roots_subs[ $slug ][] = $t;
-					}
 				}
 			}
 		}
 	}
 	if ( $add_terms ) {
-		foreach ( $new_term as $slug => $terms ) {
-			$sub_tax = root_term_to_sub_tax( $slug );
+		foreach ( $new_term as $rs => $terms ) {
+			$sub_tax = root_term_to_sub_tax( $rs );
 			if ( ! taxonomy_exists( $sub_tax ) ) {
 				continue;
 			}
 			foreach ( $terms as $t ) {
 				$ret = wp_insert_term( $t, $sub_tax, array( 'slug' => $t ) );
-				if ( is_array( $ret ) ) {
-					if ( ! isset( $roots_subs[ $slug ] ) ) {
-						$roots_subs[ $slug ] = array();
-					}
-					$roots_subs[ $slug ][] = $t;
-				}
 			}
 		}
 	}

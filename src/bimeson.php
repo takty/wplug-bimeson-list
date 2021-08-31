@@ -84,8 +84,8 @@ function _register_script( string $url_to ) {
 			add_action(
 				'admin_enqueue_scripts',
 				function () use ( $url_to ) {
-					wp_enqueue_style( 'bimeson_list_template_admin', abs_url( $url_to, './assets/css/template-admin.min.css' ), array(), '1.0' );
-					wp_enqueue_script( 'bimeson_list_template_admin', abs_url( $url_to, './assets/js/template-admin.min.js' ), array(), '1.0', false );
+					wp_enqueue_style( 'wplug-bimeson-list-template-admin', abs_url( $url_to, './assets/css/template-admin.min.css' ), array(), '1.0' );
+					wp_enqueue_script( 'wplug-bimeson-list-template-admin', abs_url( $url_to, './assets/js/template-admin.min.js' ), array(), '1.0', false );
 				}
 			);
 		}
@@ -93,8 +93,8 @@ function _register_script( string $url_to ) {
 		add_action(
 			'wp_enqueue_scripts',
 			function () use ( $url_to ) {
-				wp_register_style( 'bimeson_list_filter', abs_url( $url_to, './assets/css/filter.min.css' ), array(), '1.0' );
-				wp_register_script( 'bimeson_list_filter', abs_url( $url_to, './assets/js/filter.min.js' ), array(), '1.0', false );
+				wp_register_style( 'wplug-bimeson-list-filter', abs_url( $url_to, './assets/css/filter.min.css' ), array(), '1.0' );
+				wp_register_script( 'wplug-bimeson-list-filter', abs_url( $url_to, './assets/js/filter.min.js' ), array(), '1.0', false );
 			}
 		);
 	}
@@ -128,7 +128,7 @@ function get_taxonomy(): string {
 /**
  * Gets the sub taxonomy slugs.
  */
-function get_sub_taxonomies(): string {
+function get_sub_taxonomies(): array {
 	$inst = _get_instance();
 	return $inst->sub_taxes;
 }
@@ -165,7 +165,7 @@ function save_meta_box( int $post_id ) {
  * @param string $after   Content to append to the output.
  * @param string $for     Attribute of 'for'.
  */
-function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-filter"%s>', string $after = '</div>', string $for = 'bml' ) {
+function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter"%s>', string $after = '</div>', string $for = 'bml' ) {
 	$post = get_post( $post_id );
 	$d    = _get_data( $post->ID, $lang );
 
@@ -184,7 +184,7 @@ function the_filter( ?int $post_id = null, string $lang = '', string $before = '
  * @param string $after   Content to append to the output.
  * @param string $id      Attribute of 'id'.
  */
-function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
+function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
 	$post = get_post( $post_id );
 	$d    = _get_data( $post->ID, $lang );
 

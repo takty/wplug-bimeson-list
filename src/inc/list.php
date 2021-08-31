@@ -20,7 +20,7 @@ require_once __DIR__ . '/class-itembuffer.php';
  * @param string $after  Content to append to the output.
  * @param string $id     The ID of the output markup.
  */
-function echo_the_list( array $args, string $lang, string $before = '<div class="bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
+function echo_the_list( array $args, string $lang, string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
 	if ( ! empty( $id ) ) {
 		$id = " id=\"$id\"";
 	}

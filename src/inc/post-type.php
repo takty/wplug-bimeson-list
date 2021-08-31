@@ -21,7 +21,7 @@ function initialize_post_type( string $url_to ) {
 	register_post_type(
 		$inst::PT,
 		array(
-			'label'         => __( 'Publication List', 'bimeson_list' ),
+			'label'         => __( 'Publication List', 'wplug_bimeson_list' ),
 			'labels'        => array(),
 			'public'        => true,
 			'show_ui'       => true,
@@ -37,8 +37,8 @@ function initialize_post_type( string $url_to ) {
 		add_action(
 			'admin_enqueue_scripts',
 			function () use ( $url_to ) {
-				wp_enqueue_style( 'bimeson_list_post_type', $url_to . '/assets/css/post-type.min.css', array(), '1.0' );
-				wp_enqueue_script( 'bimeson_list_post_type', $url_to . '/assets/js/post-type.min.js', array(), '1.0', false );
+				wp_enqueue_style( 'wplug-bimeson-list-post-type', $url_to . '/assets/css/post-type.min.css', array(), '1.0' );
+				wp_enqueue_script( 'wplug-bimeson-list-post-type', $url_to . '/assets/js/post-type.min.js', array(), '1.0', false );
 				wp_enqueue_script( 'xlsx', $url_to . '/assets/js/xlsx.full.min.js', array(), '1.0', false );
 
 				$pid = get_post_id();
@@ -67,7 +67,7 @@ function _cb_admin_menu_post_type() {
 	if ( ! is_post_type( $inst::PT ) ) {
 		return;
 	}
-	\add_meta_box( 'bimeson_mb', __( 'Publication List', 'bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
+	\add_meta_box( 'wplug_bimeson_list_mb', __( 'Publication List', 'wplug_bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
 }
 
 /**
@@ -77,24 +77,24 @@ function _cb_admin_menu_post_type() {
  */
 function _cb_output_html_post_type() {
 	$inst = _get_instance();
-	wp_nonce_field( 'bimeson_list', 'bimeson_list_nonce' );
+	wp_nonce_field( 'wplug_bimeson_list', 'wplug_bimeson_list_nonce' );
 	$inst->media_picker->set_title_editable( false );
 	$inst->media_picker->output_html();
 	?>
 	<div>
-		<div class="bimeson-list-edit-row">
+		<div class="wplug-bimeson-list-edit-row">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TAX ); ?>" value="true">
-				<?php esc_html_e( 'Add category groups themselves', 'bimeson_list' ); ?>
+				<?php esc_html_e( 'Add category groups themselves', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TERM ); ?>" value="true">
-				<?php esc_html_e( 'Add categories to the category group', 'bimeson_list' ); ?>
+				<?php esc_html_e( 'Add categories to the category group', 'wplug_bimeson_list' ); ?>
 			</label>
 			<div>
-				<span class="bimeson-list-loading-spin"><span></span></span>
-				<button class="bimeson-list-filter-button button button-primary button-large">
-					<?php esc_html_e( 'Update List', 'bimeson_list' ); ?>
+				<span class="wplug-bimeson-list-loading-spin"><span></span></span>
+				<button class="wplug-bimeson-list-filter-button button button-primary button-large">
+					<?php esc_html_e( 'Update List', 'wplug_bimeson_list' ); ?>
 				</button>
 			</div>
 		</div>
@@ -115,8 +115,8 @@ function _cb_output_html_post_type() {
 function _cb_insert_post_data( array $data, array $post_a ): array {
 	$inst = _get_instance();
 	if ( $post_a['post_type'] === $inst::PT ) {
-		if ( empty( $post_a['post_title'] ) && ! empty( $post_a['_bimeson_media_0_title'] ) ) {
-			$data['post_title'] = $post_a['_bimeson_media_0_title'];
+		if ( empty( $post_a['post_title'] ) && ! empty( $post_a[ $inst::FLD_MEDIA . '_0_title' ] ) ) {
+			$data['post_title'] = $post_a[ $inst::FLD_MEDIA . '_0_title' ];
 		}
 	}
 	return $data;
@@ -131,7 +131,7 @@ function _cb_insert_post_data( array $data, array $post_a ): array {
  */
 function _cb_save_post_post_type( int $post_id ) {
 	$inst = _get_instance();
-	if ( ! isset( $_POST['bimeson_list_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['bimeson_list_nonce'], 'bimeson_list' ) ) ) {
+	if ( ! isset( $_POST['wplug_bimeson_list_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_list_nonce'], 'wplug_bimeson_list' ) ) ) {
 		return;
 	}
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
