@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2021-09-01
  */
 
 namespace wplug\bimeson_list;
@@ -108,6 +108,7 @@ function _register_sub_tax( string $tax, string $label ) {
 				'sort'               => true,
 				'show_admin_column'  => false,
 				'show_in_quick_edit' => false,
+				'meta_box_cb'        => false,
 			)
 		);
 	}
