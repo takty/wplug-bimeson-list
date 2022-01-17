@@ -4,12 +4,13 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-01-17
  */
 
 namespace wplug\bimeson_list;
 
 require_once __DIR__ . '/field.php';
+require_once __DIR__ . '/multiple.php';
 
 /**
  * Media picker.
@@ -280,7 +281,7 @@ class MediaPicker {
 		$its = array_values( $its );
 
 		$keys = array( 'media', 'url', 'title', 'filename' );
-		update_multiple_post_meta( $post_id, $this->key, $its, $keys );
+		set_multiple_post_meta( $post_id, $this->key, $its, $keys );
 	}
 
 }

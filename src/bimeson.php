@@ -4,13 +4,15 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-01-17
  */
 
 namespace wplug\bimeson_list;
 
-require_once __DIR__ . '/assets/util.php';
+require_once __DIR__ . '/assets/asset-url.php';
+require_once __DIR__ . '/assets/multiple.php';
 require_once __DIR__ . '/assets/field.php';
+require_once __DIR__ . '/assets/util.php';
 require_once __DIR__ . '/inc/inst.php';
 require_once __DIR__ . '/inc/post-type.php';
 require_once __DIR__ . '/inc/taxonomy.php';
