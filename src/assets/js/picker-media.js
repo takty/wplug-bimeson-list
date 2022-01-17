@@ -3,7 +3,7 @@
  * Media Picker (JS)
  *
  * @author Takuto Yanagida
- * @version 2021-07-19
+ * @version 2022-01-17
  *
  */
 
@@ -83,13 +83,13 @@ function setMediaPicker(elm, cls = null, fn = null, opts = {}) {
 		wp.media.model.settings.post.id = postId;
 		wp.media.view.settings.post.id  = postId;
 
- 		const media = wp.media({
+		const media = wp.media({
 			title   : title,
 			library : {type: type},
 			frame   : 'select',
 			multiple: multiple,
 		});
-		// For attatching uploaded file to post
+		// For attaching uploaded file to post
 		media.uploader.options.uploader.params.post_id = postId;
 		return media;
 	}
@@ -102,7 +102,7 @@ function setMediaPicker(elm, cls = null, fn = null, opts = {}) {
 		createFilters: function() {
 			const filters = {};
 			filters.all = {
-				text:  wp.media.view.l10n.allMediaItems,
+				text : wp.media.view.l10n.allMediaItems,
 				props: {
 					status    : null,
 					type      : null,
@@ -113,7 +113,7 @@ function setMediaPicker(elm, cls = null, fn = null, opts = {}) {
 				priority: 10
 			};
 			filters.uploaded = {
-				text:  wp.media.view.l10n.uploadedToThisPost,
+				text : wp.media.view.l10n.uploadedToThisPost,
 				props: {
 					status    : null,
 					type      : null,
@@ -124,7 +124,7 @@ function setMediaPicker(elm, cls = null, fn = null, opts = {}) {
 				priority: 20
 			};
 			filters.unattached = {
-				text:  wp.media.view.l10n.unattached,
+				text : wp.media.view.l10n.unattached,
 				props: {
 					status    : null,
 					type      : null,
@@ -146,8 +146,8 @@ function setMediaPicker(elm, cls = null, fn = null, opts = {}) {
 				'mediaLibraryUploadedFilter',
 				new MediaLibraryUploadedFilter({
 					controller: this.controller,
-					model:      this.collection.props,
-					priority:   -100
+					model     : this.collection.props,
+					priority  : -100
 				}).render()
 			);
 		}
