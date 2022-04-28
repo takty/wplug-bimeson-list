@@ -4,10 +4,10 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-01-17
+ * @version 2022-04-28
  */
 
-namespace wplug\keyvis;
+namespace wplug\bimeson_list;
 
 /**
  * Retrieve multiple post meta from environ variable $_POST.
