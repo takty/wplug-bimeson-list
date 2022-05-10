@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-05-10
  */
 
 namespace wplug\bimeson_list;
@@ -131,7 +131,7 @@ function _cb_insert_post_data( array $data, array $post_a ): array {
  */
 function _cb_save_post_post_type( int $post_id ) {
 	$inst = _get_instance();
-	if ( ! isset( $_POST['wplug_bimeson_list_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_list_nonce'], 'wplug_bimeson_list' ) ) ) {
+	if ( ! isset( $_POST['wplug_bimeson_list_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_list_nonce'] ), 'wplug_bimeson_list' ) ) {
 		return;
 	}
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
