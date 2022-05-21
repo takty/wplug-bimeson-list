@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-05-21
  */
 
 namespace wplug\bimeson_list;
@@ -57,6 +57,9 @@ function _echo_heading_list_element( array $its, string $lang, bool $sort_by_dat
 	$root_slug_to_depth    = get_root_slug_to_sub_depths();
 	$sub_slug_to_last_omit = get_sub_slug_to_last_omit();
 
+	if ( empty( $root_slug_to_depth ) ) {
+		return;
+	}
 	$last_cat_depth  = $root_slug_to_depth[ array_key_last( $root_slug_to_depth ) ];
 	$omitted_heading = $omit_single_cat ? _make_omitted_heading( $filter_state ) : null;
 
