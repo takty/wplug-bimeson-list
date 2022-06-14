@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-06-15
  */
 
 namespace wplug\bimeson_list;
@@ -202,8 +202,9 @@ function _echo_list_select( ?int $cur_id ) {
  * @param array $state Filter states.
  */
 function _echo_filter( array $state ) {
+	$opts = get_root_slug_to_options();
 	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
-		_echo_tax_checkboxes_admin( $rs, $terms, $state );
+		_echo_tax_checkboxes_admin( $rs, $terms, $state, $opts[ $rs ] );
 	}
 }
 
@@ -215,8 +216,9 @@ function _echo_filter( array $state ) {
  * @param string $root_slug Root slug.
  * @param array  $terms     Sub terms.
  * @param array  $state     Filter states.
+ * @param array  $opts      Options.
  */
-function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $state ) {
+function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $state, array $opts ) {
 	$inst = _get_instance();
 	$func = $inst->term_name_getter;
 	if ( ! is_callable( $func ) ) {
@@ -233,6 +235,8 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 
 	$visible = empty( $state[ $inst::KEY_VISIBLE ] ) ? true : in_array( $root_slug, $state[ $inst::KEY_VISIBLE ], true );
 	$vc      = $visible ? ' checked' : '';
+
+	$ih_attr = $opts['is_hidden'] ? ' disabled' : '';
 	?>
 	<div class="wplug-bimeson-admin-filter-key" data-key="<?php echo esc_attr( $slug ); ?>">
 		<div class="wplug-bimeson-admin-filter-key-inner">
@@ -240,7 +244,7 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 				<input type="checkbox" class="wplug-bimeson-admin-filter-switch tgl tgl-light" id="<?php echo esc_attr( $slug ); ?>" name="<?php echo esc_attr( $sub_tax ); ?>"<?php echo $checked; // phpcs:ignore ?> value="1">
 				<label class="tgl-btn" for="<?php echo esc_attr( $slug ); ?>"></label>
 				<span class="wplug-bimeson-admin-filter-cat"><label for="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $cat_label ); ?></label></span>
-				<label>
+				<label<?php echo esc_attr( $ih_attr ); ?>>
 					<input type="checkbox" class="wplug-bimeson-admin-filter-visible" name="wplug_bimeson_visible[]"<?php echo $vc; // phpcs:ignore ?> value="<?php echo esc_attr( $slug ); ?>">
 					<?php esc_html_e( 'Visible' ); ?>
 				</label>
