@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-01-17
+ * @version 2022-06-15
  */
 
 namespace wplug\bimeson_list;
@@ -28,16 +28,17 @@ require_once __DIR__ . '/inc/shortcode.php';
  * @param array $args {
  *     (Optional) Array of arguments.
  *
- *     @type int      'heading_level'     First heading level of publication lists. Default 3.
- *     @type string   'year_format'       Year heading format. Default null.
- *     @type callable 'term_name_getter'  Callable for getting term names. Default null.
- *     @type string   'year_select_label' Label of year select markup. Default __( 'Select Year' ).
- *     @type string   'taxonomy'          Root taxonomy slug.
- *     @type string   'sub_tax_base'      Slug base of sub taxonomies.
- *     @type string   'sub_tax_cls_base'  Class base of sub taxonomies.
- *     @type string   'sub_tax_qvar_base' Query variable name base of sub taxonomies.
- *     @type string   'year_cls_base'     Class base of year.
- *     @type string   'year_qvar'         Query variable name of year.
+ *     @type int      'heading_level'       First heading level of publication lists. Default 3.
+ *     @type string   'year_format'         Year heading format. Default null.
+ *     @type callable 'term_name_getter'    Callable for getting term names. Default null.
+ *     @type string   'year_select_label'   Label of year select markup. Default __( 'Select Year' ).
+ *     @type string   'uncategorized_label' Label of year select markup. Default __( 'Uncategorized' ).
+ *     @type string   'taxonomy'            Root taxonomy slug.
+ *     @type string   'sub_tax_base'        Slug base of sub taxonomies.
+ *     @type string   'sub_tax_cls_base'    Class base of sub taxonomies.
+ *     @type string   'sub_tax_qvar_base'   Query variable name base of sub taxonomies.
+ *     @type string   'year_cls_base'       Class base of year.
+ *     @type string   'year_qvar'           Query variable name of year.
  * }
  */
 function initialize( array $args = array() ) {
@@ -49,10 +50,11 @@ function initialize( array $args = array() ) {
 	$lang   = $args['lang'] ?? '';
 
 	// phpcs:disable
-	$inst->head_level        = $args['heading_level']     ?? 3;
-	$inst->year_format       = $args['year_format']       ?? null;
-	$inst->term_name_getter  = $args['term_name_getter']  ?? null;
-	$inst->year_select_label = $args['year_select_label'] ?? __( 'Select Year' );
+	$inst->head_level        = $args['heading_level']       ?? 3;
+	$inst->year_format       = $args['year_format']         ?? null;
+	$inst->term_name_getter  = $args['term_name_getter']    ?? null;
+	$inst->year_select_label = $args['year_select_label']   ?? __( 'Select Year' );
+	$inst->uncat_label       = $args['uncategorized_label'] ?? __( 'Uncategorized' );
 
 	$inst->root_tax          = $args['taxonomy']          ?? $inst::DEFAULT_TAXONOMY;
 	$inst->sub_tax_base      = $args['sub_tax_base']      ?? $inst::DEFAULT_SUB_TAX_BASE;
