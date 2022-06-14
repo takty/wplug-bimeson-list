@@ -65,7 +65,7 @@ function echo_the_filter( ?array $filter_state, array $years_exist, string $befo
  */
 function echo_filter( ?array $filter_state, array $years_exist ) {
 	$inst        = _get_instance();
-	$rs_to_terms = get_root_slug_to_sub_terms( false, true );
+	$rs_to_terms = get_root_slug_to_sub_terms( true );
 	$state       = _get_filter_state_from_query();
 
 	if ( ! empty( $years_exist ) ) {
