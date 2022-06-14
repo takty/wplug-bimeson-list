@@ -50,6 +50,7 @@ msgstr "未分類の項目を最後に並べる"
 # 'Filter',                                      'ja', 'フィルター'
 # 'Omit the heading of the last category group', 'ja', '一番最後の分類グループの見出しを省略する'
 # 'Hide from view screen',                       'ja', '閲覧画面から隠す'
+# 'Sort',                                        'ja', '並び替え'
 # 'Sort uncategorized items last',               'ja', '未分類の項目を最後に並べる'
 
 # Template Admin ---------------------------------------------------------------
