@@ -21,7 +21,7 @@ namespace wplug\bimeson_list;
  */
 function retrieve_items( array $items, ?int $count, bool $sort_by_date_first, bool $dup_multi_cat, ?array $filter_state ): array {
 	$rs_idx = _make_rs_idx();
-	$vs     = $filter_state[ _get_instance()::KEY_VISIBLE ] ?? null;
+	$vs     = get_visible_root_slugs( $filter_state );
 
 	$items = _align_sub_slugs( $items, $rs_idx );
 	if ( $dup_multi_cat ) {

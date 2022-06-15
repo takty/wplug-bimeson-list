@@ -342,3 +342,29 @@ function _match_filter( array $it, ?array $filter_state ): bool {
 	}
 	return true;
 }
+
+
+// -----------------------------------------------------------------------------
+
+
+/**
+ * Gets visible root slugs.
+ *
+ * @param array|null $filter_state Filter states.
+ * @return array Visible root slugs.
+ */
+function get_visible_root_slugs( ?array $filter_state ): array {
+	$vs = $filter_state[ _get_instance()::KEY_VISIBLE ] ?? null;
+
+	$ro  = get_root_slug_to_options();
+	$vst = array();
+	foreach ( $ro as $rs => $opts ) {
+		if ( ! $opts['is_hidden'] ) {
+			$vst[] = $rs;
+		}
+	}
+	if ( null === $vs ) {
+		return count( $vst ) === count( $ro ) ? null : $vst;
+	}
+	return array_values( array_intersect( $vs, $vst ) );
+}

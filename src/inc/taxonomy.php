@@ -150,12 +150,12 @@ function root_term_to_sub_tax( $term ): string {
 /**
  * Retrieves the array of root slugs to sub slugs.
  *
- * @param bool $do_hide Whether to hide slugs.
  * @return array Array of root slugs to sub slugs.
  */
-function get_root_slug_to_sub_slugs( bool $do_hide = false ): array {
-	$subs  = get_root_slug_to_sub_terms( $do_hide );
+function get_root_slug_to_sub_slugs(): array {
+	$subs  = get_root_slug_to_sub_terms();
 	$slugs = array();
+
 	foreach ( $subs as $slug => $terms ) {
 		$slugs[ $slug ] = array_map(
 			function ( $e ) {
@@ -170,21 +170,13 @@ function get_root_slug_to_sub_slugs( bool $do_hide = false ): array {
 /**
  * Retrieves the array of root slugs to sub terms.
  *
- * @param bool $do_hide Whether to hide slugs.
  * @return array Array of root slugs to sub terms.
  */
-function get_root_slug_to_sub_terms( bool $do_hide = false ): array {
-	$inst  = _get_instance();
+function get_root_slug_to_sub_terms(): array {
 	$roots = _get_root_terms();
 	$terms = array();
 
 	foreach ( $roots as $idx => $r ) {
-		if ( $do_hide ) {
-			$val_hide = get_term_meta( $r->term_id, $inst::KEY_IS_HIDDEN, true );
-			if ( $val_hide ) {
-				continue;
-			}
-		}
 		$sub_tax           = root_term_to_sub_tax( $r );
 		$terms[ $r->slug ] = _get_sub_terms( $sub_tax );
 	}
@@ -268,14 +260,13 @@ function _get_sub_terms( string $sub_tax ): array {
 /**
  * Retrieves the array of sub slugs to flags whether to omit last one.
  *
- * @param bool $do_hide Whether to hide slugs.
  * @return array Array.
  */
-function get_sub_slug_to_last_omit( bool $do_hide = false ): array {
+function get_sub_slug_to_last_omit(): array {
 	$inst = _get_instance();
 
 	$slug_to_last_omit = array();
-	foreach ( get_root_slug_to_sub_terms( $do_hide ) as $rs => $terms ) {
+	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
 		foreach ( $terms as $t ) {
 			$val = get_term_meta( $t->term_id, $inst::KEY_OMIT_LAST_CAT_GROUP, true );
 			if ( '1' === $val ) {
@@ -289,14 +280,13 @@ function get_sub_slug_to_last_omit( bool $do_hide = false ): array {
 /**
  * Retrieves the array of sub slugs to their ancestors.
  *
- * @param bool $do_hide Whether to hide slugs.
  * @return array Array.
  */
-function get_sub_slug_to_ancestors( bool $do_hide = false ): array {
+function get_sub_slug_to_ancestors(): array {
 	$inst = _get_instance();
 	$keys = array();
 
-	foreach ( get_root_slug_to_sub_terms( $do_hide ) as $rs => $terms ) {
+	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
 		foreach ( $terms as $t ) {
 			$a = _get_sub_term_ancestors( root_term_to_sub_tax( $rs ), $t );
 			if ( ! empty( $a ) ) {
@@ -332,13 +322,12 @@ function _get_sub_term_ancestors( string $sub_tax, \WP_Term $term ): array {
 /**
  * Retrieves the array of root slugs to their sub taxonomies depths.
  *
- * @param bool $do_hide Whether to hide slugs.
  * @return array Array.
  */
-function get_root_slug_to_sub_depths( bool $do_hide = false ): array {
+function get_root_slug_to_sub_depths(): array {
 	$rs_to_depth = array();
 
-	foreach ( get_root_slug_to_sub_terms( $do_hide ) as $rs => $terms ) {
+	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
 		$depth = 0;
 		foreach ( $terms as $t ) {
 			$d = _get_sub_tax_depth( root_term_to_sub_tax( $rs ), $t );

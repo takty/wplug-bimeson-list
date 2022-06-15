@@ -52,7 +52,7 @@ function echo_the_list( array $args, string $lang, string $before = '<div class=
  */
 function _echo_heading_list_element( array $its, string $lang, bool $sort_by_date_first, bool $omit_single_cat, ?array $filter_state ) {
 	$inst = _get_instance();
-	$vs   = $filter_state[ $inst::KEY_VISIBLE ] ?? null;
+	$vs   = get_visible_root_slugs( $filter_state );
 
 	$root_slug_to_depth    = get_root_slug_to_sub_depths();
 	$sub_slug_to_last_omit = get_sub_slug_to_last_omit();

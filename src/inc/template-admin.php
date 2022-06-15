@@ -204,7 +204,7 @@ function _echo_list_select( ?int $cur_id ) {
 function _echo_filter( array $state ) {
 	$opts = get_root_slug_to_options();
 	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
-		_echo_tax_checkboxes_admin( $rs, $terms, $state, $opts[ $rs ] );
+		_echo_tax_checkboxes_admin( $rs, $terms, $state, $opts[ $rs ]['is_hidden'] );
 	}
 }
 
@@ -216,9 +216,9 @@ function _echo_filter( array $state ) {
  * @param string $root_slug Root slug.
  * @param array  $terms     Sub terms.
  * @param array  $state     Filter states.
- * @param array  $opts      Options.
+ * @param bool   $is_hidden Whether the root term is hidden.
  */
-function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $state, array $opts ) {
+function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $state, bool $is_hidden ) {
 	$inst = _get_instance();
 	$func = $inst->term_name_getter;
 	if ( ! is_callable( $func ) ) {
@@ -236,7 +236,7 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 	$visible = empty( $state[ $inst::KEY_VISIBLE ] ) ? true : in_array( $root_slug, $state[ $inst::KEY_VISIBLE ], true );
 	$vc      = $visible ? ' checked' : '';
 
-	$ih_attr = $opts['is_hidden'] ? ' disabled' : '';
+	$ih_attr = $is_hidden ? ' disabled' : '';
 	?>
 	<div class="wplug-bimeson-admin-filter-key" data-key="<?php echo esc_attr( $slug ); ?>">
 		<div class="wplug-bimeson-admin-filter-key-inner">
