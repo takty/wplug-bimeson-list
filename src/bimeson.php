@@ -169,7 +169,7 @@ function save_meta_box( int $post_id ) {
  * @param string $after   Content to append to the output.
  * @param string $for     Attribute of 'for'.
  */
-function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter"%s>', string $after = '</div>', string $for = 'bml' ) {
+function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for = 'bml' ) {
 	$post = get_post( $post_id );
 	$d    = _get_data( $post->ID, $lang );
 

@@ -3,7 +3,7 @@
  * Bimeson List Filter
  *
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-06-15
  *
  */
 
@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			const l = document.querySelector(SEL_LIST);
 			if (l) initialize(f, l);
 		}
+
+		f.removeAttribute('hidden');
 	}
 
 	function initialize(filterElm, listElm) {

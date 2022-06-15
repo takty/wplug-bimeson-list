@@ -39,7 +39,7 @@ function _cb_query_vars_filter( array $query_vars ): array {
  * @param string $after        Content to append to the output.
  * @param string $for          Attribute of 'for'.
  */
-function echo_the_filter( ?array $filter_state, array $years_exist, string $before = '<div class="wplug-bimeson-filter"%s>', string $after = '</div>', string $for = 'bml' ) {
+function echo_the_filter( ?array $filter_state, array $years_exist, string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for = 'bml' ) {
 	wp_enqueue_style( 'wplug-bimeson-list-filter' );
 	wp_enqueue_script( 'wplug-bimeson-list-filter' );
 
