@@ -140,8 +140,8 @@ function get_sub_taxonomies(): array {
 /**
  * Adds the meta box.
  *
- * @param string  $title  Title of the meta box.
- * @param ?string $screen (Optional) The screen or screens on which to show the box.
+ * @param string      $title  Title of the meta box.
+ * @param string|null $screen (Optional) The screen or screens on which to show the box.
  */
 function add_meta_box( string $title, ?string $screen = null ) {
 	add_meta_box_template_admin( $title, $screen );
@@ -163,11 +163,11 @@ function save_meta_box( int $post_id ) {
 /**
  * Display the filter.
  *
- * @param ?int   $post_id Post ID.
- * @param string $lang    Language.
- * @param string $before  Content to prepend to the output.
- * @param string $after   Content to append to the output.
- * @param string $for     Attribute of 'for'.
+ * @param int|null $post_id Post ID.
+ * @param string   $lang    Language.
+ * @param string   $before  Content to prepend to the output.
+ * @param string   $after   Content to append to the output.
+ * @param string   $for     Attribute of 'for'.
  */
 function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for = 'bml' ) {
 	$post = get_post( $post_id );
@@ -182,11 +182,11 @@ function the_filter( ?int $post_id = null, string $lang = '', string $before = '
 /**
  * Display the list.
  *
- * @param ?int   $post_id Post ID.
- * @param string $lang    Language.
- * @param string $before  Content to prepend to the output.
- * @param string $after   Content to append to the output.
- * @param string $id      Attribute of 'id'.
+ * @param int|null $post_id Post ID.
+ * @param string   $lang    Language.
+ * @param string   $before  Content to prepend to the output.
+ * @param string   $after   Content to append to the output.
+ * @param string   $id      Attribute of 'id'.
  */
 function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
 	$post = get_post( $post_id );
@@ -235,11 +235,11 @@ function _get_data( int $post_id, string $lang ): array {
 /**
  * Retrieves filtered items.
  *
- * @param int     $list_id      List ID.
- * @param string  $lang         Language.
- * @param ?string $date_bgn     Date from.
- * @param ?string $date_end     Date to.
- * @param ?array  $filter_state Filter states.
+ * @param int         $list_id      List ID.
+ * @param string      $lang         Language.
+ * @param string|null $date_bgn     Date from.
+ * @param string|null $date_end     Date to.
+ * @param array|null  $filter_state Filter states.
  * @return array Items.
  */
 function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ): array {
@@ -282,11 +282,11 @@ function _get_items_from_list( int $list_id ): array {
  *
  * @access private
  *
- * @param array   $items        List ID.
- * @param string  $lang         Language.
- * @param ?string $date_bgn     Date from.
- * @param ?string $date_end     Date to.
- * @param ?array  $filter_state Filter states.
+ * @param array       $items        List ID.
+ * @param string      $lang         Language.
+ * @param string|null $date_bgn     Date from.
+ * @param string|null $date_end     Date to.
+ * @param array|null  $filter_state Filter states.
  * @return array Items.
  */
 function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ): array {
@@ -323,8 +323,8 @@ function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $
  *
  * @access private
  *
- * @param array  $it           An item.
- * @param ?array $filter_state Filter states.
+ * @param array      $it           An item.
+ * @param array|null $filter_state Filter states.
  * @return bool True if the item matches.
  */
 function _match_filter( array $it, ?array $filter_state ): bool {

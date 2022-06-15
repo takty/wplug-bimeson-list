@@ -34,8 +34,8 @@ function get_template_admin_config( int $post_id ): ?array {
 /**
  * Adds the meta box.
  *
- * @param string  $title  Title of the meta box.
- * @param ?string $screen (Optional) The screen or screens on which to show the box.
+ * @param string      $title  Title of the meta box.
+ * @param string|null $screen (Optional) The screen or screens on which to show the box.
  */
 function add_meta_box_template_admin( string $title, ?string $screen = null ) {
 	\add_meta_box( 'wplug_bimeson_list_admin_mb', $title, '\wplug\bimeson_list\_cb_output_html_template_admin', $screen );
@@ -165,7 +165,7 @@ function _cb_output_html_template_admin( \WP_Post $post ) {
  *
  * @access private
  *
- * @param ?int $cur_id Current list ID.
+ * @param int|null $cur_id Current list ID.
  */
 function _echo_list_select( ?int $cur_id ) {
 	$inst = _get_instance();

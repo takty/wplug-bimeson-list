@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-01-17
+ * @version 2022-06-15
  */
 
 namespace wplug\bimeson_list;
@@ -49,7 +49,7 @@ class MediaPicker {
 	/**
 	 * Retrieves an instance.
 	 *
-	 * @param ?string $key Key of instance.
+	 * @param string|null $key Key of instance.
 	 * @return MediaPicker The instance.
 	 */
 	public static function get_instance( ?string $key ): MediaPicker {
@@ -123,7 +123,7 @@ class MediaPicker {
 	/**
 	 * Retrieves selected media items.
 	 *
-	 * @param ?int $post_id Post ID.
+	 * @param int|null $post_id Post ID.
 	 * @return array Media items.
 	 */
 	public function get_items( ?int $post_id = null ): array {
@@ -142,9 +142,9 @@ class MediaPicker {
 	/**
 	 * Adds the meta box.
 	 *
-	 * @param string  $title   Title of the meta box.
-	 * @param ?string $screen  (Optional) The screen or screens on which to show the box.
-	 * @param string  $context (Optional) The context within the screen where the box should display.
+	 * @param string      $title   Title of the meta box.
+	 * @param string|null $screen  (Optional) The screen or screens on which to show the box.
+	 * @param string      $context (Optional) The context within the screen where the box should display.
 	 */
 	public function add_meta_box( string $title, string $screen, string $context = 'advanced' ) {
 		\add_meta_box( "{$this->key}_mb", $title, array( $this, 'cb_output_html' ), $screen, $context );
@@ -189,7 +189,7 @@ class MediaPicker {
 	/**
 	 * Display meta box markup.
 	 *
-	 * @param ?int $post_id Post ID.
+	 * @param int|null $post_id Post ID.
 	 */
 	public function output_html( ?int $post_id = null ) {
 		$its = $this->get_items( $post_id );
