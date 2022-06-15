@@ -351,9 +351,9 @@ function _match_filter( array $it, ?array $filter_state ): bool {
  * Gets visible root slugs.
  *
  * @param array|null $filter_state Filter states.
- * @return array Visible root slugs.
+ * @return array|null Visible root slugs.
  */
-function get_visible_root_slugs( ?array $filter_state ): array {
+function get_visible_root_slugs( ?array $filter_state ): ?array {
 	$vs = $filter_state[ _get_instance()::KEY_VISIBLE ] ?? null;
 
 	$ro  = get_root_slug_to_options();

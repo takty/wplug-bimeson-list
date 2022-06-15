@@ -1,6 +1,6 @@
 <?php
 /**
- * The Template for Publication Static Pages
+ * The Template for Publication List Static Pages
  *
  * Template Name: Publication List
  *
