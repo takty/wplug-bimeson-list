@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-05-10
+ * @version 2022-07-04
  */
 
 namespace wplug\bimeson_list;
@@ -145,7 +145,9 @@ function _cb_save_post_post_type( int $post_id ) {
 	}
 	if ( $json_items !== $inst::NOT_MODIFIED ) {
 		$items = json_decode( stripslashes( $json_items ), true );
-
+		if ( ! is_array( $items ) ) {
+			return;
+		}
 		$add_tax  = isset( $_POST[ $inst::FLD_ADD_TAX ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TAX ] );
 		$add_term = isset( $_POST[ $inst::FLD_ADD_TERM ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TERM ] );
 		if ( $add_tax || $add_term ) {
