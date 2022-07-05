@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-07-04
+ * @version 2022-07-05
  */
 
 namespace wplug\bimeson_list;
@@ -40,6 +40,14 @@ function initialize_post_type( string $url_to ) {
 				wp_enqueue_style( 'wplug-bimeson-list-post-type', $url_to . '/assets/css/post-type.min.css', array(), '1.0' );
 				wp_enqueue_script( 'wplug-bimeson-list-post-type', $url_to . '/assets/js/post-type.min.js', array(), '1.0', false );
 				wp_enqueue_script( 'xlsx', $url_to . '/assets/js/xlsx.full.min.js', array(), '1.0', false );
+
+				wp_localize_script(
+					'wplug-bimeson-list-post-type',
+					'translation',
+					array(
+						'alert_msg' => __( '“Update list” before clicking “Publish/Update” button.', 'wplug_bimeson_list' ),
+					)
+				);
 
 				$pid = get_post_id();
 				wp_enqueue_media( array( 'post' => ( 0 === $pid ? null : $pid ) ) );
@@ -93,7 +101,7 @@ function _cb_output_html_post_type() {
 			</label>
 			<div>
 				<span class="wplug-bimeson-list-loading-spin"><span></span></span>
-				<button class="wplug-bimeson-list-filter-button button button-primary button-large">
+				<button class="wplug-bimeson-list-update-button button button-primary button-large">
 					<?php esc_html_e( 'Update List', 'wplug_bimeson_list' ); ?>
 				</button>
 			</div>
@@ -146,6 +154,7 @@ function _cb_save_post_post_type( int $post_id ) {
 	if ( $json_items !== $inst::NOT_MODIFIED ) {
 		$items = json_decode( stripslashes( $json_items ), true );
 		if ( ! is_array( $items ) ) {
+			delete_post_meta( $post_id, $inst::FLD_ITEMS );
 			return;
 		}
 		$add_tax  = isset( $_POST[ $inst::FLD_ADD_TAX ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TAX ] );

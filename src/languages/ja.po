@@ -1,7 +1,7 @@
 # Translation of Bimeson List - Development in Japanese
 # @package Bimeson List
 # @author Takuto Yanagida
-# @version 2022-06-15
+# @version 2022-07-05
 
 # Post Type --------------------------------------------------------------------
 
@@ -17,10 +17,14 @@ msgstr "分類グループに分類を追加"
 msgid "Update List"
 msgstr "リストを更新"
 
-# 'Publication List',                     'ja', '業績リスト'
-# 'Add category groups themselves',       'ja', '分類グループ自体を追加'
-# 'Add categories to the category group', 'ja', '分類グループに分類を追加'
-# 'Update List',                          'ja', 'リストを更新'
+msgid "“Update list” before clicking “Publish/Update” button."
+msgstr "「公開/更新」ボタンを押す前に「リストを更新」してください。"
+
+# 'Publication List',                                       'ja', '業績リスト'
+# 'Add category groups themselves',                         'ja', '分類グループ自体を追加'
+# 'Add categories to the category group',                   'ja', '分類グループに分類を追加'
+# 'Update List',                                            'ja', 'リストを更新'
+# '“Update list” before clicking “Publish/Update” button.', 'ja', '「公開/更新」ボタンを押す前に「リストを更新」してください。'
 
 # Taxonomy ---------------------------------------------------------------------
 

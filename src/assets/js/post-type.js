@@ -3,7 +3,7 @@
  * Bimeson (Post Type)
  *
  * @author Takuto Yanagida
- * @version 2021-08-31
+ * @version 2022-07-05
  *
  */
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const FLD_ADD_TERM = '_bimeson_add_term';
 	const FLD_ITEMS    = '_bimeson_items';
 
-	const SEL_FILTER_BUTTON = '.wplug-bimeson-list-filter-button';
+	const SEL_UPDATE_BUTTON = '.wplug-bimeson-list-update-button';
 	const SEL_LOADING_SPIN  = '.wplug-bimeson-list-loading-spin';
 
 	const KEY_BODY = '_body';
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	addTaxCb.disabled = true;
 	addTermCb.disabled = true;
 
-	const btn = document.querySelector(SEL_FILTER_BUTTON);
+	const btn = document.querySelector(SEL_UPDATE_BUTTON);
 	if (!btn) return;
 	btn.addEventListener('click', function () {
 		const count = document.getElementById(FLD_MEDIA).value;
@@ -40,8 +40,25 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (url.length !== 0) urls.push(url);
 		}
 		disableFilterButton();
-		loadFiles(urls, FLD_ITEMS, enableFilterButton);
+		loadFiles(urls, FLD_ITEMS, () => {
+			enableFilterButton();
+			btn.classList.add('updated');
+		});
 	});
+
+
+	// -------------------------------------------------------------------------
+
+
+	const form = document.getElementById('post');
+	if (form) {
+		form.addEventListener('submit', (e) => {
+			if (!btn.classList.contains('updated')) {
+				alert(translation.alert_msg);
+				e.preventDefault();
+			}
+		});
+	}
 
 
 	// -------------------------------------------------------------------------
@@ -51,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		const spin = document.querySelector(SEL_LOADING_SPIN);
 		spin.style.visibility = 'visible';
 
-		const btn = document.querySelector(SEL_FILTER_BUTTON);
+		const btn = document.querySelector(SEL_UPDATE_BUTTON);
 		btn.setAttribute('disabled', true);
 		btn.blur();
 	}
@@ -61,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const spin = document.querySelector(SEL_LOADING_SPIN);
 			spin.style.visibility = '';
 
-			const btn = document.querySelector(SEL_FILTER_BUTTON);
+			const btn = document.querySelector(SEL_UPDATE_BUTTON);
 			btn.removeAttribute('disabled');
 
 			const res = document.getElementsByName(FLD_ITEMS)[0];
