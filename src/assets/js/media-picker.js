@@ -1,12 +1,9 @@
 /**
- *
  * Media Picker (JS)
  *
  * @author Takuto Yanagida
  * @version 2021-07-08
- *
  */
-
 
 function st_media_picker_initialize_admin(key) {
 	const NS = 'wplug-bimeson-list-media-picker';

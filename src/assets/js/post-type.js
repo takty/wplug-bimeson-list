@@ -1,12 +1,9 @@
 /**
- *
  * Bimeson (Post Type)
  *
  * @author Takuto Yanagida
  * @version 2022-07-05
- *
  */
-
 
 document.addEventListener('DOMContentLoaded', function () {
 

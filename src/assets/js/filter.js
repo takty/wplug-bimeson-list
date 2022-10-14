@@ -1,12 +1,9 @@
 /**
- *
  * Bimeson List Filter
  *
  * @author Takuto Yanagida
  * @version 2022-06-15
- *
  */
-
 
 document.addEventListener('DOMContentLoaded', () => {
 

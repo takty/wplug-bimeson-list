@@ -1,12 +1,9 @@
 /**
- *
  * Media Picker (JS)
  *
  * @author Takuto Yanagida
  * @version 2022-01-17
- *
  */
-
 
 document.addEventListener('DOMContentLoaded', function () {
 	const elms = document.querySelectorAll('*[data-picker="media"]');

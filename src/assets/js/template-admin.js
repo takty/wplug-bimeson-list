@@ -1,12 +1,9 @@
 /**
- *
  * Bimeson (Template Admin)
  *
  * @author Takuto Yanagida
  * @version 2022-10-14
- *
  */
-
 
 document.addEventListener('DOMContentLoaded', function () {
 
