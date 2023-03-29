@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-07-05
+ * @version 2023-03-29
  */
 
 namespace wplug\bimeson_list;
@@ -152,7 +152,7 @@ function _cb_save_post_post_type( int $post_id ) {
 		$json_items = wp_unslash( $_POST[ $inst::FLD_ITEMS ] );  // phpcs:ignore
 	}
 	if ( $json_items !== $inst::NOT_MODIFIED ) {
-		$items = json_decode( stripslashes( $json_items ), true );
+		$items = json_decode( $json_items, true );
 		if ( ! is_array( $items ) ) {
 			delete_post_meta( $post_id, $inst::FLD_ITEMS );
 			return;
