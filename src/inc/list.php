@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-06-15
+ * @version 2023-04-03
  */
 
 namespace wplug\bimeson_list;
@@ -58,10 +58,9 @@ function _echo_heading_list_element( array $its, string $lang, bool $sort_by_dat
 	$sub_slug_to_last_omit = get_sub_slug_to_last_omit();
 	$root_slug_to_options  = get_root_slug_to_options();
 
-	if ( empty( $root_slug_to_depth ) ) {
-		return;
-	}
-	$last_cat_depth  = $root_slug_to_depth[ array_key_last( $root_slug_to_depth ) ];
+	$lk = array_key_last( $root_slug_to_depth );
+
+	$last_cat_depth  = ( null !== $lk ) ? $root_slug_to_depth[ $lk ] : 0;
 	$omitted_heading = $omit_single_cat ? _make_omitted_heading( $filter_state ) : null;
 
 	$hr_size_orig     = 0;
@@ -296,11 +295,29 @@ function _echo_list_item( array $it, string $lang ) {
 	if ( empty( $body ) ) {
 		return;
 	}
-	// phpcs:disable
-	$doi   = $it[ $inst::IT_DOI ]        ?? '';
-	$url   = $it[ $inst::IT_LINK_URL ]   ?? '';
-	$title = $it[ $inst::IT_LINK_TITLE ] ?? '';
-	// phpcs:enable
+	$doi = $it[ $inst::IT_DOI ] ?? '';
+
+	$links = array();
+	for ( $i = 0; $i < 10; ++$i ) {
+		$sf = ( 0 === $i ) ? '' : "_$i";
+		// phpcs:disable
+		$url   = $it[ $inst::IT_LINK_URL   . $sf ] ?? '';
+		$title = $it[ $inst::IT_LINK_TITLE . $sf ] ?? '';
+		// phpcs:enable
+
+		if ( ! empty( $url ) ) {
+			$links[] = array( $url, $title );
+		} elseif ( 0 !== $i ) {
+			// phpcs:disable
+			$url   = $it[ $inst::IT_LINK_URL   . $i ] ?? '';
+			$title = $it[ $inst::IT_LINK_TITLE . $i ] ?? '';
+			// phpcs:enable
+
+			if ( ! empty( $url ) ) {
+				$links[] = array( $url, $title );
+			}
+		}
+	}
 
 	$_doi = '';
 	if ( ! empty( $doi ) ) {
@@ -313,10 +330,12 @@ function _echo_list_item( array $it, string $lang ) {
 		}
 	}
 	$_link = '';
-	if ( ! empty( $url ) ) {
+	foreach ( $links as $link ) {
+		list( $url, $title ) = $link;
+
 		$_url   = esc_url( $url );
 		$_title = empty( $title ) ? $_url : esc_html( $title );
-		$_link  = "<span class=\"link\"><a href=\"$_url\">$_title</a></span>";
+		$_link .= "<span class=\"link\"><a href=\"$_url\">$_title</a></span>";
 	}
 	$_cls = esc_attr( _make_cls( $it ) );
 
