@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-03-29
+ * @version 2023-05-15
  */
 
 namespace wplug\bimeson_list;
@@ -39,7 +39,7 @@ function initialize_post_type( string $url_to ) {
 			function () use ( $url_to ) {
 				wp_enqueue_style( 'wplug-bimeson-list-post-type', $url_to . '/assets/css/post-type.min.css', array(), '1.0' );
 				wp_enqueue_script( 'wplug-bimeson-list-post-type', $url_to . '/assets/js/post-type.min.js', array(), '1.0', false );
-				wp_enqueue_script( 'xlsx', $url_to . '/assets/js/xlsx.full.min.js', array(), '1.0', false );
+				wp_enqueue_script( 'xlsx', $url_to . '/assets/js/sheetjs/xlsx.full.min.js', array(), '1.0', false );
 
 				wp_localize_script(
 					'wplug-bimeson-list-post-type',
