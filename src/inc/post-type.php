@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-05-15
+ * @version 2023-05-18
  */
 
 namespace wplug\bimeson_list;
@@ -184,9 +184,7 @@ function _process_items( array &$items ) {
 	foreach ( $items as &$it ) {
 		$date = ( ! empty( $it[ $inst::IT_DATE ] ) ) ? normalize_date( $it[ $inst::IT_DATE ] ) : '';
 		if ( $date ) {
-			$date_num = str_pad( str_replace( '-', '', $date ), 8, '9', STR_PAD_RIGHT );
-
-			$it[ $inst::IT_DATE_NUM ] = $date_num;
+			$it[ $inst::IT_DATE_NUM ] = create_date_number( $date );
 		}
 		unset( $it[ $inst::IT_DATE ] );
 	}
