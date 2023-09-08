@@ -4,19 +4,23 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-05-18
+ * @version 2023-09-08
  */
 
 namespace wplug\bimeson_list;
 
-require_once __DIR__ . '/../assets/class-mediapicker.php';
+require_once __DIR__ . '/../assets/admin-current-post.php';
+require_once __DIR__ . '/../assets/date-field.php';
+require_once __DIR__ . '/class-mediapicker.php';
+require_once __DIR__ . '/inst.php';
+require_once __DIR__ . '/taxonomy.php';
 
 /**
  * Initializes the post type.
  *
  * @param string $url_to Base URL.
  */
-function initialize_post_type( string $url_to ) {
+function initialize_post_type( string $url_to ): void {
 	$inst = _get_instance();
 	register_post_type(
 		$inst::PT,
@@ -49,8 +53,8 @@ function initialize_post_type( string $url_to ) {
 					)
 				);
 
-				$pid = get_post_id();
-				wp_enqueue_media( array( 'post' => ( 0 === $pid ? null : $pid ) ) );
+				$pid = \wplug\get_admin_post_id();
+				wp_enqueue_media( 0 === $pid ? array() : array( 'post' => $pid ) );
 				MediaPicker::enqueue_script( $url_to . '/assets/' );
 			}
 		);
@@ -70,9 +74,9 @@ function initialize_post_type( string $url_to ) {
  *
  * @access private
  */
-function _cb_admin_menu_post_type() {
+function _cb_admin_menu_post_type(): void {
 	$inst = _get_instance();
-	if ( ! is_post_type( $inst::PT ) ) {
+	if ( ! \wplug\is_admin_post_type( $inst::PT ) ) {
 		return;
 	}
 	\add_meta_box( 'wplug_bimeson_list_mb', __( 'Publication List', 'wplug_bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
@@ -83,7 +87,7 @@ function _cb_admin_menu_post_type() {
  *
  * @access private
  */
-function _cb_output_html_post_type() {
+function _cb_output_html_post_type(): void {
 	$inst = _get_instance();
 	wp_nonce_field( 'wplug_bimeson_list', 'wplug_bimeson_list_nonce' );
 	$inst->media_picker->set_title_editable( false );
@@ -116,9 +120,9 @@ function _cb_output_html_post_type() {
  *
  * @access private
  *
- * @param array $data   An array of slashed, sanitized, and processed post data.
- * @param array $post_a An array of sanitized (and slashed) but otherwise unmodified post data.
- * @return array Filtered post data.
+ * @param array<string, mixed> $data   An array of slashed, sanitized, and processed post data.
+ * @param array<string, mixed> $post_a An array of sanitized (and slashed) but otherwise unmodified post data.
+ * @return array<string, mixed> Filtered post data.
  */
 function _cb_insert_post_data( array $data, array $post_a ): array {
 	$inst = _get_instance();
@@ -137,7 +141,7 @@ function _cb_insert_post_data( array $data, array $post_a ): array {
  *
  * @param int $post_id Post ID.
  */
-function _cb_save_post_post_type( int $post_id ) {
+function _cb_save_post_post_type( int $post_id ): void {
 	$inst = _get_instance();
 	if ( ! isset( $_POST['wplug_bimeson_list_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_list_nonce'] ), 'wplug_bimeson_list' ) ) {
 		return;
@@ -164,7 +168,9 @@ function _cb_save_post_post_type( int $post_id ) {
 		}
 		_process_items( $items );
 		$json_items = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-		update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json_items ) );  // Because the meta value is passed through the stripslashes() function upon being stored.
+		if ( false !== $json_items ) {
+			update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json_items ) );  // Because the meta value is passed through the stripslashes() function upon being stored.
+		}
 	}
 }
 
@@ -177,14 +183,14 @@ function _cb_save_post_post_type( int $post_id ) {
  *
  * @access private
  *
- * @param array $items Items.
+ * @param array<string, mixed>[] $items Items.
  */
-function _process_items( array &$items ) {
+function _process_items( array &$items ): void {
 	$inst = _get_instance();
 	foreach ( $items as &$it ) {
-		$date = ( ! empty( $it[ $inst::IT_DATE ] ) ) ? normalize_date( $it[ $inst::IT_DATE ] ) : '';
+		$date = ( ! empty( $it[ $inst::IT_DATE ] ) ) ? \wplug\normalize_date( $it[ $inst::IT_DATE ] ) : '';
 		if ( $date ) {
-			$it[ $inst::IT_DATE_NUM ] = create_date_number( $date );
+			$it[ $inst::IT_DATE_NUM ] = \wplug\create_date_number( $date );
 		}
 		unset( $it[ $inst::IT_DATE ] );
 	}

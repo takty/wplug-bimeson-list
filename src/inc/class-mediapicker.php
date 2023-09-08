@@ -4,13 +4,12 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-06-15
+ * @version 2023-09-08
  */
 
 namespace wplug\bimeson_list;
 
-require_once __DIR__ . '/field.php';
-require_once __DIR__ . '/multiple.php';
+require_once __DIR__ . '/../assets/multiple.php';
 
 /**
  * Media picker.
@@ -42,7 +41,7 @@ class MediaPicker {
 	/**
 	 * Instances.
 	 *
-	 * @var 1.0
+	 * @var MediaPicker[]
 	 */
 	private static $instance = array();
 
@@ -50,11 +49,14 @@ class MediaPicker {
 	 * Retrieves an instance.
 	 *
 	 * @param string|null $key Key of instance.
-	 * @return MediaPicker The instance.
+	 * @return MediaPicker|null The instance.
 	 */
-	public static function get_instance( ?string $key ): MediaPicker {
+	public static function get_instance( ?string $key ): ?MediaPicker {
 		if ( is_null( $key ) ) {
-			return reset( self::$instance );
+			if ( ! empty( self::$instance ) ) {
+				return reset( self::$instance );
+			}
+			return null;
 		}
 		if ( isset( self::$instance[ $key ] ) ) {
 			return self::$instance[ $key ];
@@ -67,7 +69,7 @@ class MediaPicker {
 	 *
 	 * @param string $url_to Base URL.
 	 */
-	public static function enqueue_script( string $url_to ) {
+	public static function enqueue_script( string $url_to ): void {
 		if ( is_admin() ) {
 			$url_to = untrailingslashit( $url_to );
 			wp_enqueue_script( 'picker-media', $url_to . '/js/picker-media.min.js', array(), '1.0', true );
@@ -79,21 +81,21 @@ class MediaPicker {
 	/**
 	 * The base key of input.
 	 *
-	 * @var 1.0
+	 * @var string
 	 */
 	private $key;
 
 	/**
 	 * The ID of the output markup.
 	 *
-	 * @var 1.0
+	 * @var string
 	 */
 	private $id;
 
 	/**
 	 * Whether titles are editable.
 	 *
-	 * @var 1.0
+	 * @var bool
 	 */
 	private $is_title_editable = true;
 
@@ -124,14 +126,17 @@ class MediaPicker {
 	 * Retrieves selected media items.
 	 *
 	 * @param int|null $post_id Post ID.
-	 * @return array Media items.
+	 * @return array<string, mixed>|null Media items.
 	 */
-	public function get_items( ?int $post_id = null ): array {
+	public function get_items( ?int $post_id = null ): ?array {
 		if ( is_null( $post_id ) ) {
 			$post_id = get_the_ID();
+			if ( ! $post_id ) {
+				return null;
+			}
 		}
 		$keys = array( 'media', 'url', 'title', 'filename', 'id' );
-		$its  = get_multiple_post_meta( $post_id, $this->key, $keys );
+		$its  = \wplug\get_multiple_post_meta( $post_id, $this->key, $keys );
 		return $its;
 	}
 
@@ -142,11 +147,11 @@ class MediaPicker {
 	/**
 	 * Adds the meta box.
 	 *
-	 * @param string      $title   Title of the meta box.
-	 * @param string|null $screen  (Optional) The screen or screens on which to show the box.
-	 * @param string      $context (Optional) The context within the screen where the box should display.
+	 * @param string                     $title   Title of the meta box.
+	 * @param string|null                $screen  (Optional) The screen or screens on which to show the box.
+	 * @param 'advanced'|'normal'|'side' $context (Optional) The context within the screen where the box should display.
 	 */
-	public function add_meta_box( string $title, string $screen, string $context = 'advanced' ) {
+	public function add_meta_box( string $title, ?string $screen, string $context = 'advanced' ): void {
 		\add_meta_box( "{$this->key}_mb", $title, array( $this, 'cb_output_html' ), $screen, $context );
 	}
 
@@ -155,7 +160,7 @@ class MediaPicker {
 	 *
 	 * @param int $post_id Post ID.
 	 */
-	public function save_meta_box( int $post_id ) {
+	public function save_meta_box( int $post_id ): void {
 		if ( ! isset( $_POST[ "{$this->key}_nonce" ] ) ) {
 			return;
 		}
@@ -181,7 +186,7 @@ class MediaPicker {
 	 *
 	 * @param \WP_Post $post Doc.
 	 */
-	public function cb_output_html( \WP_Post $post ) {
+	public function cb_output_html( \WP_Post $post ): void {
 		wp_nonce_field( $this->key, "{$this->key}_nonce" );
 		$this->output_html( $post->ID );
 	}
@@ -191,16 +196,18 @@ class MediaPicker {
 	 *
 	 * @param int|null $post_id Post ID.
 	 */
-	public function output_html( ?int $post_id = null ) {
+	public function output_html( ?int $post_id = null ): void {
 		$its = $this->get_items( $post_id );
 		?>
-		<input type="hidden" <?php name_id( $this->id ); ?> value="">
+		<input type="hidden" name="<?php echo esc_attr( $this->id ); ?>" id="<?php echo esc_attr( $this->id ); ?>" value="">
 		<div class="<?php echo esc_attr( self::CLS_BODY ); ?>">
 			<div class="<?php echo esc_attr( self::CLS_TABLE ); ?>">
 		<?php
 		$this->output_row( array(), self::CLS_ITEM_TEMP );
-		foreach ( $its as $it ) {
-			$this->output_row( $it, self::CLS_ITEM );
+		if ( is_array( $its ) ) {
+			foreach ( $its as $it ) {
+				$this->output_row( $it, self::CLS_ITEM );
+			}
 		}
 		?>
 				<div class="<?php echo esc_attr( self::CLS_ADD_ROW ); ?>"><a href="javascript:void(0);" class="<?php echo esc_attr( self::CLS_ADD ); ?> button"><?php esc_html_e( 'Add Media', 'default' ); ?></a></div>
@@ -220,10 +227,10 @@ class MediaPicker {
 	 *
 	 * @access private
 	 *
-	 * @param array  $it  The item.
-	 * @param string $cls CSS class name.
+	 * @param array<string, mixed> $it  The item.
+	 * @param string               $cls CSS class name.
 	 */
-	public function output_row( array $it, string $cls ) {
+	public function output_row( array $it, string $cls ): void {
 		// phpcs:disable
 		$url        = $it['url']       ?? '';
 		$media      = $it['media']     ?? '';
@@ -268,10 +275,10 @@ class MediaPicker {
 	 *
 	 * @param int $post_id Post ID.
 	 */
-	public function save_items( int $post_id ) {
+	public function save_items( int $post_id ): void {
 		$keys = array( 'media', 'url', 'title', 'filename', 'delete' );
 
-		$its = get_multiple_post_meta_from_env( $this->key, $keys );
+		$its = \wplug\get_multiple_post_meta_from_env( $this->key, $keys );
 		$its = array_filter(
 			$its,
 			function ( $it ) {
@@ -281,7 +288,7 @@ class MediaPicker {
 		$its = array_values( $its );
 
 		$keys = array( 'media', 'url', 'title', 'filename' );
-		set_multiple_post_meta( $post_id, $this->key, $its, $keys );
+		\wplug\set_multiple_post_meta( $post_id, $this->key, $its, $keys );
 	}
 
 }

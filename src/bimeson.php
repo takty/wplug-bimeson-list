@@ -4,28 +4,26 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2022-06-15
+ * @version 2023-09-08
  */
 
 namespace wplug\bimeson_list;
 
+require_once __DIR__ . '/assets/admin-current-post.php';
 require_once __DIR__ . '/assets/asset-url.php';
-require_once __DIR__ . '/assets/multiple.php';
-require_once __DIR__ . '/assets/field.php';
-require_once __DIR__ . '/assets/util.php';
-require_once __DIR__ . '/inc/inst.php';
-require_once __DIR__ . '/inc/post-type.php';
-require_once __DIR__ . '/inc/taxonomy.php';
-require_once __DIR__ . '/inc/retriever.php';
 require_once __DIR__ . '/inc/filter.php';
+require_once __DIR__ . '/inc/inst.php';
 require_once __DIR__ . '/inc/list.php';
-require_once __DIR__ . '/inc/template-admin.php';
+require_once __DIR__ . '/inc/post-type.php';
+require_once __DIR__ . '/inc/retriever.php';
 require_once __DIR__ . '/inc/shortcode.php';
+require_once __DIR__ . '/inc/taxonomy.php';
+require_once __DIR__ . '/inc/template-admin.php';
 
 /**
  * Initializes bimeson.
  *
- * @param array $args {
+ * @param array<string, mixed> $args {
  *     (Optional) Array of arguments.
  *
  *     @type int      'heading_level'       First heading level of publication lists. Default 3.
@@ -41,12 +39,12 @@ require_once __DIR__ . '/inc/shortcode.php';
  *     @type string   'year_qvar'           Query variable name of year.
  * }
  */
-function initialize( array $args = array() ) {
+function initialize( array $args = array() ): void {
 	$inst = _get_instance();
 
 	_set_key( $args['key'] ?? '_bimeson' );
 
-	$url_to = untrailingslashit( $args['url_to'] ?? get_file_uri( __DIR__ ) );
+	$url_to = untrailingslashit( $args['url_to'] ?? \wplug\get_file_uri( __DIR__ ) );
 	$lang   = $args['lang'] ?? '';
 
 	// phpcs:disable
@@ -82,14 +80,14 @@ function initialize( array $args = array() ) {
  *
  * @param string $url_to Base URL.
  */
-function _register_script( string $url_to ) {
+function _register_script( string $url_to ): void {
 	if ( is_admin() ) {
 		if ( ! _is_the_post_type() ) {
 			add_action(
 				'admin_enqueue_scripts',
 				function () use ( $url_to ) {
-					wp_enqueue_style( 'wplug-bimeson-list-template-admin', abs_url( $url_to, './assets/css/template-admin.min.css' ), array(), '1.0' );
-					wp_enqueue_script( 'wplug-bimeson-list-template-admin', abs_url( $url_to, './assets/js/template-admin.min.js' ), array(), '1.0', false );
+					wp_enqueue_style( 'wplug-bimeson-list-template-admin', \wplug\abs_url( $url_to, './assets/css/template-admin.min.css' ), array(), '1.0' );
+					wp_enqueue_script( 'wplug-bimeson-list-template-admin', \wplug\abs_url( $url_to, './assets/js/template-admin.min.js' ), array(), '1.0', false );
 				}
 			);
 		}
@@ -97,8 +95,8 @@ function _register_script( string $url_to ) {
 		add_action(
 			'wp_enqueue_scripts',
 			function () use ( $url_to ) {
-				wp_register_style( 'wplug-bimeson-list-filter', abs_url( $url_to, './assets/css/filter.min.css' ), array(), '1.0' );
-				wp_register_script( 'wplug-bimeson-list-filter', abs_url( $url_to, './assets/js/filter.min.js' ), array(), '1.0', false );
+				wp_register_style( 'wplug-bimeson-list-filter', \wplug\abs_url( $url_to, './assets/css/filter.min.css' ), array(), '1.0' );
+				wp_register_script( 'wplug-bimeson-list-filter', \wplug\abs_url( $url_to, './assets/js/filter.min.js' ), array(), '1.0', false );
 			}
 		);
 	}
@@ -114,7 +112,7 @@ function _register_script( string $url_to ) {
 function _is_the_post_type(): bool {
 	$inst = _get_instance();
 	global $pagenow;
-	return in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) && is_post_type( $inst::PT );
+	return in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) && \wplug\is_admin_post_type( $inst::PT );
 }
 
 
@@ -123,6 +121,8 @@ function _is_the_post_type(): bool {
 
 /**
  * Gets the root taxonomy slug.
+ *
+ * @return string Root taxonomy slug.
  */
 function get_taxonomy(): string {
 	$inst = _get_instance();
@@ -131,6 +131,8 @@ function get_taxonomy(): string {
 
 /**
  * Gets the sub taxonomy slugs.
+ *
+ * @return array<string, string> Sub taxonomy slugs.
  */
 function get_sub_taxonomies(): array {
 	$inst = _get_instance();
@@ -143,7 +145,7 @@ function get_sub_taxonomies(): array {
  * @param string      $title  Title of the meta box.
  * @param string|null $screen (Optional) The screen or screens on which to show the box.
  */
-function add_meta_box( string $title, ?string $screen = null ) {
+function add_meta_box( string $title, ?string $screen = null ): void {
 	add_meta_box_template_admin( $title, $screen );
 }
 
@@ -152,7 +154,7 @@ function add_meta_box( string $title, ?string $screen = null ) {
  *
  * @param int $post_id Post ID.
  */
-function save_meta_box( int $post_id ) {
+function save_meta_box( int $post_id ): void {
 	save_meta_box_template_admin( $post_id );
 }
 
@@ -169,7 +171,7 @@ function save_meta_box( int $post_id ) {
  * @param string   $after   Content to append to the output.
  * @param string   $for     Attribute of 'for'.
  */
-function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for = 'bml' ) {
+function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for = 'bml' ): void {
 	$post = get_post( $post_id );
 	$d    = _get_data( $post->ID, $lang );
 
@@ -188,7 +190,7 @@ function the_filter( ?int $post_id = null, string $lang = '', string $before = '
  * @param string   $after   Content to append to the output.
  * @param string   $id      Attribute of 'id'.
  */
-function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ) {
+function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ): void {
 	$post = get_post( $post_id );
 	$d    = _get_data( $post->ID, $lang );
 
@@ -205,15 +207,15 @@ function the_list( ?int $post_id = null, string $lang = '', string $before = '<d
  *
  * @param int    $post_id Post ID.
  * @param string $lang    Language.
- * @return array Data.
+ * @return array<string, mixed>|null Data.
  */
-function _get_data( int $post_id, string $lang ): array {
+function _get_data( int $post_id, string $lang ): ?array {
 	$inst = _get_instance();
 	if ( isset( $inst->cache[ "$post_id$lang" ] ) ) {
 		return $inst->cache[ "$post_id$lang" ];
 	}
 	$d = get_template_admin_config( $post_id );
-	if ( empty( $d['list_id'] ) ) {
+	if ( ! $d || empty( $d['list_id'] ) ) {
 		return null;  // Bimeson List.
 	}
 	// Bimeson List.
@@ -235,12 +237,12 @@ function _get_data( int $post_id, string $lang ): array {
 /**
  * Retrieves filtered items.
  *
- * @param int         $list_id      List ID.
- * @param string      $lang         Language.
- * @param string|null $date_bgn     Date from.
- * @param string|null $date_end     Date to.
- * @param array|null  $filter_state Filter states.
- * @return array Items.
+ * @param int                       $list_id      List ID.
+ * @param string                    $lang         Language.
+ * @param string|null               $date_bgn     Date from.
+ * @param string|null               $date_end     Date to.
+ * @param array<string, mixed>|null $filter_state Filter states.
+ * @return array<string, mixed>[] Items.
  */
 function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ): array {
 	$inst = _get_instance();
@@ -258,7 +260,7 @@ function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?str
  * @access private
  *
  * @param int $list_id List ID.
- * @return array Items.
+ * @return array<string, mixed>[] Items.
  */
 function _get_items_from_list( int $list_id ): array {
 	$inst = _get_instance();
@@ -282,12 +284,12 @@ function _get_items_from_list( int $list_id ): array {
  *
  * @access private
  *
- * @param array       $items        List ID.
- * @param string      $lang         Language.
- * @param string|null $date_bgn     Date from.
- * @param string|null $date_end     Date to.
- * @param array|null  $filter_state Filter states.
- * @return array Items.
+ * @param array<string, mixed>[]    $items        Items.
+ * @param string                    $lang         Language.
+ * @param string|null               $date_bgn     Date from.
+ * @param string|null               $date_end     Date to.
+ * @param array<string, mixed>|null $filter_state Filter states.
+ * @return array<string, mixed>[] Items.
  */
 function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ): array {
 	$inst = _get_instance();
@@ -323,8 +325,8 @@ function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $
  *
  * @access private
  *
- * @param array      $it           An item.
- * @param array|null $filter_state Filter states.
+ * @param array<string, mixed>      $it           An item.
+ * @param array<string, mixed>|null $filter_state Filter states.
  * @return bool True if the item matches.
  */
 function _match_filter( array $it, ?array $filter_state ): bool {
@@ -350,8 +352,8 @@ function _match_filter( array $it, ?array $filter_state ): bool {
 /**
  * Gets visible root slugs.
  *
- * @param array|null $filter_state Filter states.
- * @return array|null Visible root slugs.
+ * @param array<string, mixed>|null $filter_state Filter states.
+ * @return string[]|null Visible root slugs.
  */
 function get_visible_root_slugs( ?array $filter_state ): ?array {
 	$vs = $filter_state[ _get_instance()::KEY_VISIBLE ] ?? null;
