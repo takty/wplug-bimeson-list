@@ -16,18 +16,43 @@ require_once __DIR__ . '/taxonomy.php';
  * Retrieves the config of a template admin.
  *
  * @param int $post_id Post ID.
- * @return array<string, mixed>|null Config.
+ * @return array{
+ *     list_id           : int,
+ *     year_bgn          : int,
+ *     year_end          : int,
+ *     count             : int,
+ *     filter_state      : array<string, string[]>,
+ *     sort_by_date_first: bool,
+ *     dup_multi_cat     : bool,
+ *     show_filter       : bool,
+ *     omit_single_cat   : bool,
+ * } Config.
  */
-function get_template_admin_config( int $post_id ): ?array {
-	$inst     = _get_instance();
-	$cfg_json = get_post_meta( $post_id, $inst->fld_list_cfg, true );
-	if ( ! empty( $cfg_json ) ) {
-		$cfg = json_decode( $cfg_json, true );
-		if ( null !== $cfg ) {
-			return $cfg;
+function get_template_admin_config( int $post_id ): array {
+	$inst = _get_instance();
+	$cfg  = array();
+
+	$val = get_post_meta( $post_id, $inst->fld_list_cfg, true );
+	if ( is_string( $val ) && ! empty( $val ) ) {
+		$temp = json_decode( $val, true );
+		if ( is_array( $temp ) ) {
+			$cfg = $temp;
 		}
 	}
-	return null;
+	// phpcs:disable
+	$cfg['list_id']  = isset( $cfg['list_id'] )  && is_numeric( $cfg['list_id'] )  ? (int) $cfg['list_id']  : 0;  // Bimeson List.
+	$cfg['year_bgn'] = isset( $cfg['year_bgn'] ) && is_numeric( $cfg['year_bgn'] ) ? (int) $cfg['year_bgn'] : 0;
+	$cfg['year_end'] = isset( $cfg['year_end'] ) && is_numeric( $cfg['year_end'] ) ? (int) $cfg['year_end'] : 0;
+	$cfg['count']    = isset( $cfg['count'] )    && is_numeric( $cfg['count'] )    ? (int) $cfg['count']    : 0;
+
+	$cfg['filter_state'] = isset( $cfg['filter_state'] ) ? $cfg['filter_state'] : array();
+
+	$cfg['sort_by_date_first'] = isset( $cfg['sort_by_date_first'] ) ? (bool) $cfg['sort_by_date_first'] : false;
+	$cfg['dup_multi_cat']      = isset( $cfg['dup_multi_cat'] )      ? (bool) $cfg['dup_multi_cat']      : false;
+	$cfg['show_filter']        = isset( $cfg['show_filter'] )        ? (bool) $cfg['show_filter']        : false;
+	$cfg['omit_single_cat']    = isset( $cfg['omit_single_cat'] )    ? (bool) $cfg['omit_single_cat']    : false;
+	// phpcs: enable
+	return $cfg;
 }
 
 
@@ -50,10 +75,11 @@ function add_meta_box_template_admin( string $title, ?string $screen = null ): v
  * @param int $post_id Post ID.
  */
 function save_meta_box_template_admin( int $post_id ): void {
-	if ( ! isset( $_POST['wplug_bimeson_admin_nonce'] ) ) {
+	$nonce = $_POST['wplug_bimeson_admin_nonce'] ?? null;  // phpcs:ignore
+	if ( ! is_string( $nonce ) ) {
 		return;
 	}
-	if ( ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_admin_nonce'] ), 'wplug_bimeson_admin' ) ) {
+	if ( ! wp_verify_nonce( sanitize_key( $nonce ), 'wplug_bimeson_admin' ) ) {
 		return;
 	}
 	$inst = _get_instance();
@@ -103,22 +129,19 @@ function save_meta_box_template_admin( int $post_id ): void {
  * @param \WP_Post $post Current post.
  */
 function _cb_output_html_template_admin( \WP_Post $post ): void {
-	$inst = _get_instance();
 	wp_nonce_field( 'wplug_bimeson_admin', 'wplug_bimeson_admin_nonce' );
 	$cfg = get_template_admin_config( $post->ID );
 
 	// phpcs:disable
-	$year_bgn = $cfg['year_bgn'] ?? null;
-	$year_end = $cfg['year_end'] ?? null;
-	$count    = $cfg['count']    ?? null;
-
-	$sort_by_date_first = $cfg['sort_by_date_first'] ?? false;
-	$dup_multi_cat      = $cfg['dup_multi_cat']      ?? false;
-	$show_filter        = $cfg['show_filter']        ?? false;
-	$omit_single_cat    = $cfg['omit_single_cat']    ?? false;
-
-	$state   = $cfg['filter_state'] ?? array();
-	$list_id = $cfg['list_id']      ?? null;  // Bimeson List.
+	$list_id            = $cfg['list_id'];  // Bimeson List.
+	$year_bgn           = $cfg['year_bgn'] ? (string) $cfg['year_bgn'] : '';
+	$year_end           = $cfg['year_end'] ? (string) $cfg['year_end'] : '';
+	$count              = $cfg['count']    ? (string) $cfg['count']    : '';
+	$sort_by_date_first = $cfg['sort_by_date_first'];
+	$dup_multi_cat      = $cfg['dup_multi_cat'];
+	$show_filter        = $cfg['show_filter'];
+	$omit_single_cat    = $cfg['omit_single_cat'];
+	$state              = $cfg['filter_state'];
 	// phpcs:enable
 	?>
 	<div class="wplug-bimeson-admin">
@@ -169,14 +192,20 @@ function _cb_output_html_template_admin( \WP_Post $post ): void {
  * Displays the markup of list select.
  *
  * @access private
+ * @psalm-suppress ArgumentTypeCoercion
  *
- * @param int|null $cur_id Current list ID.
+ * @param int $cur_id Current list ID.
  */
-function _echo_list_select( ?int $cur_id ): void {
+function _echo_list_select( int $cur_id ): void {
 	$inst = _get_instance();
-	$its  = get_posts(
+	/**
+	 * Posts. This is determined by $args['fields'] being ''.
+	 *
+	 * @var \WP_Post[] $its
+	 */
+	$its = get_posts(
 		array(
-			'post_type'      => $inst::PT,
+			'post_type'      => $inst::PT,  // @phpstan-ignore-line
 			'posts_per_page' => -1,
 		)
 	);
@@ -226,18 +255,18 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 	$inst = _get_instance();
 	$func = $inst->term_name_getter;
 	if ( ! is_callable( $func ) ) {
-		$func = function ( $t ) {
+		$func = function ( \WP_Term $t ): string {
 			return $t->name;
 		};
 	}
 	$t         = get_term_by( 'slug', $root_slug, $inst->root_tax );
-	$cat_label = $func( $t );
+	$cat_label = ( $t instanceof \WP_Term ) ? $func( $t ) : '';
 	$slug      = $root_slug;
 	$sub_tax   = root_term_to_sub_tax( $root_slug );
-	$qvs       = $state[ $root_slug ] ?? array();
+	$qvs       = isset( $state[ $root_slug ] ) && is_array( $state[ $root_slug ] ) ? $state[ $root_slug ] : array();
 	$checked   = ( ! empty( $qvs ) ) ? ' checked' : '';
 
-	$visible = empty( $state[ $inst::KEY_VISIBLE ] ) ? true : in_array( $root_slug, $state[ $inst::KEY_VISIBLE ], true );
+	$visible = empty( $state[ $inst::KEY_VISIBLE ] ) ? true : in_array( $root_slug, $state[ $inst::KEY_VISIBLE ], true );  // @phpstan-ignore-line
 	$vc      = $visible ? ' checked' : '';
 
 	$ih_attr = $is_hidden ? ' disabled' : '';
@@ -292,11 +321,15 @@ function _get_filter_state_from_env(): array {
 		if ( ! isset( $_POST[ $sub_tax ] ) || ! isset( $_POST[ "{$sub_tax}_slugs" ] ) ) {  // phpcs:ignore
 			continue;
 		}
-		$ret[ $rs ] = array_values( array_intersect( $slugs, wp_unslash( $_POST[ "{$sub_tax}_slugs" ] ) ) );  // phpcs:ignore
+		$ss = $_POST[ "{$sub_tax}_slugs" ];  // phpcs:ignore
+		if ( is_array( $ss ) ) {
+			$ret[ $rs ] = array_values( array_intersect( $slugs, wp_unslash( $ss ) ) );
+		}
 	}
 	$inst = _get_instance();
-	if ( isset( $_POST['wplug_bimeson_visible'] ) ) {  // phpcs:ignore
-		$ret[ (string) $inst::KEY_VISIBLE ] = array_values( array_intersect( get_root_slugs(), wp_unslash( $_POST['wplug_bimeson_visible'] ) ) );  // phpcs:ignore
+	$vs   = $_POST['wplug_bimeson_visible'] ?? null;  // phpcs:ignore
+	if ( is_array( $vs ) ) {
+		$ret[ (string) $inst::KEY_VISIBLE ] = array_values( array_intersect( get_root_slugs(), wp_unslash( $vs ) ) );  // @phpstan-ignore-line
 	}
 	return $ret;
 }

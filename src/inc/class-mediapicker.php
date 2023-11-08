@@ -48,6 +48,8 @@ class MediaPicker {
 	/**
 	 * Retrieves an instance.
 	 *
+	 * @psalm-suppress PossiblyUnusedMethod
+	 *
 	 * @param string|null $key Key of instance.
 	 * @return MediaPicker|null The instance.
 	 */
@@ -114,6 +116,8 @@ class MediaPicker {
 	/**
 	 * Sets whether titles are editable.
 	 *
+	 * @psalm-suppress PossiblyUnusedMethod
+	 *
 	 * @param bool $flag Whether titles are editable.
 	 * @return MediaPicker This instance.
 	 */
@@ -126,13 +130,13 @@ class MediaPicker {
 	 * Retrieves selected media items.
 	 *
 	 * @param int|null $post_id Post ID.
-	 * @return array<string, mixed>|null Media items.
+	 * @return array<string, mixed>[] Media items.
 	 */
-	public function get_items( ?int $post_id = null ): ?array {
+	public function get_items( ?int $post_id = null ): array {
 		if ( is_null( $post_id ) ) {
 			$post_id = get_the_ID();
 			if ( ! $post_id ) {
-				return null;
+				return array();
 			}
 		}
 		$keys = array( 'media', 'url', 'title', 'filename', 'id' );
@@ -147,6 +151,8 @@ class MediaPicker {
 	/**
 	 * Adds the meta box.
 	 *
+	 * @psalm-suppress PossiblyUnusedMethod
+	 *
 	 * @param string                     $title   Title of the meta box.
 	 * @param string|null                $screen  (Optional) The screen or screens on which to show the box.
 	 * @param 'advanced'|'normal'|'side' $context (Optional) The context within the screen where the box should display.
@@ -158,20 +164,21 @@ class MediaPicker {
 	/**
 	 * Stores the data of the meta box.
 	 *
+	 * @psalm-suppress PossiblyUnusedMethod
+	 *
 	 * @param int $post_id Post ID.
 	 */
 	public function save_meta_box( int $post_id ): void {
-		if ( ! isset( $_POST[ "{$this->key}_nonce" ] ) ) {
+		$nonce = $_POST[ "{$this->key}_nonce" ] ?? null;  // phpcs:ignore
+		if ( ! is_string( $nonce ) ) {
 			return;
 		}
-		// phpcs:disable
-		if ( ! wp_verify_nonce( $_POST[ "{$this->key}_nonce" ], $this->key ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( $nonce ), $this->key ) ) {
 			return;
 		}
-		if ( empty( $_POST[ $this->key ] ) ) {
+		if ( empty( $_POST[ $this->key ] ) ) {  // phpcs:ignore
 			return;  // Do not save before JS is executed.
 		}
-		// phpcs:enable
 		$this->save_items( $post_id );
 	}
 
@@ -204,10 +211,8 @@ class MediaPicker {
 			<div class="<?php echo esc_attr( self::CLS_TABLE ); ?>">
 		<?php
 		$this->output_row( array(), self::CLS_ITEM_TEMP );
-		if ( is_array( $its ) ) {
-			foreach ( $its as $it ) {
-				$this->output_row( $it, self::CLS_ITEM );
-			}
+		foreach ( $its as $it ) {
+			$this->output_row( $it, self::CLS_ITEM );
 		}
 		?>
 				<div class="<?php echo esc_attr( self::CLS_ADD_ROW ); ?>"><a href="javascript:void(0);" class="<?php echo esc_attr( self::CLS_ADD ); ?> button"><?php esc_html_e( 'Add Media', 'default' ); ?></a></div>
@@ -249,19 +254,19 @@ class MediaPicker {
 			<div class="<?php echo esc_attr( self::CLS_ITEM_CONT ); ?>">
 				<div class="<?php echo esc_attr( self::CLS_ITEM_IR ); ?>">
 					<span><?php esc_html_e( 'Title', 'default' ); ?>:</span>
-					<input <?php echo $ro; // phpcs:ignore ?> type="text" class="<?php echo esc_attr( self::CLS_TITLE ); ?>" value="<?php echo esc_attr( $title ); ?>">
+					<input <?php echo $ro; // phpcs:ignore ?> type="text" class="<?php echo esc_attr( self::CLS_TITLE );  // @phpstan-ignore-line ?>" value="<?php echo esc_attr( $title ); ?>">
 				</div>
 				<div class="<?php echo esc_attr( self::CLS_ITEM_IR ); ?>">
 					<span><a href="javascript:void(0);" class="<?php echo esc_attr( self::CLS_MEDIA_OPENER ); ?>"><?php esc_html_e( 'File name:', 'default' ); ?></a></span>
 					<span>
-						<span class="<?php echo esc_attr( self::CLS_H_FILENAME ); ?>"><?php echo esc_html( $h_filename ); ?></span>
+						<span class="<?php echo esc_attr( self::CLS_H_FILENAME );  // @phpstan-ignore-line ?>"><?php echo esc_html( $h_filename ); ?></span>
 						<a href="javascript:void(0);" class="button <?php echo esc_attr( self::CLS_SEL ); ?>"><?php esc_html_e( 'Select', 'default' ); ?></a>
 					</span>
 				</div>
 			</div>
-			<input type="hidden" class="<?php echo esc_attr( self::CLS_MEDIA ); ?>" value="<?php echo esc_attr( $media ); ?>">
-			<input type="hidden" class="<?php echo esc_attr( self::CLS_URL ); ?>" value="<?php echo esc_attr( $url ); ?>">
-			<input type="hidden" class="<?php echo esc_attr( self::CLS_FILENAME ); ?>" value="<?php echo esc_attr( $filename ); ?>">
+			<input type="hidden" class="<?php echo esc_attr( self::CLS_MEDIA );  // @phpstan-ignore-line ?>" value="<?php echo esc_attr( $media ); ?>">
+			<input type="hidden" class="<?php echo esc_attr( self::CLS_URL );  // @phpstan-ignore-line ?>" value="<?php echo esc_attr( $url ); ?>">
+			<input type="hidden" class="<?php echo esc_attr( self::CLS_FILENAME );  // @phpstan-ignore-line ?>" value="<?php echo esc_attr( $filename ); ?>">
 		</div>
 		<?php
 	}
@@ -290,5 +295,4 @@ class MediaPicker {
 		$keys = array( 'media', 'url', 'title', 'filename' );
 		\wplug\set_multiple_post_meta( $post_id, $this->key, $its, $keys );
 	}
-
 }

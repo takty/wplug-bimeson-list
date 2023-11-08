@@ -4,8 +4,10 @@
  *
  * @package Wplug
  * @author Takuto Yanagida
- * @version 2023-09-08
+ * @version 2023-11-07
  */
+
+declare(strict_types=1);
 
 namespace wplug;
 
@@ -22,7 +24,8 @@ if ( ! function_exists( '\wplug\get_multiple_post_meta_from_env' ) ) {
 
 		// #### For backward compatibility: Input variable structure is {$base_key}_{n}_{$key}.
 		if ( isset( $_POST[ $base_key ] ) && is_numeric( $_POST[ $base_key ] ) ) {  // phpcs:ignore
-			$count = (int) sanitize_text_field( (string) wp_unslash( $_POST[ $base_key ] ) );  // phpcs:ignore
+			// @phpstan-ignore-next-line
+			$count = (int) sanitize_text_field( wp_unslash( $_POST[ $base_key ] ) );  // phpcs:ignore
 
 			for ( $i = 0; $i < $count; ++$i ) {
 				$it = array();
@@ -41,8 +44,9 @@ if ( ! function_exists( '\wplug\get_multiple_post_meta_from_env' ) ) {
 		// #### Next best plan: Input variable structure is {$base_key}_{$key}[n].
 		if ( ! isset( $_POST[ $base_key ] ) ) {  // phpcs:ignore
 			$count = 0;
-			if ( isset( $_POST[ "{$base_key}_{$keys[0]}" ] ) ) {  // phpcs:ignore
-				$count = count( $_POST[ "{$base_key}_{$keys[0]}" ] );  // phpcs:ignore
+			$key   = "{$base_key}_{$keys[0]}";
+			if ( isset( $_POST[ $key ] ) && is_array( $_POST[ $key ] ) ) {  // phpcs:ignore
+				$count = count( $_POST[ $key ] );  // phpcs:ignore
 			}
 
 			for ( $i = 0; $i < $count; ++$i ) {
@@ -101,22 +105,24 @@ if ( ! function_exists( '\wplug\get_multiple_post_meta' ) ) {
 				}
 				$ret[] = $it;
 			}
-		} elseif ( $special_key ) {
-			$skv = null;
-			$ret = json_decode( $val, true );
-			if ( is_array( $ret ) ) {
-				if ( isset( $ret['#'] ) ) {
-					$skv = $ret[ $special_key ] ?? null;
-					$ret = $ret['#'];
+		} elseif ( is_string( $val ) ) {
+			if ( $special_key ) {
+				$skv = null;
+				$ret = json_decode( $val, true );
+				if ( is_array( $ret ) ) {
+					if ( isset( $ret['#'] ) ) {
+						$skv = $ret[ $special_key ] ?? null;
+						$ret = $ret['#'];
+					}
+				} else {
+					$ret = array();
 				}
+				$ret[ $special_key ] = $skv;
 			} else {
-				$ret = array();
-			}
-			$ret[ $special_key ] = $skv;
-		} else {
-			$ret = json_decode( $val, true );
-			if ( ! is_array( $ret ) ) {
-				$ret = array();
+				$ret = json_decode( $val, true );
+				if ( ! is_array( $ret ) ) {
+					$ret = array();
+				}
 			}
 		}
 		return $ret;
@@ -180,7 +186,7 @@ if ( ! function_exists( '\wplug\set_multiple_post_meta' ) ) {
 					$special_key => $skv,
 				);
 			}
-		} else {
+		} else {  // phpcs:ignore
 			if ( 0 === count( $vals ) ) {
 				delete_post_meta( $post_id, $base_key );
 			} else {

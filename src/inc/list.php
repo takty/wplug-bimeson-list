@@ -9,18 +9,26 @@
 
 namespace wplug\bimeson_list;
 
+require_once __DIR__ . '/../bimeson.php';
 require_once __DIR__ . '/class-itembuffer.php';
 require_once __DIR__ . '/inst.php';
 require_once __DIR__ . '/taxonomy.php';
 
-/**
+/** phpcs:ignore
  * Displays the list.
  *
- * @param array<string, mixed> $args   Array of arguments.
- * @param string               $lang   Language.
- * @param string               $before Content to prepend to the output.
- * @param string               $after  Content to append to the output.
- * @param string               $id     The ID of the output markup.
+ * phpcs:ignore
+ * @param array{
+ *     items             : array<string, mixed>[],
+ *     count             : int|null,
+ *     sort_by_date_first: bool,
+ *     omit_single_cat   : bool,
+ *     filter_state      : array<string, mixed>|null,
+ * } $args   Array of arguments.
+ * @param string $lang   Language.
+ * @param string $before Content to prepend to the output.
+ * @param string $after  Content to append to the output.
+ * @param string $id     The ID of the output markup.
  */
 function echo_the_list( array $args, string $lang, string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ): void {
 	if ( ! empty( $id ) ) {
@@ -83,11 +91,11 @@ function _echo_heading_list_element( array $its, string $lang, bool $sort_by_dat
 	$buf      = new ItemBuffer( $lang );
 	$cur_year = '';
 	foreach ( $its as $it ) {
-		if ( $sort_by_date_first && isset( $it[ $inst::IT_DATE_NUM ] ) ) {
-			$year = substr( $it[ $inst::IT_DATE_NUM ], 0, 4 );
+		if ( $sort_by_date_first && isset( $it[ $inst::IT_DATE_NUM ] ) ) {  // @phpstan-ignore-line
+			$year = substr( $it[ $inst::IT_DATE_NUM ], 0, 4 );  // @phpstan-ignore-line
 			if ( $cur_year !== $year ) {
 				$buf->echo();
-				_echo_heading_year( 2, $it[ $inst::IT_DATE_NUM ], $inst->year_format );
+				_echo_heading_year( 2, $it[ $inst::IT_DATE_NUM ], $inst->year_format );  // @phpstan-ignore-line
 				$cur_year = $year;
 			}
 		}
@@ -151,12 +159,10 @@ function _make_omitted_heading( ?array $filter_state ): ?array {
 	$inst = _get_instance();
 	$ret  = array();
 	foreach ( $inst->sub_taxes as $rs => $sub_tax ) {
-		$sub_tax = (string) $sub_tax;
-
 		$ret[ $sub_tax ] = false;
 
 		$s = $filter_state[ $rs ] ?? array();
-		if ( 1 === count( $s ) ) {
+		if ( is_array( $s ) && 1 === count( $s ) ) {
 			$ret[ $sub_tax ] = true;
 		}
 	}
@@ -173,9 +179,14 @@ function _make_omitted_heading( ?array $filter_state ): ?array {
  * @return string[] Slugs.
  */
 function _get_cat_slug( array $it, int $hr_size ): array {
-	$inst      = _get_instance();
-	$cat_slugs = $it[ $inst::IT_CAT_KEY ];
-	if ( count( $cat_slugs ) !== $hr_size ) {  // for invalid sort key.
+	$inst = _get_instance();
+	/**
+	 * An array of strings.
+	 *
+	 * @var string[] $cat_slugs
+	 */
+	$cat_slugs = $it[ $inst::IT_CAT_KEY ];  // @phpstan-ignore-line
+	if ( $cat_slugs && count( $cat_slugs ) !== $hr_size ) {  // for invalid sort key.
 		$cat_slugs = array_pad( $cat_slugs, $hr_size, '' );
 	}
 	return $cat_slugs;
@@ -266,8 +277,8 @@ function _echo_heading_year( int $level, string $date_num, ?string $format ): vo
  *
  * @access private
  *
- * @param array<string, mixed> $its  Items.
- * @param string               $lang Language.
+ * @param array<string, mixed>[] $its  Items.
+ * @param string                 $lang Language.
  */
 function _echo_list_element( array $its, string $lang ): void {
 	$tag = ( count( $its ) === 1 ) ? 'ul' : 'ol';
@@ -291,48 +302,51 @@ function _echo_list_item( array $it, string $lang ): void {
 
 	$body = '';
 	if ( ! empty( $lang ) ) {
-		$body = $it[ $inst::IT_BODY . "_$lang" ] ?? '';
+		$body = $it[ $inst::IT_BODY . "_$lang" ] ?? '';  // @phpstan-ignore-line
 	}
 	if ( empty( $body ) ) {
-		$body = $it[ $inst::IT_BODY ] ?? '';
+		$body = $it[ $inst::IT_BODY ] ?? '';  // @phpstan-ignore-line
 	}
-	if ( empty( $body ) ) {
+	if ( ! is_string( $body ) || empty( $body ) ) {
 		return;
 	}
-	$doi = $it[ $inst::IT_DOI ] ?? '';
+
+	$doi  = isset( $it[ $inst::IT_DOI ] ) && is_string( $it[ $inst::IT_DOI ] ) ? $it[ $inst::IT_DOI ] : '';  // @phpstan-ignore-line
+	$_doi = '';
+	if ( ! empty( $doi ) ) {
+		$doi = preg_replace( '/^https?:\/\/doi\.org\//i', '', $doi );
+		if ( is_string( $doi ) ) {
+			$doi = trim( ltrim( $doi, '/' ) );
+			if ( ! empty( $doi ) ) {
+				$_url   = esc_url( "https://doi.org/$doi" );
+				$_title = esc_html( $doi );
+				$_doi   = "<span class=\"doi\">DOI: <a href=\"$_url\">$_title</a></span>";
+			}
+		}
+	}
 
 	$links = array();
-	for ( $i = 0; $i < 10; ++$i ) {
+	for ( $i = 0; $i <= 10; ++$i ) {
 		$sf = ( 0 === $i ) ? '' : "_$i";
 		// phpcs:disable
-		$url   = $it[ $inst::IT_LINK_URL   . $sf ] ?? '';
-		$title = $it[ $inst::IT_LINK_TITLE . $sf ] ?? '';
+		$url   = $it[ $inst::IT_LINK_URL   . $sf ] ?? '';  // @phpstan-ignore-line
+		$title = $it[ $inst::IT_LINK_TITLE . $sf ] ?? '';  // @phpstan-ignore-line
 		// phpcs:enable
 
-		if ( ! empty( $url ) ) {
+		if ( is_string( $url ) && is_string( $title ) && ! empty( $url ) ) {
 			$links[] = array( $url, $title );
 		} elseif ( 0 !== $i ) {
 			// phpcs:disable
-			$url   = $it[ $inst::IT_LINK_URL   . $i ] ?? '';
-			$title = $it[ $inst::IT_LINK_TITLE . $i ] ?? '';
+			$url   = $it[ $inst::IT_LINK_URL   . $i ] ?? '';  // @phpstan-ignore-line
+			$title = $it[ $inst::IT_LINK_TITLE . $i ] ?? '';  // @phpstan-ignore-line
 			// phpcs:enable
 
-			if ( ! empty( $url ) ) {
+			if ( is_string( $url ) && is_string( $title ) && ! empty( $url ) ) {
 				$links[] = array( $url, $title );
 			}
 		}
 	}
 
-	$_doi = '';
-	if ( ! empty( $doi ) ) {
-		$doi = preg_replace( '/^https?:\/\/doi\.org\//i', '', $doi );
-		$doi = trim( ltrim( $doi, '/' ) );
-		if ( ! empty( $doi ) ) {
-			$_url   = esc_url( "https://doi.org/$doi" );
-			$_title = esc_html( $doi );
-			$_doi   = "<span class=\"doi\">DOI: <a href=\"$_url\">$_title</a></span>";
-		}
-	}
 	$_link = '';
 	foreach ( $links as $link ) {
 		list( $url, $title ) = $link;
@@ -360,14 +374,16 @@ function _make_cls( array $it ): string {
 	$inst = _get_instance();
 	$cs   = array();
 
-	$year = $it[ $inst::IT_DATE_NUM ] ?? '';
+	$year = $it[ $inst::IT_DATE_NUM ] ?? '';  // @phpstan-ignore-line
 	if ( ! empty( $year ) ) {
 		$cs[] = $inst->year_cls_base . substr( '' . $year, 0, 4 );
 	}
-	foreach ( $inst->sub_taxes as $rs => $sub_tax ) {
-		$ss = $it[ $rs ] ?? array();
+	foreach ( $inst->sub_taxes as $rs => $_sub_tax ) {
+		$ss = isset( $it[ $rs ] ) && is_array( $it[ $rs ] ) ? $it[ $rs ] : array();
 		foreach ( $ss as $s ) {
-			$cs[] = $inst->sub_tax_cls_base . "$rs-$s";
+			if ( is_string( $s ) ) {
+				$cs[] = $inst->sub_tax_cls_base . "$rs-$s";
+			}
 		}
 	}
 	return str_replace( '_', '-', implode( ' ', $cs ) );

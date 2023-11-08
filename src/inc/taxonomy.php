@@ -32,7 +32,7 @@ function initialize_taxonomy(): void {
 			)
 		);
 	}
-	register_taxonomy_for_object_type( $inst->root_tax, $inst::PT );
+	register_taxonomy_for_object_type( $inst->root_tax, $inst::PT );  // @phpstan-ignore-line
 
 	add_action( "{$inst->root_tax}_edit_form_fields", '\wplug\bimeson_list\_cb_taxonomy_edit_form_fields', 10, 2 );
 	add_action( 'edit_terms', '\wplug\bimeson_list\_cb_edit_taxonomy', 10, 2 );
@@ -59,7 +59,7 @@ function _register_sub_tax_all(): void {
 	foreach ( $roots as $r ) {
 		$sub_tax = root_term_to_sub_tax( $r );
 
-		$inst->sub_taxes[ $r->slug ] = $sub_tax;
+		$inst->sub_taxes[ $r->slug ] = $sub_tax;  // @phpstan-ignore-line
 		_register_sub_tax( $sub_tax, $r->name );
 	}
 }
@@ -114,8 +114,8 @@ function _register_sub_tax( string $tax, string $label ): void {
 			)
 		);
 	}
-	$inst->sub_tax_to_terms[ $tax ] = null;
-	register_taxonomy_for_object_type( $tax, $inst::PT );
+	$inst->sub_tax_to_terms[ $tax ] = null;  // @phpstan-ignore-line
+	register_taxonomy_for_object_type( $tax, $inst::PT );  // @phpstan-ignore-line
 }
 
 
@@ -178,7 +178,7 @@ function get_root_slug_to_sub_terms(): array {
 	$roots = _get_root_terms();
 	$terms = array();
 
-	foreach ( $roots as $idx => $r ) {
+	foreach ( $roots as $r ) {
 		$sub_tax           = root_term_to_sub_tax( $r );
 		$terms[ $r->slug ] = _get_sub_terms( $sub_tax );
 	}
@@ -188,16 +188,16 @@ function get_root_slug_to_sub_terms(): array {
 /**
  * Retrieves the array of root slugs to options.
  *
- * @return array<string, bool[]> Array of root slugs to options.
+ * @return array<string, array{ is_hidden: bool, uncat_last: bool }> Array of root slugs to options.
  */
 function get_root_slug_to_options(): array {
 	$inst  = _get_instance();
 	$roots = _get_root_terms();
 	$terms = array();
 
-	foreach ( $roots as $idx => $r ) {
-		$is_hidden  = get_term_meta( $r->term_id, $inst::KEY_IS_HIDDEN, true );
-		$uncat_last = get_term_meta( $r->term_id, $inst::KEY_SORT_UNCAT_LAST, true );
+	foreach ( $roots as $r ) {
+		$is_hidden  = get_term_meta( $r->term_id, $inst::KEY_IS_HIDDEN, true );  // @phpstan-ignore-line
+		$uncat_last = get_term_meta( $r->term_id, $inst::KEY_SORT_UNCAT_LAST, true );  // @phpstan-ignore-line
 
 		$terms[ $r->slug ] = array(
 			'is_hidden'  => $is_hidden ? true : false,
@@ -216,7 +216,7 @@ function get_root_slug_to_options(): array {
  */
 function _get_root_terms(): array {
 	$inst = _get_instance();
-	if ( $inst->root_terms ) {
+	if ( ! empty( $inst->root_terms ) ) {
 		return $inst->root_terms;
 	}
 	$idx_ts = array();
@@ -229,7 +229,8 @@ function _get_root_terms(): array {
 	if ( is_array( $ts ) ) {
 		foreach ( $ts as $t ) {
 			if ( $t instanceof \WP_Term ) {
-				$idx      = (int) get_term_meta( $t->term_id, '_menu_order', true );
+				$idx      = get_term_meta( $t->term_id, '_menu_order', true );
+				$idx      = is_numeric( $idx ) ? (int) $idx : 0;
 				$idx_ts[] = array( $idx, $t );
 			}
 		}
@@ -243,7 +244,7 @@ function _get_root_terms(): array {
 			return ( $a[0] < $b[0] ) ? -1 : 1;
 		}
 	);
-	$inst->root_terms = array_column( $idx_ts, 1 );
+	$inst->root_terms = array_column( $idx_ts, 1 );  // @phpstan-ignore-line
 	return $inst->root_terms;
 }
 
@@ -260,6 +261,11 @@ function _get_sub_terms( string $sub_tax ): array {
 	if ( ! is_null( $inst->sub_tax_to_terms[ $sub_tax ] ) ) {
 		return $inst->sub_tax_to_terms[ $sub_tax ];
 	}
+	/**
+	 * Terms. This is determined by $args['fields'] being ''.
+	 *
+	 * @var \WP_Term[]|\WP_Error $ts
+	 */
 	$ts = get_terms(
 		array(
 			'taxonomy'   => $sub_tax,
@@ -269,7 +275,7 @@ function _get_sub_terms( string $sub_tax ): array {
 	if ( ! is_array( $ts ) ) {
 		$ts = array();
 	}
-	$inst->sub_tax_to_terms[ $sub_tax ] = $ts;
+	$inst->sub_tax_to_terms[ $sub_tax ] = $ts;  // @phpstan-ignore-line
 	return $inst->sub_tax_to_terms[ $sub_tax ];
 }
 
@@ -286,9 +292,9 @@ function get_sub_slug_to_last_omit(): array {
 	$inst = _get_instance();
 
 	$slug_to_last_omit = array();
-	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
+	foreach ( get_root_slug_to_sub_terms() as $_rs => $terms ) {
 		foreach ( $terms as $t ) {
-			$val = get_term_meta( $t->term_id, $inst::KEY_OMIT_LAST_CAT_GROUP, true );
+			$val = get_term_meta( $t->term_id, $inst::KEY_OMIT_LAST_CAT_GROUP, true );  // @phpstan-ignore-line
 			if ( '1' === $val ) {
 				$slug_to_last_omit[ $t->slug ] = true;
 			}
@@ -303,7 +309,6 @@ function get_sub_slug_to_last_omit(): array {
  * @return array<string, string[]> Array.
  */
 function get_sub_slug_to_ancestors(): array {
-	$inst = _get_instance();
 	$keys = array();
 
 	foreach ( get_root_slug_to_sub_terms() as $rs => $terms ) {
@@ -383,7 +388,7 @@ function _get_sub_tax_depth( string $sub_tax, \WP_Term $term ): int {
 		if ( ! ( $term instanceof \WP_Term ) ) {
 			break;
 		}
-		$ret++;
+		++$ret;
 	}
 	return $ret;
 }
@@ -396,6 +401,7 @@ function _get_sub_tax_depth( string $sub_tax, \WP_Term $term ): int {
  * Callback function for 'edit_terms' action.
  *
  * @access private
+ * @psalm-suppress ArgumentTypeCoercion
  *
  * @param int    $term_id Term ID.
  * @param string $tax     Taxonomy slug.
@@ -412,7 +418,7 @@ function _cb_edit_taxonomy( int $term_id, string $tax ): void {
 			$s = substr( $s, 0, 32 - ( strlen( $inst->sub_tax_base ) ) );
 			wp_update_term( $term_id, $tax, array( 'slug' => $s ) );
 		}
-		$inst->old_tax = root_term_to_sub_tax( $term );
+		$inst->old_tax = root_term_to_sub_tax( $term );  // @phpstan-ignore-line
 
 		$ts = get_terms(
 			array(
@@ -423,7 +429,7 @@ function _cb_edit_taxonomy( int $term_id, string $tax ): void {
 		if ( is_array( $ts ) ) {
 			foreach ( $ts as $t ) {
 				if ( $t instanceof \WP_Term ) {
-					$inst->old_terms[] = array(
+					$inst->old_terms[] = array(  // @phpstan-ignore-line
 						'slug'    => $t->slug,
 						'name'    => $t->name,
 						'term_id' => $t->term_id,
@@ -444,9 +450,9 @@ function _cb_edit_taxonomy( int $term_id, string $tax ): void {
  */
 function _cb_edited_taxonomy( int $term_id, int $tt_id ): void {
 	$inst = _get_instance();
-	_update_term_meta_by_post( $term_id, $inst::KEY_IS_HIDDEN );
-	_update_term_meta_by_post( $term_id, $inst::KEY_SORT_UNCAT_LAST );
-	_update_term_meta_by_post( $term_id, $inst::KEY_OMIT_LAST_CAT_GROUP );
+	_update_term_meta_by_post( $term_id, $inst::KEY_IS_HIDDEN );  // @phpstan-ignore-line
+	_update_term_meta_by_post( $term_id, $inst::KEY_SORT_UNCAT_LAST );  // @phpstan-ignore-line
+	_update_term_meta_by_post( $term_id, $inst::KEY_OMIT_LAST_CAT_GROUP );  // @phpstan-ignore-line
 
 	$term = get_term_by( 'term_taxonomy_id', $tt_id );
 	if ( $term instanceof \WP_Term ) {
@@ -496,10 +502,10 @@ function _cb_query_vars_taxonomy( array $query_vars ): array {
 function _cb_taxonomy_edit_form_fields( \WP_Term $term, string $tax ): void {
 	$inst = _get_instance();
 	if ( $tax === $inst->root_tax ) {
-		_bool_field( $term, $inst::KEY_IS_HIDDEN, __( 'List', 'wplug_bimeson_list' ), __( 'Hide from view screen', 'wplug_bimeson_list' ) );
-		_bool_field( $term, $inst::KEY_SORT_UNCAT_LAST, __( 'Sort', 'wplug_bimeson_list' ), __( 'Sort uncategorized items last', 'wplug_bimeson_list' ) );
+		_bool_field( $term, $inst::KEY_IS_HIDDEN, __( 'List', 'wplug_bimeson_list' ), __( 'Hide from view screen', 'wplug_bimeson_list' ) );  // @phpstan-ignore-line
+		_bool_field( $term, $inst::KEY_SORT_UNCAT_LAST, __( 'Sort', 'wplug_bimeson_list' ), __( 'Sort uncategorized items last', 'wplug_bimeson_list' ) );  // @phpstan-ignore-line
 	} else {
-		_bool_field( $term, $inst::KEY_OMIT_LAST_CAT_GROUP, __( 'List', 'wplug_bimeson_list' ), __( 'Omit the heading of the last category group', 'wplug_bimeson_list' ) );
+		_bool_field( $term, $inst::KEY_OMIT_LAST_CAT_GROUP, __( 'List', 'wplug_bimeson_list' ), __( 'Omit the heading of the last category group', 'wplug_bimeson_list' ) );  // @phpstan-ignore-line
 	}
 }
 
@@ -551,9 +557,9 @@ function _update_term_meta_by_post( int $term_id, string $key ): void {
 /**
  * Processes items for registering taxonomies and terms.
  *
- * @param array<string, mixed> $items          Items.
- * @param bool                 $add_taxonomies Whether to add taxonomies.
- * @param bool                 $add_terms      Whether to add terms.
+ * @param array<string, mixed>[] $items          Items.
+ * @param bool                   $add_taxonomies Whether to add taxonomies.
+ * @param bool                   $add_terms      Whether to add terms.
  */
 function process_terms( array $items, bool $add_taxonomies = false, bool $add_terms = false ): void {
 	$inst         = _get_instance();
@@ -574,7 +580,7 @@ function process_terms( array $items, bool $add_taxonomies = false, bool $add_te
 					$new_tax_term[ $key ] = array();
 				}
 				foreach ( $vals as $v ) {
-					if ( ! in_array( $v, $new_tax_term[ $key ], true ) ) {
+					if ( is_string( $v ) && ! in_array( $v, $new_tax_term[ $key ], true ) ) {
 						$new_tax_term[ $key ][] = $v;
 					}
 				}
@@ -593,26 +599,26 @@ function process_terms( array $items, bool $add_taxonomies = false, bool $add_te
 	}
 	if ( $add_taxonomies ) {
 		foreach ( $new_tax_term as $rs => $terms ) {
-			wp_insert_term( (string) $rs, $inst->root_tax, array( 'slug' => (string) $rs ) );
+			wp_insert_term( $rs, $inst->root_tax, array( 'slug' => $rs ) );
 
-			$sub_tax = root_term_to_sub_tax( (string) $rs );
+			$sub_tax = root_term_to_sub_tax( $rs );
 			_register_sub_tax( $sub_tax, $sub_tax );
 
 			if ( $add_terms ) {
 				foreach ( $terms as $t ) {
-					$ret = wp_insert_term( $t, $sub_tax, array( 'slug' => $t ) );
+					wp_insert_term( $t, $sub_tax, array( 'slug' => $t ) );
 				}
 			}
 		}
 	}
 	if ( $add_terms ) {
 		foreach ( $new_term as $rs => $terms ) {
-			$sub_tax = root_term_to_sub_tax( (string) $rs );
+			$sub_tax = root_term_to_sub_tax( $rs );
 			if ( ! taxonomy_exists( $sub_tax ) ) {
 				continue;
 			}
 			foreach ( $terms as $t ) {
-				$ret = wp_insert_term( $t, $sub_tax, array( 'slug' => $t ) );
+				wp_insert_term( $t, $sub_tax, array( 'slug' => (string) $t ) );
 			}
 		}
 	}

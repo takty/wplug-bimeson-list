@@ -20,12 +20,32 @@ require_once __DIR__ . '/inc/shortcode.php';
 require_once __DIR__ . '/inc/taxonomy.php';
 require_once __DIR__ . '/inc/template-admin.php';
 
-/**
+/** phpcs:ignore
  * Initializes bimeson.
  *
- * @param array<string, mixed> $args {
+ * phpcs:ignore
+ * @param array{
+ *     key?                : string,
+ *     url_to?             : string,
+ *     lang?               : string,
+ *     heading_level?      : int,
+ *     year_format?        : string|null,
+ *     term_name_getter?   : callable|null,
+ *     year_select_label?  : string,
+ *     uncategorized_label?: string,
+ *     taxonomy?           : string,
+ *     sub_tax_base?       : string,
+ *     sub_tax_cls_base?   : string,
+ *     sub_tax_qvar_base?  : string,
+ *     year_cls_base?      : string,
+ *     year_qvar?          : string,
+ * } $args (Optional) Array of arguments.
+ * $args {
  *     (Optional) Array of arguments.
  *
+ *     @type string   'key'                 Post meta key for config data. Default '_bimeson'.
+ *     @type string   'url_to'              URL to the plugin directory.
+ *     @type string   'lang'                Language. Default ''.
  *     @type int      'heading_level'       First heading level of publication lists. Default 3.
  *     @type string   'year_format'         Year heading format. Default null.
  *     @type callable 'term_name_getter'    Callable for getting term names. Default null.
@@ -48,19 +68,19 @@ function initialize( array $args = array() ): void {
 	$lang   = $args['lang'] ?? '';
 
 	// phpcs:disable
-	$inst->head_level        = $args['heading_level']       ?? 3;
-	$inst->year_format       = $args['year_format']         ?? null;
-	$inst->term_name_getter  = $args['term_name_getter']    ?? null;
-	$inst->year_select_label = $args['year_select_label']   ?? __( 'Select Year' );
-	$inst->uncat_label       = $args['uncategorized_label'] ?? __( 'Uncategorized' );
+	$inst->head_level        = $args['heading_level']       ?? 3;  // @phpstan-ignore-line
+	$inst->year_format       = $args['year_format']         ?? null;  // @phpstan-ignore-line
+	$inst->term_name_getter  = $args['term_name_getter']    ?? null;  // @phpstan-ignore-line
+	$inst->year_select_label = $args['year_select_label']   ?? __( 'Select Year' );  // @phpstan-ignore-line
+	$inst->uncat_label       = $args['uncategorized_label'] ?? __( 'Uncategorized' );  // @phpstan-ignore-line
 
-	$inst->root_tax          = $args['taxonomy']          ?? $inst::DEFAULT_TAXONOMY;
-	$inst->sub_tax_base      = $args['sub_tax_base']      ?? $inst::DEFAULT_SUB_TAX_BASE;
-	$inst->sub_tax_cls_base  = $args['sub_tax_cls_base']  ?? $inst::DEFAULT_SUB_TAX_CLS_BASE;
-	$inst->sub_tax_qvar_base = $args['sub_tax_qvar_base'] ?? $inst::DEFAULT_SUB_TAX_QVAR_BASE;
+	$inst->root_tax          = $args['taxonomy']          ?? $inst::DEFAULT_TAXONOMY;  // @phpstan-ignore-line
+	$inst->sub_tax_base      = $args['sub_tax_base']      ?? $inst::DEFAULT_SUB_TAX_BASE;  // @phpstan-ignore-line
+	$inst->sub_tax_cls_base  = $args['sub_tax_cls_base']  ?? $inst::DEFAULT_SUB_TAX_CLS_BASE;  // @phpstan-ignore-line
+	$inst->sub_tax_qvar_base = $args['sub_tax_qvar_base'] ?? $inst::DEFAULT_SUB_TAX_QVAR_BASE;  // @phpstan-ignore-line
 
-	$inst->year_cls_base = $args['year_cls_base'] ?? $inst::DEFAULT_YEAR_CLS_BASE;
-	$inst->year_qvar     = $args['year_qvar']     ?? $inst::DEFAULT_YEAR_QVAR;
+	$inst->year_cls_base = $args['year_cls_base'] ?? $inst::DEFAULT_YEAR_CLS_BASE;  // @phpstan-ignore-line
+	$inst->year_qvar     = $args['year_qvar']     ?? $inst::DEFAULT_YEAR_QVAR;  // @phpstan-ignore-line
 	// phpcs:enable
 
 	initialize_post_type( $url_to );  // Do before initializing taxonomies.
@@ -112,7 +132,7 @@ function _register_script( string $url_to ): void {
 function _is_the_post_type(): bool {
 	$inst = _get_instance();
 	global $pagenow;
-	return in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) && \wplug\is_admin_post_type( $inst::PT );
+	return in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) && \wplug\is_admin_post_type( $inst::PT );  // @phpstan-ignore-line
 }
 
 
@@ -169,16 +189,19 @@ function save_meta_box( int $post_id ): void {
  * @param string   $lang    Language.
  * @param string   $before  Content to prepend to the output.
  * @param string   $after   Content to append to the output.
- * @param string   $for     Attribute of 'for'.
+ * @param string   $for_at  Attribute of 'for'.
  */
-function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for = 'bml' ): void {
+function the_filter( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-filter" hidden%s>', string $after = '</div>', string $for_at = 'bml' ): void {
 	$post = get_post( $post_id );
-	$d    = _get_data( $post->ID, $lang );
+	if ( ! ( $post instanceof \WP_Post ) ) {
+		return;
+	}
+	$d = _get_data( $post->ID, $lang );
 
 	if ( ! $d || ! $d['show_filter'] ) {
 		return;
 	}
-	echo_the_filter( $d['filter_state'], $d['years_exist'], $before, $after, $for );
+	echo_the_filter( $d['filter_state'], $d['years_exist'], $before, $after, $for_at );
 }
 
 /**
@@ -192,7 +215,10 @@ function the_filter( ?int $post_id = null, string $lang = '', string $before = '
  */
 function the_list( ?int $post_id = null, string $lang = '', string $before = '<div class="wplug-bimeson-list"%s>', string $after = '</div>', string $id = 'bml' ): void {
 	$post = get_post( $post_id );
-	$d    = _get_data( $post->ID, $lang );
+	if ( ! ( $post instanceof \WP_Post ) ) {
+		return;
+	}
+	$d = _get_data( $post->ID, $lang );
 
 	if ( ! $d ) {
 		return;
@@ -204,18 +230,31 @@ function the_list( ?int $post_id = null, string $lang = '', string $before = '<d
  * Retrieves the data
  *
  * @access private
+ * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
  *
  * @param int    $post_id Post ID.
  * @param string $lang    Language.
- * @return array<string, mixed>|null Data.
+ * @return array{
+ *     list_id           : int,
+ *     year_bgn          : int,
+ *     year_end          : int,
+ *     count             : int,
+ *     filter_state      : array<string, string[]>,
+ *     sort_by_date_first: bool,
+ *     dup_multi_cat     : bool,
+ *     show_filter       : bool,
+ *     omit_single_cat   : bool,
+ *     items             : array<string, mixed>[],
+ *     years_exist       : string[],
+ * }|null Data.
  */
 function _get_data( int $post_id, string $lang ): ?array {
 	$inst = _get_instance();
 	if ( isset( $inst->cache[ "$post_id$lang" ] ) ) {
-		return $inst->cache[ "$post_id$lang" ];
+		return $inst->cache[ "$post_id$lang" ];  // @phpstan-ignore-line
 	}
 	$d = get_template_admin_config( $post_id );
-	if ( ! $d || empty( $d['list_id'] ) ) {
+	if ( ! $d['list_id'] ) {
 		return null;  // Bimeson List.
 	}
 	// Bimeson List.
@@ -226,7 +265,10 @@ function _get_data( int $post_id, string $lang ): ?array {
 	$d['items']       = $items;
 	$d['years_exist'] = $years_exist;
 
-	$inst->cache[ "$post_id$lang" ] = $d;
+	if ( empty( $items ) ) {
+		$d = null;
+	}
+	$inst->cache[ "$post_id$lang" ] = $d;  // @phpstan-ignore-line
 	return $d;
 }
 
@@ -237,17 +279,17 @@ function _get_data( int $post_id, string $lang ): ?array {
 /**
  * Retrieves filtered items.
  *
- * @param int                       $list_id      List ID.
- * @param string                    $lang         Language.
- * @param string|null               $date_bgn     Date from.
- * @param string|null               $date_end     Date to.
- * @param array<string, mixed>|null $filter_state Filter states.
+ * @param int                     $list_id      List ID.
+ * @param string                  $lang         Language.
+ * @param string|null             $date_bgn     Date from.
+ * @param string|null             $date_end     Date to.
+ * @param array<string, string[]> $filter_state Filter states.
  * @return array<string, mixed>[] Items.
  */
-function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ): array {
+function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?string $date_end, array $filter_state ): array {
 	$inst = _get_instance();
-	if ( isset( $filter_state[ $inst::KEY_VISIBLE ] ) ) {
-		unset( $filter_state[ $inst::KEY_VISIBLE ] );
+	if ( isset( $filter_state[ $inst::KEY_VISIBLE ] ) ) {  // @phpstan-ignore-line
+		unset( $filter_state[ $inst::KEY_VISIBLE ] );  // @phpstan-ignore-line
 	}
 	$items = _get_items_from_list( $list_id );
 	$items = _filter_items( $items, $lang, $date_bgn, $date_end, $filter_state );
@@ -265,8 +307,8 @@ function get_filtered_items( int $list_id, string $lang, ?string $date_bgn, ?str
 function _get_items_from_list( int $list_id ): array {
 	$inst = _get_instance();
 
-	$items_json = get_post_meta( $list_id, $inst::FLD_ITEMS, true );
-	if ( empty( $items_json ) ) {
+	$items_json = get_post_meta( $list_id, $inst::FLD_ITEMS, true );  // @phpstan-ignore-line
+	if ( ! is_string( $items_json ) || empty( $items_json ) ) {
 		return array();
 	}
 	$items = json_decode( $items_json, true );
@@ -274,7 +316,7 @@ function _get_items_from_list( int $list_id ): array {
 		return array();
 	}
 	foreach ( $items as $idx => &$it ) {
-		$it[ $inst::IT_INDEX ] = $idx;
+		$it[ $inst::IT_INDEX ] = $idx;  // @phpstan-ignore-line
 	}
 	return $items;
 }
@@ -284,14 +326,14 @@ function _get_items_from_list( int $list_id ): array {
  *
  * @access private
  *
- * @param array<string, mixed>[]    $items        Items.
- * @param string                    $lang         Language.
- * @param string|null               $date_bgn     Date from.
- * @param string|null               $date_end     Date to.
- * @param array<string, mixed>|null $filter_state Filter states.
+ * @param array<string, mixed>[]  $items        Items.
+ * @param string                  $lang         Language.
+ * @param string|null             $date_bgn     Date from.
+ * @param string|null             $date_end     Date to.
+ * @param array<string, string[]> $filter_state Filter states.
  * @return array<string, mixed>[] Items.
  */
-function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $date_end, ?array $filter_state ): array {
+function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $date_end, array $filter_state ): array {
 	$inst = _get_instance();
 	$ret  = array();
 
@@ -301,10 +343,10 @@ function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $
 
 	foreach ( $items as $it ) {
 		if ( $by_date ) {
-			if ( ! isset( $it[ $inst::IT_DATE_NUM ] ) ) {
+			if ( ! isset( $it[ $inst::IT_DATE_NUM ] ) ) {  // @phpstan-ignore-line
 				continue;  // next item.
 			}
-			$date = (int) $it[ $inst::IT_DATE_NUM ];
+			$date = (int) $it[ $inst::IT_DATE_NUM ];  // @phpstan-ignore-line
 			if ( $date < $date_b || $date_e < $date ) {
 				continue;  // next item.
 			}
@@ -312,7 +354,7 @@ function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $
 		if ( ! _match_filter( $it, $filter_state ) ) {
 			continue;
 		}
-		if ( empty( $it[ $inst::IT_BODY . "_$lang" ] ) && empty( $it[ $inst::IT_BODY ] ) ) {
+		if ( empty( $it[ $inst::IT_BODY . "_$lang" ] ) && empty( $it[ $inst::IT_BODY ] ) ) {  // @phpstan-ignore-line
 			continue;
 		}
 		$ret[] = $it;
@@ -325,16 +367,13 @@ function _filter_items( array $items, string $lang, ?string $date_bgn, ?string $
  *
  * @access private
  *
- * @param array<string, mixed>      $it           An item.
- * @param array<string, mixed>|null $filter_state Filter states.
+ * @param array<string, mixed>    $it           An item.
+ * @param array<string, string[]> $filter_state Filter states.
  * @return bool True if the item matches.
  */
-function _match_filter( array $it, ?array $filter_state ): bool {
-	if ( ! is_array( $filter_state ) ) {
-		return true;
-	}
+function _match_filter( array $it, array $filter_state ): bool {
 	foreach ( $filter_state as $rs => $slugs ) {
-		if ( ! isset( $it[ $rs ] ) ) {
+		if ( ! isset( $it[ $rs ] ) || ! is_array( $it[ $rs ] ) ) {
 			return false;
 		}
 		$int = array_intersect( $slugs, $it[ $rs ] );
@@ -356,7 +395,7 @@ function _match_filter( array $it, ?array $filter_state ): bool {
  * @return string[]|null Visible root slugs.
  */
 function get_visible_root_slugs( ?array $filter_state ): ?array {
-	$vs = $filter_state[ _get_instance()::KEY_VISIBLE ] ?? null;
+	$vs = $filter_state[ _get_instance()::KEY_VISIBLE ] ?? null;  // @phpstan-ignore-line
 
 	$ro  = get_root_slug_to_options();
 	$vst = array();
@@ -365,7 +404,7 @@ function get_visible_root_slugs( ?array $filter_state ): ?array {
 			$vst[] = $rs;
 		}
 	}
-	if ( null === $vs ) {
+	if ( ! is_array( $vs ) ) {
 		return count( $vst ) === count( $ro ) ? null : $vst;
 	}
 	return array_values( array_intersect( $vs, $vst ) );

@@ -9,6 +9,7 @@
 
 namespace wplug\bimeson_list;
 
+require_once __DIR__ . '/../bimeson.php';
 require_once __DIR__ . '/../assets/admin-current-post.php';
 require_once __DIR__ . '/../assets/date-field.php';
 require_once __DIR__ . '/class-mediapicker.php';
@@ -23,7 +24,7 @@ require_once __DIR__ . '/taxonomy.php';
 function initialize_post_type( string $url_to ): void {
 	$inst = _get_instance();
 	register_post_type(
-		$inst::PT,
+		$inst::PT,  // @phpstan-ignore-line
 		array(
 			'label'         => __( 'Publication List', 'wplug_bimeson_list' ),
 			'labels'        => array(),
@@ -58,10 +59,10 @@ function initialize_post_type( string $url_to ): void {
 				MediaPicker::enqueue_script( $url_to . '/assets/' );
 			}
 		);
-		add_action( 'admin_menu', '\wplug\bimeson_list\_cb_admin_menu_post_type' );
+		add_action( 'admin_menu', '\wplug\bimeson_list\_cb_admin_menu_post_type', 10, 0 );
 		add_filter( 'wp_insert_post_data', '\wplug\bimeson_list\_cb_insert_post_data', 99, 2 );
-		add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_post_type' );
-		$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );
+		add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_post_type', 10, 1 );  // @phpstan-ignore-line
+		$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );  // @phpstan-ignore-line
 	}
 }
 
@@ -76,10 +77,10 @@ function initialize_post_type( string $url_to ): void {
  */
 function _cb_admin_menu_post_type(): void {
 	$inst = _get_instance();
-	if ( ! \wplug\is_admin_post_type( $inst::PT ) ) {
+	if ( ! \wplug\is_admin_post_type( $inst::PT ) ) {  // @phpstan-ignore-line
 		return;
 	}
-	\add_meta_box( 'wplug_bimeson_list_mb', __( 'Publication List', 'wplug_bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );
+	\add_meta_box( 'wplug_bimeson_list_mb', __( 'Publication List', 'wplug_bimeson_list' ), '\wplug\bimeson_list\_cb_output_html_post_type', $inst::PT, 'normal', 'high' );  // @phpstan-ignore-line
 }
 
 /**
@@ -90,17 +91,19 @@ function _cb_admin_menu_post_type(): void {
 function _cb_output_html_post_type(): void {
 	$inst = _get_instance();
 	wp_nonce_field( 'wplug_bimeson_list', 'wplug_bimeson_list_nonce' );
-	$inst->media_picker->set_title_editable( false );
-	$inst->media_picker->output_html();
+	if ( $inst->media_picker instanceof MediaPicker ) {
+		$inst->media_picker->set_title_editable( false );
+		$inst->media_picker->output_html();
+	}
 	?>
 	<div>
 		<div class="wplug-bimeson-list-edit-row">
 			<label>
-				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TAX ); ?>" value="true">
+				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TAX );  // @phpstan-ignore-line ?>" value="true">
 				<?php esc_html_e( 'Add category groups themselves', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TERM ); ?>" value="true">
+				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TERM );  // @phpstan-ignore-line ?>" value="true">
 				<?php esc_html_e( 'Add categories to the category group', 'wplug_bimeson_list' ); ?>
 			</label>
 			<div>
@@ -110,7 +113,7 @@ function _cb_output_html_post_type(): void {
 				</button>
 			</div>
 		</div>
-		<input type="hidden" id="<?php echo esc_attr( $inst::FLD_ITEMS ); ?>" name="<?php echo esc_attr( $inst::FLD_ITEMS ); ?>" value="<?php echo esc_attr( $inst::NOT_MODIFIED ); ?>">
+		<input type="hidden" id="<?php echo esc_attr( $inst::FLD_ITEMS );  // @phpstan-ignore-line ?>" name="<?php echo esc_attr( $inst::FLD_ITEMS );  // @phpstan-ignore-line ?>" value="<?php echo esc_attr( $inst::NOT_MODIFIED );  // @phpstan-ignore-line ?>">
 	</div>
 	<?php
 }
@@ -126,9 +129,9 @@ function _cb_output_html_post_type(): void {
  */
 function _cb_insert_post_data( array $data, array $post_a ): array {
 	$inst = _get_instance();
-	if ( $post_a['post_type'] === $inst::PT ) {
-		if ( empty( $post_a['post_title'] ) && ! empty( $post_a[ $inst::FLD_MEDIA . '_0_title' ] ) ) {
-			$data['post_title'] = $post_a[ $inst::FLD_MEDIA . '_0_title' ];
+	if ( $post_a['post_type'] === $inst::PT ) {  // @phpstan-ignore-line
+		if ( empty( $post_a['post_title'] ) && ! empty( $post_a[ $inst::FLD_MEDIA . '_0_title' ] ) ) {  // @phpstan-ignore-line
+			$data['post_title'] = $post_a[ $inst::FLD_MEDIA . '_0_title' ];  // @phpstan-ignore-line
 		}
 	}
 	return $data;
@@ -142,34 +145,42 @@ function _cb_insert_post_data( array $data, array $post_a ): array {
  * @param int $post_id Post ID.
  */
 function _cb_save_post_post_type( int $post_id ): void {
-	$inst = _get_instance();
-	if ( ! isset( $_POST['wplug_bimeson_list_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['wplug_bimeson_list_nonce'] ), 'wplug_bimeson_list' ) ) {
+	$nonce = $_POST['wplug_bimeson_list_nonce'] ?? null;  // phpcs:ignore
+	if ( ! is_string( $nonce ) ) {
+		return;
+	}
+	if ( ! wp_verify_nonce( sanitize_key( $nonce ), 'wplug_bimeson_list' ) ) {
 		return;
 	}
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
-	$inst->media_picker->save_items( $post_id );
+	$inst = _get_instance();
+	if ( $inst->media_picker instanceof MediaPicker ) {
+		$inst->media_picker->save_items( $post_id );
+	}
 
-	$json_items = $inst::NOT_MODIFIED;
-	if ( isset( $_POST[ $inst::FLD_ITEMS ] ) ) {
+	$json_items = $inst::NOT_MODIFIED;  // @phpstan-ignore-line
+	if ( is_string( $_POST[ $inst::FLD_ITEMS ] ?? null ) ) {  // @phpstan-ignore-line
+		// @phpstan-ignore-next-line
 		$json_items = wp_unslash( $_POST[ $inst::FLD_ITEMS ] );  // phpcs:ignore
 	}
-	if ( $json_items !== $inst::NOT_MODIFIED ) {
+	if ( $json_items !== $inst::NOT_MODIFIED && is_string( $json_items ) ) {  // @phpstan-ignore-line
 		$items = json_decode( $json_items, true );
 		if ( ! is_array( $items ) ) {
-			delete_post_meta( $post_id, $inst::FLD_ITEMS );
+			delete_post_meta( $post_id, $inst::FLD_ITEMS );  // @phpstan-ignore-line
 			return;
 		}
-		$add_tax  = isset( $_POST[ $inst::FLD_ADD_TAX ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TAX ] );
-		$add_term = isset( $_POST[ $inst::FLD_ADD_TERM ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TERM ] );
+		$add_tax  = isset( $_POST[ $inst::FLD_ADD_TAX ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TAX ] );  // @phpstan-ignore-line
+		$add_term = isset( $_POST[ $inst::FLD_ADD_TERM ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TERM ] );  // @phpstan-ignore-line
 		if ( $add_tax || $add_term ) {
 			process_terms( $items, $add_tax, $add_term );
 		}
 		_process_items( $items );
 		$json_items = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
 		if ( false !== $json_items ) {
-			update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json_items ) );  // Because the meta value is passed through the stripslashes() function upon being stored.
+			// Because the meta value is passed through the stripslashes() function upon being stored.
+			update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json_items ) );  // @phpstan-ignore-line
 		}
 	}
 }
@@ -182,16 +193,17 @@ function _cb_save_post_post_type( int $post_id ): void {
  * Processes an array of items.
  *
  * @access private
+ * @psalm-suppress UndefinedFunction
  *
  * @param array<string, mixed>[] $items Items.
  */
 function _process_items( array &$items ): void {
 	$inst = _get_instance();
 	foreach ( $items as &$it ) {
-		$date = ( ! empty( $it[ $inst::IT_DATE ] ) ) ? \wplug\normalize_date( $it[ $inst::IT_DATE ] ) : '';
+		$date = ( ! empty( $it[ $inst::IT_DATE ] ) ) ? \wplug\normalize_date( $it[ $inst::IT_DATE ] ) : '';  // @phpstan-ignore-line
 		if ( $date ) {
-			$it[ $inst::IT_DATE_NUM ] = \wplug\create_date_number( $date );
+			$it[ $inst::IT_DATE_NUM ] = \wplug\create_date_number( $date );  // @phpstan-ignore-line
 		}
-		unset( $it[ $inst::IT_DATE ] );
+		unset( $it[ $inst::IT_DATE ] );  // @phpstan-ignore-line
 	}
 }
