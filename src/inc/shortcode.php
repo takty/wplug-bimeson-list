@@ -1,6 +1,6 @@
 <?php
 /**
- * Bimeson (Shortcode)
+ * Shortcode
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
@@ -77,18 +77,21 @@ function register_shortcode( string $lang ): void {
  * }|null Data.
  */
 function _get_data_shortcode( array $atts, string $lang ): ?array {
+	// Bimeson List.
 	$list_id = _extract_list_id_atts( $atts );  // Bimeson List.
 	if ( is_null( $list_id ) ) {
 		return null;
 	}
-	list( $date_bgn, $date_end ) = _extract_date_atts( $atts );
 
+	// phpcs:disable
 	$count              = isset( $atts['count'] ) && is_numeric( $atts['count'] ) ? ( (int) $atts['count'] ) : null;
-	$sort_by_date_first = in_array( 'date-sort', $atts, true ) || (bool) ( $atts['date-sort'] ?? false );
-	$dup_multi_cat      = in_array( 'dup-item', $atts, true ) || (bool) ( $atts['dup-item'] ?? false );
+	$sort_by_date_first = in_array( 'date-sort',   $atts, true ) || (bool) ( $atts['date-sort']   ?? false );
+	$dup_multi_cat      = in_array( 'dup-item',    $atts, true ) || (bool) ( $atts['dup-item']    ?? false );
 	$omit_single_cat    = in_array( 'omit-single', $atts, true ) || (bool) ( $atts['omit-single'] ?? false );
+	// phpcs:enable
 
-	$filter_state = _extract_filter_state( $atts );
+	list( $date_bgn, $date_end ) = _extract_date_atts( $atts );
+	$filter_state                = _extract_filter_state( $atts );
 
 	// Bimeson List.
 	$items = get_filtered_items( $list_id, $lang, $date_bgn, $date_end, $filter_state );
@@ -109,7 +112,7 @@ function _get_data_shortcode( array $atts, string $lang ): ?array {
  * @access private
  *
  * @param array<string, mixed> $atts Attributes.
- * @return array{string|null, string|null} Date.
+ * @return array{ string, string } Date.
  */
 function _extract_date_atts( array $atts ): array {
 	$ds = array();
@@ -129,8 +132,8 @@ function _extract_date_atts( array $atts ): array {
 	}
 	sort( $ds );  // Sort as strings.
 
-	if ( 0 === count( $ds ) ) {
-		return array( null, null );
+	if ( empty( $ds ) ) {
+		return array( '', '' );
 	}
 	return array( $ds[0], end( $ds ) );
 }
@@ -158,7 +161,7 @@ function _extract_filter_state( array $atts ): array {
 
 
 /**
- * Extracts list id attribute.
+ * Extracts list id attribute (Bimeson List).
  *
  * @access private
  *
@@ -166,7 +169,6 @@ function _extract_filter_state( array $atts ): array {
  * @return ?int List ID.
  */
 function _extract_list_id_atts( array $atts ): ?int {
-	// Bimeson List.
 	$slug = $atts['list'] ?? null;
 	if ( empty( $slug ) ) {
 		return null;

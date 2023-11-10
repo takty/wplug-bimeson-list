@@ -325,6 +325,33 @@ function _echo_list_item( array $it, string $lang ): void {
 		}
 	}
 
+	$links = _get_links( $it );
+	$_link = '';
+	foreach ( $links as $link ) {
+		list( $url, $title ) = $link;
+
+		$_url   = esc_url( $url );
+		$_title = empty( $title ) ? $_url : esc_html( $title );
+		$_link .= "<span class=\"link\"><a href=\"$_url\">$_title</a></span>";
+	}
+	$_cls = esc_attr( _make_cls( $it ) );
+
+	echo "<li class=\"$_cls\"><div>\n";  // phpcs:ignore
+	echo "<span class=\"body\">$body</span>$_link$_doi\n";  // phpcs:ignore
+	echo "</div></li>\n";  // phpcs:ignore
+}
+
+/**
+ * Gets link arrays (Bimeson List).
+ *
+ * @access private
+ *
+ * @param array<string, mixed> $it The item.
+ * @return array{ string, string }[] Links.
+ */
+function _get_links( array $it ): array {
+	$inst = _get_instance();
+
 	$links = array();
 	for ( $i = 0; $i <= 10; ++$i ) {
 		$sf = ( 0 === $i ) ? '' : "_$i";
@@ -346,20 +373,7 @@ function _echo_list_item( array $it, string $lang ): void {
 			}
 		}
 	}
-
-	$_link = '';
-	foreach ( $links as $link ) {
-		list( $url, $title ) = $link;
-
-		$_url   = esc_url( $url );
-		$_title = empty( $title ) ? $_url : esc_html( $title );
-		$_link .= "<span class=\"link\"><a href=\"$_url\">$_title</a></span>";
-	}
-	$_cls = esc_attr( _make_cls( $it ) );
-
-	echo "<li class=\"$_cls\"><div>\n";  // phpcs:ignore
-	echo "<span class=\"body\">$body</span>$_link$_doi\n";  // phpcs:ignore
-	echo "</div></li>\n";  // phpcs:ignore
+	return $links;
 }
 
 /**

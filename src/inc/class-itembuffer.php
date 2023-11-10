@@ -1,6 +1,6 @@
 <?php
 /**
- * Item Buffer
+ * Item Buffer (Common)
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
