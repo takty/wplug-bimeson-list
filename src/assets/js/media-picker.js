@@ -55,7 +55,7 @@ function st_media_picker_initialize_admin(key) {
 	reorder_item_ids();
 	for (var i = 0; i < items.length; i += 1) assign_event_listener(items[i]);
 
-	setMediaPicker(add, false, (target, ms) => {
+	window.wplug.setMediaPicker(add, null, (target, ms) => {
 		ms.forEach((m) => { add_new_item(m); });
 		reorder_item_ids();
 	}, { multiple: true, title: STR_ADD });
@@ -127,7 +127,7 @@ function st_media_picker_initialize_admin(key) {
 			const url = document.getElementById(idi + '_url').value;
 			if (url) window.open(url);
 		});
-		setMediaPicker(sel, false, function (target, f) {
+		window.wplug.setMediaPicker(sel, null, function (target, f) {
 			const idi = sel.dataset.idi;
 			document.getElementById(idi + '_media').value          = f.id;
 			document.getElementById(idi + '_url').value            = f.url;
