@@ -1,8 +1,8 @@
 /**
- * Media Picker (JS)
+ * Media Picker
  *
  * @author Takuto Yanagida
- * @version 2022-01-17
+ * @version 2023-11-10
  */
 
 document.addEventListener('DOMContentLoaded', function () {

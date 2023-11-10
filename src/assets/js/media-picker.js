@@ -1,8 +1,8 @@
 /**
- * Media Picker (JS)
+ * Media Picker
  *
  * @author Takuto Yanagida
- * @version 2021-07-08
+ * @version 2023-11-10
  */
 
 function st_media_picker_initialize_admin(key) {

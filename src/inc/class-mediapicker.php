@@ -1,11 +1,13 @@
 <?php
 /**
- * Media Picker (PHP)
+ * Media Picker
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-09-08
+ * @version 2023-11-10
  */
+
+declare(strict_types=1);
 
 namespace wplug\bimeson_list;
 

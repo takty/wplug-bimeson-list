@@ -4,8 +4,10 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-09
+ * @version 2023-11-10
  */
+
+declare(strict_types=1);
 
 namespace wplug\bimeson_list;
 
@@ -289,7 +291,7 @@ function _get_data( int $post_id, string $lang ): ?array {
 	if ( ! $d['list_id'] ) {
 		return null;
 	}
-	
+
 	// Bimeson List.
 	$items = get_filtered_items( $d['list_id'], $lang, $d['year_bgn'], $d['year_end'], $d['filter_state'] );
 
