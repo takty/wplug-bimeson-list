@@ -30,8 +30,9 @@ function initialize_post_type( string $url_to ): void {
 		array(
 			'label'         => __( 'Publication List', 'wplug_bimeson_list' ),
 			'labels'        => array(
-				'add_new'      => __( 'Add New Publication List', 'wplug_bimeson_item' ),
-				'add_new_item' => __( 'Add New Publication List', 'wplug_bimeson_item' ),
+				'add_new'      => __( 'Add New Publication List', 'wplug_bimeson_list' ),
+				'add_new_item' => __( 'Add New Publication List', 'wplug_bimeson_list' ),
+				'search_items' => __( 'Search Publication Lists', 'wplug_bimeson_list' ),
 			),
 			'public'        => true,
 			'show_ui'       => true,

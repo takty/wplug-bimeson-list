@@ -11,6 +11,9 @@ msgstr "業績リスト"
 msgid "Add New Publication List"
 msgstr "新規業績リストを追加"
 
+msgid "Search Publication Lists"
+msgstr "業績リストを検索"
+
 msgid "Add category groups themselves"
 msgstr "分類グループ自体を追加"
 
@@ -25,6 +28,7 @@ msgstr "「公開/更新」ボタンを押す前に「リストを更新」し�
 
 # 'Publication List',                                       'ja', '業績リスト'
 # 'Add New Publication List',                               'ja', '新規業績リストを追加'
+# 'Search Publication Lists',                               'ja', '業績リストを検索'
 # 'Add category groups themselves',                         'ja', '分類グループ自体を追加'
 # 'Add categories to the category group',                   'ja', '分類グループに分類を追加'
 # 'Update List',                                            'ja', 'リストを更新'
@@ -32,11 +36,44 @@ msgstr "「公開/更新」ボタンを押す前に「リストを更新」し�
 
 # Taxonomy ---------------------------------------------------------------------
 
-msgid "Category group"
+msgid "Category Group"
 msgstr "分類グループ"
 
-msgid "Category"
-msgstr "分類"
+msgid "Add New Category Group"
+msgstr "新規分類グループを追加"
+
+msgid "Edit Category Group"
+msgstr "分類グループを編集"
+
+msgid "Search Category Groups"
+msgstr "分類グループを検索"
+
+msgid "Parent Category Group"
+msgstr "親分類グループ"
+
+msgid "Update Category Group"
+msgstr "分類グループを更新"
+
+msgid "The &#8220;slug&#8221; is the URL-friendly version of the name. It is all lowercase and contains only letters, numbers, and hyphens."
+msgstr "&#8220;スラッグ&#8221; は URL に適した形式の名前です。すべて半角小文字で、英数字とハイフンのみが使われます。"
+
+msgid "Category (%s)"
+msgstr "分類 (%s)"
+
+msgid "Add New Category (%s)"
+msgstr "新規分類 (%s) を追加"
+
+msgid "Edit Category (%s)"
+msgstr "分類 (%s) を編集"
+
+msgid "Search Category (%s)"
+msgstr "分類 (%s) を検索"
+
+msgid "Parent Category (%s)"
+msgstr "親分類 (%s) "
+
+msgid "Update Category (%s)"
+msgstr "分類 (%s) を更新"
 
 msgid "List"
 msgstr "リスト"
@@ -55,7 +92,7 @@ msgstr "未分類の項目を最後に並べる"
 
 # 'Category group',                              'ja', '分類グループ'
 # 'Category',                                    'ja', '分類'
-# 'Filter',                                      'ja', 'フィルター'
+# 'List',                                        'ja', 'リスト'
 # 'Omit the heading of the last category group', 'ja', '一番最後の分類グループの見出しを省略する'
 # 'Hide from view screen',                       'ja', '閲覧画面から隠す'
 # 'Sort',                                        'ja', '並び替え'
@@ -82,7 +119,7 @@ msgid "Sort by date first"
 msgstr "最初に日付で並び替える"
 
 msgid "Duplicate multi-category items"
-msgstr "複数のカテゴリーを持つ項目を複製"
+msgstr "複数の分類を持つ項目を複製"
 
 msgid "Show filter"
 msgstr "フィルターを表示"
@@ -96,6 +133,6 @@ msgstr "項目が1つしかない分類の見出しを省略"
 # 'Specify the number of items to be displayed:',    'ja', '表示件数の指定:'
 # '(If specified, the heading will be hidden)',      'ja', '（指定すると、見出しは非表示になります）'
 # 'Sort by date first',                              'ja', '最初に日付で並び替える'
-# 'Duplicate multi-category items',                  'ja', '複数のカテゴリーを持つ項目を複製'
+# 'Duplicate multi-category items',                  'ja', '複数の分類を持つ項目を複製'
 # 'Show filter',                                     'ja', 'フィルターを表示'
-# 'Omit headings for categories with only one item', 'ja', '1つしかない分類の見出しを省略'
+# 'Omit headings for categories with only one item', 'ja', '項目が1つしかない分類の見出しを省略'

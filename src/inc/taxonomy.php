@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-10
+ * @version 2023-11-13
  */
 
 declare(strict_types=1);
@@ -20,12 +20,24 @@ function initialize_taxonomy(): void {
 	$inst = _get_instance();
 
 	if ( ! taxonomy_exists( $inst->root_tax ) ) {
+		$def_tax = get_taxonomy( 'category' );
 		register_taxonomy(
 			$inst->root_tax,
 			'',
 			array(
 				'hierarchical'       => true,
-				'label'              => __( 'Category group', 'wplug_bimeson_list' ),
+				'label'              => __( 'Category Group', 'wplug_bimeson_list' ),
+				'labels'             => array(
+					'add_new_item'             => __( 'Add New Category Group', 'wplug_bimeson_list' ),
+					'edit_item'                => __( 'Edit Category Group', 'wplug_bimeson_list' ),
+					'search_items'             => __( 'Search Category Groups', 'wplug_bimeson_list' ),
+					'parent_item'              => __( 'Parent Category Group', 'wplug_bimeson_list' ),
+					'update_item'              => __( 'Update Category Group', 'wplug_bimeson_list' ),
+					'name_field_description'   => '',
+					'slug_field_description'   => __( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is all lowercase and contains only letters, numbers, and hyphens.', 'wplug_bimeson_list' ),
+					'parent_field_description' => '',
+					'desc_field_description'   => '',
+				),
 				'public'             => false,
 				'show_ui'            => true,
 				'show_in_quick_edit' => false,
@@ -105,7 +117,24 @@ function _register_sub_tax( string $tax, string $label ): void {
 			'',
 			array(
 				'hierarchical'       => true,
-				'label'              => __( 'Category', 'wplug_bimeson_list' ) . " ($label)",
+				/* translators: 1: label. */
+				'label'              => sprintf( __( 'Category (%s)', 'wplug_bimeson_list' ), $label ),
+				'labels'             => array(
+					/* translators: 1: label. */
+					'add_new_item'             => sprintf( __( 'Add New Category (%s)', 'wplug_bimeson_list' ), $label ),
+					/* translators: 1: label. */
+					'edit_item'                => sprintf( __( 'Edit Category (%s)', 'wplug_bimeson_list' ), $label ),
+					/* translators: 1: label. */
+					'search_items'             => sprintf( __( 'Search Category (%s)', 'wplug_bimeson_list' ), $label ),
+					/* translators: 1: label. */
+					'parent_item'              => sprintf( __( 'Parent Category (%s)', 'wplug_bimeson_list' ), $label ),
+					/* translators: 1: label. */
+					'update_item'              => sprintf( __( 'Update Category (%s)', 'wplug_bimeson_list' ), $label ),
+					'name_field_description'   => '',
+					'slug_field_description'   => __( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is all lowercase and contains only letters, numbers, and hyphens.', 'wplug_bimeson_list' ),
+					'parent_field_description' => '',
+					'desc_field_description'   => '',
+				),
 				'public'             => true,
 				'show_ui'            => true,
 				'rewrite'            => false,
