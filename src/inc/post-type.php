@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-10
+ * @version 2023-11-13
  */
 
 declare(strict_types=1);
@@ -29,7 +29,10 @@ function initialize_post_type( string $url_to ): void {
 		$inst::PT,  // @phpstan-ignore-line
 		array(
 			'label'         => __( 'Publication List', 'wplug_bimeson_list' ),
-			'labels'        => array(),
+			'labels'        => array(
+				'add_new'      => __( 'Add New Publication List', 'wplug_bimeson_item' ),
+				'add_new_item' => __( 'Add New Publication List', 'wplug_bimeson_item' ),
+			),
 			'public'        => true,
 			'show_ui'       => true,
 			'menu_position' => 5,
