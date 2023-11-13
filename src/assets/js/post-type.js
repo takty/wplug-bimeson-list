@@ -2,7 +2,7 @@
  * Post Type
  *
  * @author Takuto Yanagida
- * @version 2023-11-10
+ * @version 2023-11-13
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			try {
 				const book      = XLSX.read(bstr, { type: 'binary' });
-				const sheetName = book.SheetNames[0];
+				const sheetName = retrieveSheetName(book);
 				const sheet     = book.Sheets[sheetName];
 				if (sheet) processSheet(sheet, items);
 				console.log('Finish filtering file');
@@ -148,6 +148,16 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (res) res.value = JSON.stringify(items);
 			console.log('Complete filtering (' + items.length + ' items)');
 			onFinished();
+		}
+
+		function retrieveSheetName(book) {
+			for (const name of book.SheetNames) {
+				const nn = name.trim().toLowerCase();
+				if ('_list' === nn) {
+					return name;
+				}
+			}
+			return book.SheetNames[0];
 		}
 	}
 
