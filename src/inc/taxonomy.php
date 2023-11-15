@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-13
+ * @version 2023-11-15
  */
 
 declare(strict_types=1);
@@ -20,7 +20,6 @@ function initialize_taxonomy(): void {
 	$inst = _get_instance();
 
 	if ( ! taxonomy_exists( $inst->root_tax ) ) {
-		$def_tax = get_taxonomy( 'category' );
 		register_taxonomy(
 			$inst->root_tax,
 			'',
