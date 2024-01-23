@@ -2,7 +2,7 @@
  * Post Type
  *
  * @author Takuto Yanagida
- * @version 2023-11-13
+ * @version 2024-01-23
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -185,34 +185,70 @@ document.addEventListener('DOMContentLoaded', function () {
 		x1 = x0 + colCount;
 
 		for (let y = y0 + 1; y < y1; y += 1) {  // skip header
-			let item = {};
+			const item = {};
+			const bs   = new Map();
 			let count = 0;
+
 			for (let x = x0; x < x1; x += 1) {
-				const cell = sheet[XLSX.utils.encode_cell({c: x, r: y})];
-				const key = colToKey[x];
+				const cell = sheet[XLSX.utils.encode_cell({ c: x, r: y })];
+				const key  = colToKey[x];
+
 				if (key === null) continue;
-				if (key === KEY_BODY || key.indexOf(KEY_BODY + '_') === 0) {
+				if (key.startsWith(KEY_BODY)) {
 					if (cell && cell.h && cell.h.length > 0) {
+						count += 1;
 						let text = stripUnnecessarySpan(cell.h);  // remove automatically inserted 'span' tag.
 						text = text.replace(/<br\/>/g, '<br />');
 						text = text.replace(/&#x000d;&#x000a;/g, '<br />');
-						item[key] = text;
-						count += 1;
+						extractBodyText(bs, key, text);
 					}
-				} else if (key[0] === '_') {
+				} else if (key.startsWith('_')) {
 					if (cell && cell.w && cell.w.length > 0) {
-						item[key] = cell.w;
 						count += 1;
+						item[key] = cell.w;
 					}
 				} else {
 					if (cell && cell.w && cell.w.length > 0) {
+						count += 1;
 						const vals = cell.w.split(/\s*,\s*/);
 						item[key] = vals.map( x => normalizeKey(x, false) );
-						count += 1;
 					}
 				}
 			}
-			if (0 < count) retItems.push(item);
+			if (0 < count) {
+				storeBodyText(bs, item);
+				retItems.push(item);
+			}
+		}
+	}
+
+	function extractBodyText(bs, key, text) {
+		const k = key.replace(/\[[0-9]\]$/, '');
+		if (!bs.has(k)) {
+			bs.set(k, { s: '', a: {} });
+		}
+		const b = bs.get(k);
+		const m = key.match(/\[([0-9])\]$/);
+		if (m) {
+			const i = parseInt(m[1], 10);
+			if (!isNaN(i)) b.a[i] = text;
+		} else {
+			b.s = text;
+		}
+	}
+
+	function storeBodyText(bs, item) {
+		for (const k of bs.keys()) {
+			if (bs[k].s) {
+				item[k] = bs[k].s;
+			}
+			if (bs[k].a) {
+				let text = '';
+				for (let i = 0; i < 10; ++i) {
+					text += bs[k].a?.[i] ?? '';
+				}
+				item[k] = text;
+			}
 		}
 	}
 
@@ -220,7 +256,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		str = str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
 		str = str.replace(/[_＿]/g, '_');
 		str = str.replace(/[\-‐―ー]/g, '-');
-		str = str.replace(/[^A-Za-z0-9_\- ]/g, '');
+		if (isKey) {
+			str = str.replace(/[^A-Za-z0-9_\- \[\]]/g, '');
+		} else {
+			str = str.replace(/[^A-Za-z0-9_\- ]/g, '');
+		}
 		str = str.toLowerCase().trim();
 		if (0 < str.length) {
 			if (isKey && str[0] === '_') {  // Underscore separation
