@@ -239,13 +239,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function storeBodyText(bs, item) {
 		for (const k of bs.keys()) {
-			if (bs[k].s) {
-				item[k] = bs[k].s;
+			const b = bs.get(k);
+			if (b.s) {
+				item[k] = b.s;
 			}
-			if (bs[k].a) {
+			if (b.a) {
 				let text = '';
 				for (let i = 0; i < 10; ++i) {
-					text += bs[k].a?.[i] ?? '';
+					text += b.a?.[i] ?? '';
 				}
 				item[k] = text;
 			}
