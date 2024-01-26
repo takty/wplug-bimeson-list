@@ -2,7 +2,7 @@
  * Post Type
  *
  * @author Takuto Yanagida
- * @version 2024-01-23
+ * @version 2024-01-25
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const bstr = arr.join('');
 
 			try {
-				const book      = XLSX.read(bstr, { type: 'binary' });
+				const book      = XLSX.read(bstr, { type: 'binary', cellNF: false });
 				const sheetName = retrieveSheetName(book);
 				const sheet     = book.Sheets[sheetName];
 				if (sheet) processSheet(sheet, items);
@@ -172,9 +172,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		let x1 = Math.min(range.e.c, 40) + 1;
 		let y1 = range.e.r + 1;
 
-		let colCount = 0, colToKey = {};
+		let colCount = 0;
+		const colToKey = {};
+
 		for (let x = x0; x < x1; x += 1) {
-			const cell = sheet[XLSX.utils.encode_cell({c: x, r: y0})];
+			const cell = sheet[XLSX.utils.encode_cell({ c: x, r: y0 })];
 			if (!cell || cell.w === '') {
 				colToKey[x] = null;
 			} else {
@@ -197,9 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (key.startsWith(KEY_BODY)) {
 					if (cell && cell.h && cell.h.length > 0) {
 						count += 1;
-						let text = stripUnnecessarySpan(cell.h);  // remove automatically inserted 'span' tag.
-						text = text.replace(/<br\/>/g, '<br />');
-						text = text.replace(/&#x000d;&#x000a;/g, '<br />');
+						const text = prepareBodyText(cell.h);
 						extractBodyText(bs, key, text);
 					}
 				} else if (key.startsWith('_')) {
@@ -274,11 +274,24 @@ document.addEventListener('DOMContentLoaded', function () {
 		return str;
 	}
 
+
+	// -------------------------------------------------------------------------
+
+
+	function prepareBodyText(str) {
+		str = stripUnnecessarySpan(str);  // remove automatically inserted 'span' tag.
+		str = str.replace(/<br\/>/g, '<br>');
+		str = str.replace(/&#x000d;&#x000a;/g, '<br>');
+		str = restoreEscapedTag(str);
+		str = stripEmptyTag(str);
+		return str;
+	}
+
 	function stripUnnecessarySpan(str) {
 		str = str.replace(/<span +([^>]*)>/gi, (m, p1) => {
-			const as = p1.trim().toLowerCase().match(/style *= *"([^"]*)"/);
-			if (as && as.length === 2) {
-				const style = as[1].trim();
+			const ms = p1.trim().toLowerCase().match(/style *= *"([^"]*)"/);
+			if (ms && ms.length === 2) {
+				const style = ms[1].trim();
 				if (style.search(/text-decoration *: *underline/gi) !== -1) {
 					return '<span style="text-decoration:underline;">';
 				}
@@ -288,6 +301,36 @@ document.addEventListener('DOMContentLoaded', function () {
 		str = str.replace(/< +\/ +span +>/gi, '</span>');
 		str = str.replace(/<span>(.+?)<\/span>/gi, (m, p1) => { return p1; });
 		return str;
+	}
+
+	function restoreEscapedTag(str) {
+		for (const t of ['b', 'i', 'sub', 'sup']) {
+			str = str.replace(new RegExp(`&lt;${t}&gt;`, 'g'), `<${t}>`);
+			str = str.replace(new RegExp(`&lt;\/${t}&gt;`, 'g'), `</${t}>`);
+		}
+		str = str.replace(/&lt;u&gt;/g, '<span style="text-decoration:underline;">');
+		str = str.replace(/&lt;\/u&gt;/g, '</span>');
+		str = str.replace(/&lt;br&gt;/g, '<br>');
+
+		str = str.replace(/&lt;span +((?!&gt;).*?)&gt;/gi, (m, p1) => {
+			const mc = p1.trim().toLowerCase().replaceAll('&quot;', '"').match(/class *= *"([^"]*)"/);
+			if (mc && mc.length === 2) {
+				const cls = mc[1].trim();
+				return `<span class="${cls}">`;
+			}
+			return '<span>';
+		});
+		str = str.replace(/&lt;\/span&gt;/g, '</span>');
+		return str;
+	}
+
+	function stripEmptyTag(str) {
+		for (const t of ['b', 'i', 'sub', 'sup', 'span']) {
+			str = str.replace(new RegExp(`<${t}><\/${t}>`, 'g'), '');  // Remove empty tag
+		}
+		str = str.replace(/<span +[^>]*><\/span>/gi, '');
+		str = str.replace(/, , /g, ', ');
+		return str.trim();
 	}
 
 });
