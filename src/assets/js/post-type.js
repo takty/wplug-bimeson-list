@@ -2,7 +2,7 @@
  * Post Type
  *
  * @author Takuto Yanagida
- * @version 2024-01-25
+ * @version 2024-03-11
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -225,13 +225,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	function extractBodyText(bs, key, text) {
 		const k = key.replace(/\[[0-9]\]$/, '');
 		if (!bs.has(k)) {
-			bs.set(k, { s: '', a: {} });
+			bs.set(k, { s: null, a: new Map() });
 		}
 		const b = bs.get(k);
 		const m = key.match(/\[([0-9])\]$/);
 		if (m) {
 			const i = parseInt(m[1], 10);
-			if (!isNaN(i)) b.a[i] = text;
+			if (!isNaN(i)) b.a.set(i, text);
 		} else {
 			b.s = text;
 		}
@@ -242,11 +242,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			const b = bs.get(k);
 			if (b.s) {
 				item[k] = b.s;
-			}
-			if (b.a) {
+			} else {
 				let text = '';
 				for (let i = 0; i < 10; ++i) {
-					text += b.a?.[i] ?? '';
+					text += b.a.get(i) ?? '';
 				}
 				item[k] = text;
 			}
