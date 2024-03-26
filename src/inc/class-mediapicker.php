@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-10
+ * @version 2024-03-22
  */
 
 declare(strict_types=1);
@@ -70,6 +70,8 @@ class MediaPicker {
 
 	/**
 	 * Registers the scripts.
+	 *
+	 * @psalm-suppress PossiblyUnusedMethod
 	 *
 	 * @param string $url_to Base URL.
 	 */
@@ -137,7 +139,7 @@ class MediaPicker {
 	public function get_items( ?int $post_id = null ): array {
 		if ( is_null( $post_id ) ) {
 			$post_id = get_the_ID();
-			if ( ! $post_id ) {
+			if ( ! is_int( $post_id ) ) {
 				return array();
 			}
 		}
@@ -175,10 +177,10 @@ class MediaPicker {
 		if ( ! is_string( $nonce ) ) {
 			return;
 		}
-		if ( ! wp_verify_nonce( sanitize_key( $nonce ), $this->key ) ) {
+		if ( false === wp_verify_nonce( sanitize_key( $nonce ), $this->key ) ) {
 			return;
 		}
-		if ( empty( $_POST[ $this->key ] ) ) {  // phpcs:ignore
+		if ( ! isset( $_POST[ $this->key ] ) ) {  // phpcs:ignore
 			return;  // Do not save before JS is executed.
 		}
 		$this->save_items( $post_id );
@@ -251,7 +253,10 @@ class MediaPicker {
 		<div class="<?php echo esc_attr( $cls ); ?>">
 			<div class="<?php echo esc_attr( self::CLS_ITEM_CTRL ); ?>">
 				<div class="<?php echo esc_attr( self::CLS_HANDLE ); ?>">=</div>
-				<label class="widget-control-remove <?php echo esc_attr( self::CLS_DEL_LAB ); ?>"><span><?php esc_html_e( 'Remove', 'default' ); ?></span><input type="checkbox" class="<?php echo esc_attr( self::CLS_DEL ); ?>"></label>
+				<label class="widget-control-remove <?php echo esc_attr( self::CLS_DEL_LAB ); ?>">
+					<span><?php esc_html_e( 'Remove', 'default' ); ?></span>
+					<input type="checkbox" class="<?php echo esc_attr( self::CLS_DEL ); ?>">
+				</label>
 			</div>
 			<div class="<?php echo esc_attr( self::CLS_ITEM_CONT ); ?>">
 				<div class="<?php echo esc_attr( self::CLS_ITEM_IR ); ?>">
@@ -289,7 +294,7 @@ class MediaPicker {
 		$its = array_filter(
 			$its,
 			function ( $it ) {
-				return ! $it['delete'] && ! empty( $it['url'] );
+				return null === $it['delete'] && '' !== $it['url'];
 			}
 		);
 		$its = array_values( $its );

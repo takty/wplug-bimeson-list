@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-13
+ * @version 2024-03-22
  */
 
 declare(strict_types=1);
@@ -105,11 +105,11 @@ function _cb_output_html_post_type(): void {
 	<div>
 		<div class="wplug-bimeson-list-edit-row">
 			<label>
-				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TAX );  // @phpstan-ignore-line ?>" value="true">
+				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TAX );  // @phpstan-ignore-line ?>">
 				<?php esc_html_e( 'Add category groups themselves', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TERM );  // @phpstan-ignore-line ?>" value="true">
+				<input type="checkbox" name="<?php echo esc_attr( $inst::FLD_ADD_TERM );  // @phpstan-ignore-line ?>">
 				<?php esc_html_e( 'Add categories to the category group', 'wplug_bimeson_list' ); ?>
 			</label>
 			<div>
@@ -155,7 +155,7 @@ function _cb_save_post_post_type( int $post_id ): void {
 	if ( ! is_string( $nonce ) ) {
 		return;
 	}
-	if ( ! wp_verify_nonce( sanitize_key( $nonce ), 'wplug_bimeson_list' ) ) {
+	if ( false === wp_verify_nonce( sanitize_key( $nonce ), 'wplug_bimeson_list' ) ) {
 		return;
 	}
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -166,27 +166,29 @@ function _cb_save_post_post_type( int $post_id ): void {
 		$inst->media_picker->save_items( $post_id );
 	}
 
-	$json_items = $inst::NOT_MODIFIED;  // @phpstan-ignore-line
+	$json = $inst::NOT_MODIFIED;  // @phpstan-ignore-line
 	if ( is_string( $_POST[ $inst::FLD_ITEMS ] ?? null ) ) {  // @phpstan-ignore-line
 		// @phpstan-ignore-next-line
-		$json_items = wp_unslash( $_POST[ $inst::FLD_ITEMS ] );  // phpcs:ignore
+		$json = wp_unslash( $_POST[ $inst::FLD_ITEMS ] );  // phpcs:ignore
 	}
-	if ( $json_items !== $inst::NOT_MODIFIED && is_string( $json_items ) ) {  // @phpstan-ignore-line
-		$items = json_decode( $json_items, true );
+	if ( $json !== $inst::NOT_MODIFIED && is_string( $json ) ) {  // @phpstan-ignore-line
+		$items = json_decode( $json, true );
 		if ( ! is_array( $items ) ) {
 			delete_post_meta( $post_id, $inst::FLD_ITEMS );  // @phpstan-ignore-line
 			return;
 		}
-		$add_tax  = isset( $_POST[ $inst::FLD_ADD_TAX ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TAX ] );  // @phpstan-ignore-line
-		$add_term = isset( $_POST[ $inst::FLD_ADD_TERM ] ) && ( 'true' === $_POST[ $inst::FLD_ADD_TERM ] );  // @phpstan-ignore-line
+		// phpcs:disabled
+		$add_tax  = '' !== ( $_POST[ $inst::FLD_ADD_TAX ] ?? '' );  // @phpstan-ignore-line
+		$add_term = '' !== ( $_POST[ $inst::FLD_ADD_TERM ] ?? '' );  // @phpstan-ignore-line
+		// phpcs:enabled
 		if ( $add_tax || $add_term ) {
 			process_terms( $items, $add_tax, $add_term );
 		}
 		_process_items( $items );
-		$json_items = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-		if ( false !== $json_items ) {
+		$json = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+		if ( is_string( $json ) ) {
 			// Because the meta value is passed through the stripslashes() function upon being stored.
-			update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json_items ) );  // @phpstan-ignore-line
+			update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json ) );  // @phpstan-ignore-line
 		}
 	}
 }

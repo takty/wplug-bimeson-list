@@ -63,6 +63,7 @@ if ( ! function_exists( '\wplug\get_multiple_post_meta_from_env' ) ) {
 			return $ret;
 		}
 		// #### Best plan: Input variable structure is {$base_key}[n][{$key}].
+		/** @psalm-suppress RedundantCondition */  // phpcs:ignore
 		if ( isset( $_POST[ $base_key ] ) && is_array( $_POST[ $base_key ] ) ) {  // phpcs:ignore
 			$vals = wp_unslash( $_POST[ $base_key ] );  // phpcs:ignore
 			foreach ( $vals as $val ) {
@@ -106,7 +107,7 @@ if ( ! function_exists( '\wplug\get_multiple_post_meta' ) ) {
 				$ret[] = $it;
 			}
 		} elseif ( is_string( $val ) ) {
-			if ( $special_key ) {
+			if ( is_string( $special_key ) ) {
 				$skv = null;
 				$ret = json_decode( $val, true );
 				if ( is_array( $ret ) ) {
@@ -149,7 +150,7 @@ if ( ! function_exists( '\wplug\set_multiple_post_meta' ) ) {
 				if ( 0 < $count ) {
 					$keys = array_keys( reset( $vals ) );
 				}
-				if ( empty( $keys ) ) {
+				if ( ! is_array( $keys ) || empty( $keys ) ) {
 					return;
 				}
 			}
@@ -163,11 +164,11 @@ if ( ! function_exists( '\wplug\set_multiple_post_meta' ) ) {
 				delete_post_meta( $post_id, $base_key );
 			}
 		}
-		if ( empty( $keys ) ) {
+		if ( ! is_array( $keys ) || empty( $keys ) ) {
 			return;
 		}
 		// Update data.
-		if ( $special_key ) {
+		if ( is_string( $special_key ) ) {
 			$skv = $vals[ $special_key ] ?? null;
 			unset( $vals[ $special_key ] );
 
@@ -200,7 +201,7 @@ if ( ! function_exists( '\wplug\set_multiple_post_meta' ) ) {
 			}
 		}
 		$json = wp_json_encode( $vals, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-		if ( false !== $json ) {
+		if ( is_string( $json ) ) {
 			update_post_meta( $post_id, $base_key, addslashes( $json ) );  // Because the meta value is passed through the stripslashes() function upon being stored.
 		}
 	}

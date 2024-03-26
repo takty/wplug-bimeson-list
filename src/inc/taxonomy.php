@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2024-01-29
+ * @version 2024-03-22
  */
 
 declare(strict_types=1);
@@ -25,8 +25,8 @@ function initialize_taxonomy(): void {
 			'',
 			array(
 				'hierarchical'       => true,
-				'label'              => __( 'Category Group', 'wplug_bimeson_list' ),
 				'labels'             => array(
+					'name'                     => __( 'Category Group', 'wplug_bimeson_list' ),
 					'add_new_item'             => __( 'Add New Category Group', 'wplug_bimeson_list' ),
 					'edit_item'                => __( 'Edit Category Group', 'wplug_bimeson_list' ),
 					'search_items'             => __( 'Search Category Groups', 'wplug_bimeson_list' ),
@@ -105,9 +105,9 @@ function _register_sub_tax( string $tax, string $label ): void {
 			'',
 			array(
 				'hierarchical'       => true,
-				/* translators: 1: label. */
-				'label'              => sprintf( __( 'Category (%s)', 'wplug_bimeson_list' ), $label ),
 				'labels'             => array(
+					/* translators: 1: label. */
+					'name'                     => sprintf( __( 'Category (%s)', 'wplug_bimeson_list' ), $label ),
 					/* translators: 1: label. */
 					'add_new_item'             => sprintf( __( 'Add New Category (%s)', 'wplug_bimeson_list' ), $label ),
 					/* translators: 1: label. */
@@ -314,7 +314,7 @@ function get_sub_slug_to_last_omit(): array {
 	foreach ( get_root_slug_to_sub_terms() as $_rs => $terms ) {
 		foreach ( $terms as $t ) {
 			$val = get_term_meta( $t->term_id, $inst::KEY_OMIT_LAST_CAT_GROUP, true );  // @phpstan-ignore-line
-			if ( '1' === $val ) {
+			if ( '' !== $val ) {
 				$slug_to_last_omit[ $t->slug ] = true;
 			}
 		}
@@ -545,7 +545,7 @@ function _bool_field( \WP_Term $term, string $key, string $heading, string $labe
 		<th style="padding-bottom: 20px;"><label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $heading ); ?></label></th>
 		<td style="padding-bottom: 20px;">
 			<label>
-				<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" <?php checked( $val, 1 ); ?>>
+				<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>"<?php echo '' !== $val ? ' checked' : ''; // phpcs:ignore ?>>
 				<?php echo esc_html( $label ); ?>
 			</label>
 		</td>
@@ -562,10 +562,15 @@ function _bool_field( \WP_Term $term, string $key, string $heading, string $labe
  * @param string $key     Input key.
  */
 function _update_term_meta_by_post( int $term_id, string $key ): void {
-	if ( empty( $_POST[ sanitize_key( $key ) ] ) ) {  // phpcs:ignore
+	$key = sanitize_key( $key );
+	if ( ! isset( $_POST[ $key ] ) ) {  // phpcs:ignore
+		return;
+	}
+	$val = $_POST[ $key ];  // phpcs:ignore
+	if ( '' === $val ) {
 		delete_term_meta( $term_id, $key );
 	} else {
-		update_term_meta( $term_id, $key, 1 );
+		update_term_meta( $term_id, $key, '1' );
 	}
 }
 

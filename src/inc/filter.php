@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2024-01-29
+ * @version 2024-03-22
  */
 
 declare(strict_types=1);
@@ -178,7 +178,10 @@ function _echo_tax_checkboxes( string $slug, array $terms, array $state, ?array 
 		$label   = $func( $t );
 		$checked = in_array( $t->slug, $qvs, true ) ? ' checked' : '';
 		?>
-			<label><input type="checkbox" value="<?php echo esc_attr( $val ); ?>"<?php echo esc_html( $checked ); ?>><?php echo esc_html( $label ); ?></label>
+			<label>
+				<input type="checkbox" value="<?php echo esc_attr( $val ); ?>"<?php echo $checked; // phpcs:ignore ?>>
+				<?php echo esc_html( $label ); ?>
+			</label>
 		<?php
 	endforeach;
 	?>

@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2023-11-15
+ * @version 2024-03-22
  */
 
 declare(strict_types=1);
@@ -33,26 +33,30 @@ require_once __DIR__ . '/taxonomy.php';
 function get_template_admin_config( int $post_id ): array {
 	$inst = _get_instance();
 	$cfg  = array();
+	$temp = array();
 
 	$val = get_post_meta( $post_id, $inst->fld_list_cfg, true );
 	if ( is_string( $val ) && ! empty( $val ) ) {
-		$temp = json_decode( $val, true );
-		if ( is_array( $temp ) ) {
-			$cfg = $temp;
+		$t = json_decode( $val, true );
+		if ( is_array( $t ) ) {
+			$temp = $t;
 		}
 	}
 	// phpcs:disable
-	$cfg['list_id']  = isset( $cfg['list_id'] )  && is_numeric( $cfg['list_id'] )  ? (int) $cfg['list_id']     : 0;  // Bimeson List.
-	$cfg['year_bgn'] = isset( $cfg['year_bgn'] ) && is_numeric( $cfg['year_bgn'] ) ? (string) $cfg['year_bgn'] : '';
-	$cfg['year_end'] = isset( $cfg['year_end'] ) && is_numeric( $cfg['year_end'] ) ? (string) $cfg['year_end'] : '';
-	$cfg['count']    = isset( $cfg['count'] )    && is_numeric( $cfg['count'] )    ? (int) $cfg['count']       : 0;
+	$cfg['list_id']  = isset( $temp['list_id'] )  && is_numeric( $temp['list_id'] )  ?    (int) $temp['list_id']  : 0;  // Bimeson List.
+	$cfg['year_bgn'] = isset( $temp['year_bgn'] ) && is_numeric( $temp['year_bgn'] ) ? (string) $temp['year_bgn'] : '';
+	$cfg['year_end'] = isset( $temp['year_end'] ) && is_numeric( $temp['year_end'] ) ? (string) $temp['year_end'] : '';
+	$cfg['count']    = isset( $temp['count'] )    && is_numeric( $temp['count'] )    ?    (int) $temp['count']    : 0;
+	/**
+	 * @var array<string, string[]> $filter_state
+	 */
+	$filter_state = isset( $temp['filter_state'] ) && is_array( $temp['filter_state'] ) ? $temp['filter_state'] : array();
+	$cfg['filter_state'] = $filter_state;
 
-	$cfg['filter_state'] = isset( $cfg['filter_state'] ) ? $cfg['filter_state'] : array();
-
-	$cfg['sort_by_date_first'] = isset( $cfg['sort_by_date_first'] ) ? (bool) $cfg['sort_by_date_first'] : false;
-	$cfg['dup_multi_cat']      = isset( $cfg['dup_multi_cat'] )      ? (bool) $cfg['dup_multi_cat']      : false;
-	$cfg['show_filter']        = isset( $cfg['show_filter'] )        ? (bool) $cfg['show_filter']        : false;
-	$cfg['omit_single_cat']    = isset( $cfg['omit_single_cat'] )    ? (bool) $cfg['omit_single_cat']    : false;
+	$cfg['sort_by_date_first'] = isset( $temp['sort_by_date_first'] ) && '' !== $temp['sort_by_date_first'];
+	$cfg['dup_multi_cat']      = isset( $temp['dup_multi_cat'] )      && '' !== $temp['dup_multi_cat'];
+	$cfg['show_filter']        = isset( $temp['show_filter'] )        && '' !== $temp['show_filter'];
+	$cfg['omit_single_cat']    = isset( $temp['omit_single_cat'] )    && '' !== $temp['omit_single_cat'];
 	// phpcs: enable
 	return $cfg;
 }
@@ -81,40 +85,42 @@ function save_meta_box_template_admin( int $post_id ): void {
 	if ( ! is_string( $nonce ) ) {
 		return;
 	}
-	if ( ! wp_verify_nonce( sanitize_key( $nonce ), 'wplug_bimeson_admin' ) ) {
+	if ( false === wp_verify_nonce( sanitize_key( $nonce ), 'wplug_bimeson_admin' ) ) {
 		return;
 	}
 	$inst = _get_instance();
 	$cfg  = array();
 
 	// phpcs:disable
-	$cfg['year_bgn'] = empty( $_POST['wplug_bimeson_year_bgn'] ) ? null : intval( $_POST['wplug_bimeson_year_bgn'] );
-	$cfg['year_end'] = empty( $_POST['wplug_bimeson_year_end'] ) ? null : intval( $_POST['wplug_bimeson_year_end'] );
-	$cfg['count']    = empty( $_POST['wplug_bimeson_count'] )    ? null : intval( $_POST['wplug_bimeson_count'] );
+	$cfg['year_bgn'] = ! isset( $_POST['wplug_bimeson_year_bgn'] ) || ! is_string( $_POST['wplug_bimeson_year_bgn'] ) ? null : (int) $_POST['wplug_bimeson_year_bgn'];
+	$cfg['year_end'] = ! isset( $_POST['wplug_bimeson_year_end'] ) || ! is_string( $_POST['wplug_bimeson_year_end'] ) ? null : (int) $_POST['wplug_bimeson_year_end'];
+	$cfg['count']    = ! isset( $_POST['wplug_bimeson_count'] )    || ! is_string( $_POST['wplug_bimeson_count'] )    ? null : (int) $_POST['wplug_bimeson_count'];
 	// phpcs:enable
 
-	if ( $cfg['year_bgn'] ) {
+	if ( is_int( $cfg['year_bgn'] ) ) {
 		$cfg['year_bgn'] = max( 1970, min( 3000, $cfg['year_bgn'] ) );
 	}
-	if ( $cfg['year_end'] ) {
+	if ( is_int( $cfg['year_end'] ) ) {
 		$cfg['year_end'] = max( 1970, min( 3000, $cfg['year_end'] ) );
 	}
-	if ( $cfg['count'] ) {
+	if ( is_int( $cfg['count'] ) ) {
 		$cfg['count'] = max( 1, min( 9999, $cfg['count'] ) );
 	}
 	if ( is_int( $cfg['year_bgn'] ) && is_int( $cfg['year_end'] ) && $cfg['year_end'] < $cfg['year_bgn'] ) {
 		list( $cfg['year_bgn'], $cfg['year_end'] ) = array( $cfg['year_end'], $cfg['year_bgn'] );
 	}
-	$cfg['sort_by_date_first'] = ! empty( $_POST['wplug_bimeson_sort_by_date_first'] );
-	$cfg['dup_multi_cat']      = ! empty( $_POST['wplug_bimeson_dup_multi_cat'] );
-	$cfg['show_filter']        = ! empty( $_POST['wplug_bimeson_show_filter'] );
-	$cfg['omit_single_cat']    = ! empty( $_POST['wplug_bimeson_omit_single_cat'] );
+	// phpcs:disabled
+	$cfg['sort_by_date_first'] = is_string( $_POST['wplug_bimeson_sort_by_date_first'] ?? null ) && '' !== $_POST['wplug_bimeson_sort_by_date_first'];
+	$cfg['dup_multi_cat']      = is_string( $_POST['wplug_bimeson_dup_multi_cat']      ?? null ) && '' !== $_POST['wplug_bimeson_dup_multi_cat'];
+	$cfg['show_filter']        = is_string( $_POST['wplug_bimeson_show_filter']        ?? null ) && '' !== $_POST['wplug_bimeson_show_filter'];
+	$cfg['omit_single_cat']    = is_string( $_POST['wplug_bimeson_omit_single_cat']    ?? null ) && '' !== $_POST['wplug_bimeson_omit_single_cat'];
+	// phpcs:enabled
 
 	$cfg['filter_state'] = _get_filter_state_from_env();
-	$cfg['list_id']      = empty( $_POST['wplug_bimeson_list_id'] ) ? null : intval( $_POST['wplug_bimeson_list_id'] );  // Bimeson List.
+	$cfg['list_id']      = ( ! is_string( $_POST['wplug_bimeson_list_id'] ?? null ) || '' === $_POST['wplug_bimeson_list_id'] ) ? null : intval( $_POST['wplug_bimeson_list_id'] );  // Bimeson List.
 
 	$json = wp_json_encode( $cfg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-	if ( false !== $json ) {
+	if ( is_string( $json ) ) {
 		// Because the meta value is passed through the stripslashes() function upon being stored.
 		update_post_meta( $post_id, $inst->fld_list_cfg, addslashes( $json ) );
 
@@ -167,19 +173,19 @@ function _cb_output_html_template_admin( \WP_Post $post ): void {
 		</div>
 		<div class="wplug-bimeson-admin-config-cbs">
 			<label>
-				<input type="checkbox" name="wplug_bimeson_sort_by_date_first" value="true" <?php checked( $sort_by_date_first ); ?>>
+				<input type="checkbox" name="wplug_bimeson_sort_by_date_first"<?php echo $sort_by_date_first ? ' checked' : ''; // phpcs:ignore ?>>
 				<?php esc_html_e( 'Sort by date first', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="wplug_bimeson_dup_multi_cat" value="true" <?php checked( $dup_multi_cat ); ?>>
+				<input type="checkbox" name="wplug_bimeson_dup_multi_cat"<?php echo $dup_multi_cat ? ' checked' : ''; // phpcs:ignore ?>>
 				<?php esc_html_e( 'Duplicate multi-category items', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="wplug_bimeson_show_filter" value="true" <?php checked( $show_filter ); ?>>
+				<input type="checkbox" name="wplug_bimeson_show_filter"<?php echo $show_filter ? ' checked' : ''; // phpcs:ignore ?>>
 				<?php esc_html_e( 'Show filter', 'wplug_bimeson_list' ); ?>
 			</label>
 			<label>
-				<input type="checkbox" name="wplug_bimeson_omit_single_cat" value="true" <?php checked( $omit_single_cat ); ?>>
+				<input type="checkbox" name="wplug_bimeson_omit_single_cat"<?php echo $omit_single_cat ? ' checked' : ''; // phpcs:ignore ?>>
 				<?php esc_html_e( 'Omit headings for categories with only one item', 'wplug_bimeson_list' ); ?>
 			</label>
 		</div>
@@ -280,7 +286,7 @@ function _echo_tax_checkboxes_admin( string $root_slug, array $terms, array $sta
 	<div class="wplug-bimeson-admin-filter-key" data-key="<?php echo esc_attr( $slug ); ?>">
 		<div class="wplug-bimeson-admin-filter-key-inner">
 			<div>
-				<input type="checkbox" class="wplug-bimeson-admin-filter-switch tgl tgl-light" id="<?php echo esc_attr( $slug ); ?>" name="<?php echo esc_attr( $sub_tax ); ?>"<?php echo $checked; // phpcs:ignore ?> value="1">
+				<input type="checkbox" class="wplug-bimeson-admin-filter-switch tgl tgl-light" id="<?php echo esc_attr( $slug ); ?>" name="<?php echo esc_attr( $sub_tax ); ?>"<?php echo $checked; // phpcs:ignore ?>>
 				<label class="tgl-btn" for="<?php echo esc_attr( $slug ); ?>"></label>
 				<span class="wplug-bimeson-admin-filter-cat"><label for="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $cat_label ); ?></label></span>
 				<label<?php echo esc_attr( $ih_attr ); ?>>
