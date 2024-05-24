@@ -2,10 +2,10 @@
  * Media Picker
  *
  * @author Takuto Yanagida
- * @version 2023-11-10
+ * @version 2024-05-24
  */
 
-window.wplug = window.wpinc ?? {}
+window.wplug = window.wplug ?? {}
 
 const NS = window.wplug;
 
