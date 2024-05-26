@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2024-01-29
+ * @version 2024-05-26
  *
  * [publication list="<slug or post ID>" count="10" date-sort omit-single dup-item date="2020-2021" taxonomy="slug1, slug2, ..."]
  */
@@ -52,6 +52,11 @@ function register_shortcode( string $lang ): void {
 				echo str_replace( '<p></p>', '', balanceTags( $content, true ) );  // phpcs:ignore
 			}
 			if ( is_array( $d ) ) {
+				/**
+				 * Additional array shape fields (years_exist, show_filter) was provided.
+				 *
+				 * @psalm-suppress InvalidArgument
+				 */
 				echo_the_list( $d, $lang, '<div class="wplug-bimeson-list"%s>', '</div>', $id );
 			}
 			$ret = (string) ob_get_contents();
@@ -172,7 +177,7 @@ function _extract_filter_state( array $atts ): array {
  */
 function _extract_list_id_atts( array $atts ): ?int {
 	$slug = $atts['list'] ?? null;
-	if ( empty( $slug ) ) {
+	if ( ! is_string( $slug ) || '' === $slug ) {  // Check for non-empty-string.
 		return null;
 	}
 	$inst = _get_instance();

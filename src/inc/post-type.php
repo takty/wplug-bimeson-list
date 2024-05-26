@@ -67,6 +67,11 @@ function initialize_post_type( string $url_to ): void {
 		);
 		add_action( 'admin_menu', '\wplug\bimeson_list\_cb_admin_menu_post_type', 10, 0 );
 		add_filter( 'wp_insert_post_data', '\wplug\bimeson_list\_cb_insert_post_data', 99, 2 );
+/**
+		 * 'save_post_' . $inst::PT is non-empty-string.
+		 *
+		 * @psalm-suppress ArgumentTypeCoercion
+		 */
 		add_action( 'save_post_' . $inst::PT, '\wplug\bimeson_list\_cb_save_post_post_type', 10, 1 );  // @phpstan-ignore-line
 		$inst->media_picker = new MediaPicker( $inst::FLD_MEDIA );  // @phpstan-ignore-line
 	}

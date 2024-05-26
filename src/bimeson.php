@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2024-01-29
+ * @version 2024-05-26
  */
 
 declare(strict_types=1);
@@ -107,7 +107,9 @@ function _register_script( string $url_to ): void {
 				function () use ( $url_to ) {
 					wp_enqueue_style( 'wplug-bimeson-template-admin', \wplug\abs_url( $url_to, './assets/css/template-admin.min.css' ), array(), '1.0' );
 					wp_enqueue_script( 'wplug-bimeson-template-admin', \wplug\abs_url( $url_to, './assets/js/template-admin.min.js' ), array(), '1.0', false );
-				}
+				},
+				10,
+				0
 			);
 		}
 	} else {
@@ -116,7 +118,9 @@ function _register_script( string $url_to ): void {
 			function () use ( $url_to ) {
 				wp_register_style( 'wplug-bimeson-filter', \wplug\abs_url( $url_to, './assets/css/filter.min.css' ), array(), '1.0' );
 				wp_register_script( 'wplug-bimeson-filter', \wplug\abs_url( $url_to, './assets/js/filter.min.js' ), array(), '1.0', false );
-			}
+			},
+			10,
+			0
 		);
 		add_filter(
 			'script_loader_tag',
@@ -262,6 +266,11 @@ function the_list( ?int $post_id = null, string $lang = '', string $before = '<d
 	if ( ! $d ) {
 		return;
 	}
+	/**
+	 * Additional array shape fields (list_id, year_bgn, year_end, dup_multi_cat, show_filter, years_exist) was provided.
+	 *
+	 * @psalm-suppress InvalidArgument
+	 */
 	echo_the_list( $d, $lang, $before, $after, $id );
 }
 
@@ -275,8 +284,8 @@ function the_list( ?int $post_id = null, string $lang = '', string $before = '<d
  * @param string $lang    Language.
  * @return null|array{
  *     list_id           : int,
- *     year_bgn          : string,
- *     year_end          : string,
+ *     year_bgn          : int,
+ *     year_end          : int,
  *     count             : int,
  *     filter_state      : array<string, string[]>,
  *     sort_by_date_first: bool,
@@ -298,9 +307,11 @@ function _get_data( int $post_id, string $lang ): ?array {
 	if ( ! $d['list_id'] ) {
 		return null;
 	}
+	$date_bgn = ( 0 === $d['year_bgn'] ) ? '' : (string) $d['year_bgn'];
+	$date_end = ( 0 === $d['year_end'] ) ? '' : (string) $d['year_end'];
 
 	// Bimeson List.
-	$items = get_filtered_items( $d['list_id'], $lang, $d['year_bgn'], $d['year_end'], $d['filter_state'] );
+	$items = get_filtered_items( $d['list_id'], $lang, $date_bgn, $date_end, $d['filter_state'] );
 
 	list( $items, $years_exist ) = retrieve_items( $items, $d['count'], $d['sort_by_date_first'], $d['dup_multi_cat'], $d['filter_state'] );
 
