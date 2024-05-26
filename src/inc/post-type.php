@@ -4,7 +4,7 @@
  *
  * @package Wplug Bimeson List
  * @author Takuto Yanagida
- * @version 2024-03-22
+ * @version 2024-05-26
  */
 
 declare(strict_types=1);
@@ -67,7 +67,7 @@ function initialize_post_type( string $url_to ): void {
 		);
 		add_action( 'admin_menu', '\wplug\bimeson_list\_cb_admin_menu_post_type', 10, 0 );
 		add_filter( 'wp_insert_post_data', '\wplug\bimeson_list\_cb_insert_post_data', 99, 2 );
-/**
+		/**
 		 * 'save_post_' . $inst::PT is non-empty-string.
 		 *
 		 * @psalm-suppress ArgumentTypeCoercion
@@ -179,7 +179,7 @@ function _cb_save_post_post_type( int $post_id ): void {
 	if ( $json !== $inst::NOT_MODIFIED && is_string( $json ) ) {  // @phpstan-ignore-line
 		$items = json_decode( $json, true );
 		if ( ! is_array( $items ) ) {
-			delete_post_meta( $post_id, $inst::FLD_ITEMS );  // @phpstan-ignore-line
+			_delete_items_in_post_meta( $post_id );
 			return;
 		}
 		// phpcs:disabled
@@ -190,11 +190,7 @@ function _cb_save_post_post_type( int $post_id ): void {
 			process_terms( $items, $add_tax, $add_term );
 		}
 		_process_items( $items );
-		$json = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
-		if ( is_string( $json ) ) {
-			// Because the meta value is passed through the stripslashes() function upon being stored.
-			update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json ) );  // @phpstan-ignore-line
-		}
+		_update_items_in_post_meta( $post_id, $items );
 	}
 }
 
@@ -219,4 +215,87 @@ function _process_items( array &$items ): void {
 		}
 		unset( $it[ $inst::IT_DATE ] );  // @phpstan-ignore-line
 	}
+}
+
+
+// -----------------------------------------------------------------------------
+
+
+/**
+ * Deletes items in the post meta.
+ *
+ * @param int $post_id List ID.
+ */
+function _delete_items_in_post_meta( int $post_id ): void {
+	$inst = _get_instance();
+	delete_post_meta( $post_id, $inst::FLD_ITEMS );  // @phpstan-ignore-line
+
+	for ( $i = 0;; ++$i ) {
+		if ( false === delete_post_meta( $post_id, $inst::FLD_ITEMS . "_$i" ) ) {  // @phpstan-ignore-line
+			break;
+		}
+	}
+}
+
+/**
+ * Updates items in the post meta.
+ *
+ * @param int                    $post_id List ID.
+ * @param array<string, mixed>[] $items   Items.
+ */
+function _update_items_in_post_meta( int $post_id, array &$items ): void {
+	$inst = _get_instance();
+	$as   = array_chunk( $items, 1000 );
+
+	$items = array_shift( $as );
+	$json  = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+	if ( is_string( $json ) ) {
+		// Because the meta value is passed through the stripslashes() function upon being stored.
+		update_post_meta( $post_id, $inst::FLD_ITEMS, addslashes( $json ) );  // @phpstan-ignore-line
+	}
+	$i_c = count( $as );
+	for ( $i = 0; $i < $i_c; ++$i ) {
+		$items = $as[ $i ];
+		$json  = wp_json_encode( $items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+		if ( is_string( $json ) ) {
+			// Because the meta value is passed through the stripslashes() function upon being stored.
+			update_post_meta( $post_id, $inst::FLD_ITEMS . "_$i", addslashes( $json ) );  // @phpstan-ignore-line
+		}
+	}
+	for ( $i = $i_c;; ++$i ) {
+		if ( false === delete_post_meta( $post_id, $inst::FLD_ITEMS . "_$i" ) ) {  // @phpstan-ignore-line
+			break;
+		}
+	}
+}
+
+/**
+ * Retrieves items in the post meta.
+ *
+ * @param int $post_id List ID.
+ * @return array<string, mixed>[] Items.
+ */
+function get_items_in_post_meta( int $post_id ): array {
+	$inst = _get_instance();
+	$as   = array();
+
+	$json = get_post_meta( $post_id, $inst::FLD_ITEMS, true );  // @phpstan-ignore-line
+	if ( is_string( $json ) && '' !== $json ) {
+		$items = json_decode( $json, true );
+		if ( is_array( $items ) ) {
+			$as[] = $items;
+		}
+	}
+	for ( $i = 0;; ++$i ) {
+		$json = get_post_meta( $post_id, $inst::FLD_ITEMS . "_$i", true );  // @phpstan-ignore-line
+		if ( is_string( $json ) && '' !== $json ) {
+			$items = json_decode( $json, true );
+			if ( is_array( $items ) ) {
+				$as[] = $items;
+			}
+		} else {
+			break;
+		}
+	}
+	return array_merge( ...$as );
 }

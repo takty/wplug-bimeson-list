@@ -360,14 +360,7 @@ function get_filtered_items( int $list_id, string $lang, string $date_bgn, strin
 function _get_items_from_list( int $list_id ): array {
 	$inst = _get_instance();
 
-	$items_json = get_post_meta( $list_id, $inst::FLD_ITEMS, true );  // @phpstan-ignore-line
-	if ( ! is_string( $items_json ) || empty( $items_json ) ) {
-		return array();
-	}
-	$items = json_decode( $items_json, true );
-	if ( ! is_array( $items ) ) {
-		return array();
-	}
+	$items = get_items_in_post_meta( $list_id );
 	foreach ( $items as $idx => &$it ) {
 		$it[ $inst::IT_INDEX ] = $idx;  // @phpstan-ignore-line
 	}
